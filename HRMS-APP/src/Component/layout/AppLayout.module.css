@@ -1,0 +1,20 @@
+.appContainer {
+  display: flex;
+  height: 100vh;
+  background-color: #f3f8fb; /* The light blue from the design */
+  font-family: sans-serif;
+}
+
+.mainWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.contentArea {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 24px;
+}
