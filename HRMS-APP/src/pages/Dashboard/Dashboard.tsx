@@ -4,7 +4,7 @@ import {
   Users2,
   Clock3,
 } from 'lucide-react';
-import StatCard from '../../Component/Common/StatCard';
+import StatCard from '../../Component/common/StatCard';
 import UpcomingInterviews from '../../Component/wedges/UpcomingInterviews';
 import styles from './Dashboard.module.css';
 

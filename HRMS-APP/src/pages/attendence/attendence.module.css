@@ -1,0 +1,134 @@
+.page {
+  padding: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fecfafb;
+}
+
+.searchGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.searchContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+}
+
+.searchInput {
+  padding: 8px 12px 8px 38px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  width: 240px;
+  font-size: 14px;
+}
+
+.filterBtn {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+.dateDisplay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #4b5563;
+  background: #f3f4f6;
+  padding: 8px 14px;
+  border-radius: 20px;
+}
+
+/* TABLE PLATFORM RULES */
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.table th {
+  background: #f9fafb;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #4b5563;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+.employeeCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.empName {
+  font-weight: 500;
+}
+
+.mutedText {
+  color: #9ca3af;
+}
+
+/* BADGES AND STATUS PILLS */
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.present { background-color: #d1fae5; color: #065f46; }
+.absent { background-color: #fee2e2; color: #991b1b; }
+.late { background-color: #fef3c7; color: #92400e; }

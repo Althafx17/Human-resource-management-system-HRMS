@@ -1,0 +1,389 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Header Section */
+.headerWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.backBtn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backBtn:hover {
+  background-color: #f1f5f9;
+}
+
+.profileHeader {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.profileInfo {
+  display: flex;
+  gap: 20px;
+}
+
+.avatarPlaceholder {
+  width: 80px;
+  height: 80px;
+  background-color: #f4f6ff;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4338ca;
+  border: 1px solid #e0e7ff;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.statusPill {
+  font-size: 10px;
+  padding: 4px 10px;
+  background-color: #d1fae5;
+  color: #059669;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.roleDept {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.roleDept span {
+  color: #4338ca; /* Blue for ID */
+}
+
+.contactInfo {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.btnOutline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #4338ca;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnOutline:hover { background-color: #f8fafc; }
+.btnPrimary:hover { opacity: 0.9; }
+
+/* Tabs */
+.tabsContainer {
+  border-bottom: 2px solid #e2e8f0;
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px; /* Pulls border over the container line */
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #64748b;
+}
+
+.activeTab {
+  color: #4338ca;
+  border-bottom-color: #4338ca;
+}
+
+/* Grid Layout for Content */
+.contentGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.tabContentArea {
+  display: block;
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.topRowStats {
+  display: flex;
+  gap: 20px;
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Common Card Styles */
+.card {
+  background: white;
+  border: 1px solid #eef2f6;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.flexCard {
+  flex: 1;
+}
+
+.documentList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.documentRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #eef2f6;
+  border-radius: 8px;
+}
+
+.documentMeta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.documentName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.documentDownloadBtn {
+  padding: 6px 12px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.iconBox {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blueBox { background-color: #eff6ff; color: #3b82f6; }
+.yellowBox { background-color: #fef3c7; color: #d97706; }
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+/* Inner Stats */
+.statSplit {
+  display: flex;
+  gap: 24px;
+}
+
+.statItem {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  flex: 1;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.statTextGreen {
+  font-size: 14px;
+  font-weight: 600;
+  color: #059669;
+}
+
+/* Section Decorators */
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.blueLine { width: 4px; height: 16px; background-color: #4338ca; border-radius: 2px; }
+.redLine { width: 4px; height: 16px; background-color: #ef4444; border-radius: 2px; }
+
+/* Info Grids */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.infoGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoGroup label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.infoGroup span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Emergency Box */
+.emergencyBox {
+  background-color: #fff1f2;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.emergencyBox h4 {
+  font-size: 16px;
+  color: #881337;
+  margin-bottom: 4px;
+}
+
+.emergencyBox p {
+  font-size: 14px;
+  color: #be123c;
+  font-weight: 500;
+}
+
+/* Skills Tags */
+.skillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skillBadge {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
