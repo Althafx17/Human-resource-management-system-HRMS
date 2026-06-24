@@ -61,6 +61,43 @@ export default function EmployeeDetails() {
     setEmployeeData(updatedData);
   };
 
+  const getAvailableManagers = () => {
+    // 1. Gather all employees whose designation contains manager/lead keywords
+    const managersFromEmployees = allEmployees
+      .filter(emp => {
+        const des = (emp.designation || '').toLowerCase();
+        return des.includes('manager') || des.includes('lead') || des.includes('director') || des.includes('head') || des.includes('vp') || des.includes('chief');
+      })
+      .map(emp => emp.name);
+
+    // 2. Default mock managers
+    const defaultManagers = ['Sarah Connor', 'Sarah John', 'John Smith']; 
+    
+    // 3. Current reporting manager
+    const currentManager = employeeData?.reportingManager;
+    
+    // Combine, remove duplicates, and filter out current employee's own name
+    return Array.from(new Set([
+      ...(currentManager ? [currentManager] : []),
+      ...managersFromEmployees,
+      ...defaultManagers
+    ])).filter(name => name !== employeeData?.name);
+  };
+
+  const handleManagerChange = (managerName: string) => {
+    if (!employeeData) return;
+    const updated = {
+      ...employeeData,
+      reportingManager: managerName
+    };
+    
+    const idx = allEmployees.findIndex(emp => emp.id === employeeData.id);
+    if (idx !== -1) {
+      allEmployees[idx] = updated;
+    }
+    setEmployeeData(updated);
+  };
+
   // 6. Show a loading state while we "fetch" the data
   if (!employeeData) return <div style={{ padding: '40px' }}>Loading Employee Profile...</div>;
 
@@ -88,6 +125,33 @@ export default function EmployeeDetails() {
               <div className={styles.contactInfo}>
                 <span className={styles.contactItem}><Phone size={14} /> {employeeData.phone || '+1 234 567 890'}</span>
                 <span className={styles.contactItem}><Mail size={14} /> {employeeData.email || `${employeeData.name.split(' ')[0].toLowerCase()}@company.com`}</span>
+              </div>
+              
+              <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: '600', color: '#64748b' }}>Reporting Manager:</span>
+                <select
+                  value={employeeData.reportingManager || ''}
+                  onChange={(e) => handleManagerChange(e.target.value)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: '#1a3646',
+                    outline: 'none',
+                    background: '#f8fafc',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.2s'
+                  }}
+                >
+                  <option value="">No Manager</option>
+                  {getAvailableManagers().map((managerName) => (
+                    <option key={managerName} value={managerName}>
+                      {managerName}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
