@@ -10,6 +10,7 @@ import Overtime from './pages/Overtime/Overtime';
 import Expenses from './pages/Expenses/Expenses';
 import Payroll from './pages/Payroll/Payroll';
 import EmployeeDetails from './pages/employees/EmployeeDetails/EmployeeDetails';
+import AddEmployeeWizard from './pages/employees/EmployeeDetails/add-employee/AddEmployeeWizard';
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
 
           <Route path="employees" element={<Employees />} />
+          <Route path="employees/add" element={<AddEmployeeWizard />} />
           <Route path="employees/:id" element={<EmployeeDetails />} />
 
           <Route path="attendance" element={<Attendance />} />

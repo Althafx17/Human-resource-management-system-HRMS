@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, SquarePen, Trash2, Eye } from 'lucide-react';
 import styles from './Employees.module.css';
-import AddEmployeeModal from "./AddEmployeeModal";
 import EditEmployeeModal from "./EditEmployeeModal";
 import type { EmployeeData } from './data';
 
@@ -56,11 +55,11 @@ const INITIAL_EMPLOYEES: EmployeeData[] = [
 ];
 
 export default function Employees() {
+  const navigate = useNavigate();
   // 1. Convert the static list into interactive React State
   const [employees, setEmployees] = useState<EmployeeData[]>(INITIAL_EMPLOYEES);
   
   // 2. Modal States
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<EmployeeData | null>(null);
 
@@ -77,11 +76,6 @@ export default function Employees() {
   const openEditModal = (emp: EmployeeData) => {
     setEmployeeToEdit(emp);
     setIsEditModalOpen(true);
-  };
-
-  // Handle Adding a new employee from the Add Modal
-  const handleAddEmployee = (newEmp: EmployeeData) => {
-    setEmployees([newEmp, ...employees]); // Adds to top of list
   };
 
   // Handle Saving changes from the Edit Modal
@@ -113,7 +107,7 @@ export default function Employees() {
           </div>
           
           <div className={styles.actionGroup}>
-            <button type="button" className={styles.btnDark} onClick={() => setIsAddModalOpen(true)} title="Add new employee" aria-label="Add new employee">
+            <button type="button" className={styles.btnDark} onClick={() => navigate('/employees/add')} title="Add new employee" aria-label="Add new employee">
               Add New
             </button>
             <button type="button" className={styles.btnGreen} title="Export CSV" aria-label="Export CSV">Export CSV</button>
@@ -188,12 +182,6 @@ export default function Employees() {
       </div>
 
       {/* Render Modals */}
-      <AddEmployeeModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddEmployee}
-      />
-
       <EditEmployeeModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
