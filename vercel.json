@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd HRMS-APP && npm run build",
+  "outputDirectory": "HRMS-APP/dist",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
