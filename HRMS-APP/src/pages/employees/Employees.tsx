@@ -4,60 +4,12 @@ import { Search, SquarePen, Trash2, Eye } from 'lucide-react';
 import styles from './Employees.module.css';
 import EditEmployeeModal from "./EditEmployeeModal";
 import type { EmployeeData } from './data';
-
-const INITIAL_EMPLOYEES: EmployeeData[] = [
-  {
-    id: 'EMP001',
-    name: 'John Smith',
-    avatar: 'https://i.pravatar.cc/150?u=1',
-    designation: 'Sr.Back End Developer',
-    department: 'Engineering',
-    status: 'Active',
-    phone: '+1 234 567 890',
-    email: 'john.smith@company.com',
-    dob: '1990-05-15',
-    address: '123 Tech Street, CA',
-    joiningDate: '2022-01-10',
-    reportingManager: 'Sarah Connor',
-    workLocation: 'San Francisco (Hybrid)',
-    shift: 'Standard (9:00 AM - 5:00 PM)',
-    basicSalary: '$95,000 / Year',
-    paymentFrequency: 'Bi-Weekly',
-    bankName: 'Chase Bank',
-    accountNumber: '**** **** 4321',
-    emergencyContactName: 'Jane Doe',
-    emergencyContactPhone: '+1 234 567 891',
-    skills: ['REACT', 'TYPESCRIPT', 'NODEJS', 'PYTHON']
-  },
-  {
-    id: 'EMP002',
-    name: 'Sara John',
-    avatar: 'https://i.pravatar.cc/150?u=2',
-    designation: 'Sr.UI UX Designer',
-    department: 'Design',
-    status: 'Active',
-    phone: '+1 234 567 892',
-    email: 'sara.john@company.com',
-    dob: '1992-08-20',
-    address: '456 Art Ave, SF',
-    joiningDate: '2023-03-15',
-    reportingManager: 'Sarah Connor',
-    workLocation: 'San Francisco (Hybrid)',
-    shift: 'Standard (9:00 AM - 5:00 PM)',
-    basicSalary: '$90,000 / Year',
-    paymentFrequency: 'Bi-Weekly',
-    bankName: 'Wells Fargo',
-    accountNumber: '**** **** 8765',
-    emergencyContactName: 'Robert John',
-    emergencyContactPhone: '+1 234 567 893',
-    skills: ['FIGMA', 'UI/UX', 'ILLUSTRATOR', 'PHOTOSHOP']
-  }
-];
+import { employeeData } from './data';
 
 export default function Employees() {
   const navigate = useNavigate();
-  // 1. Convert the static list into interactive React State
-  const [employees, setEmployees] = useState<EmployeeData[]>(INITIAL_EMPLOYEES);
+  // 1. Convert the dynamic shared list into interactive React State
+  const [employees, setEmployees] = useState<EmployeeData[]>(employeeData);
   
   // 2. Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -68,7 +20,11 @@ export default function Employees() {
   // Handle Deleting an employee
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
-      setEmployees(employees.filter(emp => emp.id !== id));
+      const idx = employeeData.findIndex(emp => emp.id === id);
+      if (idx !== -1) {
+        employeeData.splice(idx, 1);
+      }
+      setEmployees([...employeeData]);
     }
   };
 
@@ -80,7 +36,11 @@ export default function Employees() {
 
   // Handle Saving changes from the Edit Modal
   const handleSaveEdit = (updatedEmp: EmployeeData) => {
-    setEmployees(employees.map(emp => emp.id === updatedEmp.id ? updatedEmp : emp));
+    const idx = employeeData.findIndex(emp => emp.id === updatedEmp.id);
+    if (idx !== -1) {
+      employeeData[idx] = updatedEmp;
+    }
+    setEmployees([...employeeData]);
   };
 
   // CSS helper

@@ -14,7 +14,8 @@ import Step4Payroll from './Step4Payroll';
 import Step5WorkArea from './Step5WorkArea';
 import Step6Documents from './Step6Documents';
 
-import type { EmployeeData } from '../data';
+import type { EmployeeData } from '../../data';
+import { addEmployee, employeeData } from '../../data';
 
 interface AddEmployeeWizardProps {
   isEditMode?: boolean;
@@ -37,6 +38,7 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
   
   // Master form state holding all fields from steps 1 to 6
   const [formData, setFormData] = useState({
+    id: '',
     // Step 1: Personal Info
     name: '',
     dob: '',
@@ -103,11 +105,29 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
       setCurrentStep(prev => prev + 1);
     } else {
       // Finalize Registration / Save Profile
-      console.log('Final Wizard Payload:', {
+      let empId = formData.id;
+      if (!isEditMode) {
+        const nextNum = employeeData.length + 1;
+        empId = `EMP${String(nextNum).padStart(3, '0')}`;
+      }
+
+      const skillsArray = formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+      const payload: EmployeeData = {
         ...formData,
-        // split skills back to array
-        skills: formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : []
-      });
+        id: empId,
+        skills: skillsArray
+      };
+
+      if (isEditMode) {
+        const idx = employeeData.findIndex(emp => emp.id === payload.id);
+        if (idx !== -1) {
+          employeeData[idx] = payload;
+        }
+      } else {
+        addEmployee(payload);
+      }
+
       alert(isEditMode ? 'Employee profile updated successfully!' : 'Employee registered successfully!');
       navigate('/employees');
     }
