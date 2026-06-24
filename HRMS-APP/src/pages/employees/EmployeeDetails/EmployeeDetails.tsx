@@ -1,20 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom'; // 1. Added useParams
 import { 
   ArrowLeft, Phone, Mail, Edit, Download, 
   Eye, Briefcase, DollarSign, FileText, ShieldCheck 
 } from 'lucide-react';
 import styles from './EmployeeDetails.module.css';
 
-// Import our new modular tabs
 import OverviewTab from './tab/OverviewTab';
 import JobDetailsTab from './tab/JobDetailsTab';
 import PayrollTab from './tab/PayrollTab';
 import ContractTab from './tab/ContractTab';
 import DocumentsTab from './tab/DocumentsTab';
-
-// Import the Edit Modal we built previously
 import EditEmployeeModal from '../EditEmployeeModal';
+import type { EmployeeData } from '../data';
 
 const TABS = [
   { id: 'OVERVIEW', label: 'OVERVIEW', icon: Eye },
@@ -24,23 +22,32 @@ const TABS = [
   { id: 'DOCUMENTS', label: 'DOCUMENTS', icon: ShieldCheck },
 ];
 
+// 2. A Mock Database representing what your Django API will eventually return
+const MOCK_DATABASE: EmployeeData[] = [
+  { id: 'EMP001', name: 'John Smith', designation: 'Sr.Back End Developer', department: 'Engineering', status: 'Active', avatar: 'https://i.pravatar.cc/150?u=1' },
+  { id: 'EMP002', name: 'Sara John', designation: 'Sr.UI UX Designer', department: 'Design', status: 'Active', avatar: 'https://i.pravatar.cc/150?u=2' },
+  // Adding a fallback default so the app doesn't crash if an unknown ID is clicked
+  { id: 'DEFAULT', name: 'New Employee', designation: 'Staff', department: 'General', status: 'Active', avatar: 'https://i.pravatar.cc/150?u=new' }
+];
+
 export default function EmployeeDetails() {
   const navigate = useNavigate();
+  const { id } = useParams(); // 3. This grabs the ID from the URL (e.g., 'EMP002')
+  
   const [activeTab, setActiveTab] = useState('OVERVIEW');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // In a real app, you would fetch this data via API based on the URL ID parameter.
-  // For now, we hold it in state so we can see the edits update locally.
-  const [employeeData, setEmployeeData] = useState({
-    id: 'EMP001',
-    name: 'John Doe',
-    designation: 'Frontend Developer',
-    department: 'Engineering',
-    status: 'Active',
-    avatar: 'https://i.pravatar.cc/150?u=1'
-  });
+  const [prevId, setPrevId] = useState<string | undefined>(undefined);
+  // 4. Start the state as null, we will fill it once we read the URL
+  const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
 
-  // Function to render the correct component based on the active tab
+  // 5. This block acts like your API call. It runs every time the URL 'id' changes during rendering.
+  if (id !== prevId) {
+    setPrevId(id);
+    const foundEmployee = MOCK_DATABASE.find(emp => emp.id === id) || MOCK_DATABASE.find(emp => emp.id === 'DEFAULT');
+    setEmployeeData(foundEmployee || null);
+  }
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'OVERVIEW': return <OverviewTab />;
@@ -52,11 +59,12 @@ export default function EmployeeDetails() {
     }
   };
 
-  // Handle saving data from the Edit Modal
-  const handleSaveEdit = (updatedData: any) => {
+  const handleSaveEdit = (updatedData: EmployeeData) => {
     setEmployeeData(updatedData);
-    // TODO: In the future, send an Axios PUT request to your Django API here!
   };
+
+  // 6. Show a loading state while we "fetch" the data
+  if (!employeeData) return <div style={{ padding: '40px' }}>Loading Employee Profile...</div>;
 
   return (
     <div className={styles.page}>
@@ -69,8 +77,7 @@ export default function EmployeeDetails() {
         <div className={styles.profileHeader}>
           <div className={styles.profileInfo}>
             <div className={styles.avatarPlaceholder}>
-              {/* Uses the state data so it updates if changed */}
-              <img src={employeeData.avatar} alt="Avatar" className={styles.avatarImage} />
+              <img src={employeeData.avatar} alt="Avatar" style={{width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover'}} />
             </div>
             <div className={styles.details}>
               <h1>
@@ -82,17 +89,16 @@ export default function EmployeeDetails() {
               </p>
               <div className={styles.contactInfo}>
                 <span className={styles.contactItem}><Phone size={14} /> +1 234 567 890</span>
-                <span className={styles.contactItem}><Mail size={14} /> john.doe@company.com</span>
+                <span className={styles.contactItem}><Mail size={14} /> {employeeData.name.split(' ')[0].toLowerCase()}@company.com</span>
               </div>
             </div>
           </div>
 
           <div className={styles.headerActions}>
-            {/* Trigger the Edit Modal */}
-            <button type="button" className={styles.btnOutline} onClick={() => setIsEditModalOpen(true)} title="Edit profile" aria-label="Edit profile">
+            <button className={styles.btnOutline} onClick={() => setIsEditModalOpen(true)}>
               <Edit size={16} /> Edit Profile
             </button>
-            <button type="button" className={styles.btnPrimary} title="Export data" aria-label="Export data">
+            <button className={styles.btnPrimary}>
               <Download size={16} /> Export Data
             </button>
           </div>
@@ -114,12 +120,10 @@ export default function EmployeeDetails() {
         })}
       </div>
 
-      {/* Render the dynamically selected tab component */}
       <div className={styles.tabContentArea}>
         {renderTabContent()}
       </div>
 
-      {/* Render the Edit Modal Component */}
       <EditEmployeeModal 
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}

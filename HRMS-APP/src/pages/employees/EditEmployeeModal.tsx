@@ -1,25 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 // We can reuse the exact same CSS module!
 import styles from './AddEmployeeModal.module.css'; 
+import type { EmployeeData } from './data';
 
 interface EditEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  employeeData: any | null;
-  onSave: (updatedEmployee: any) => void;
+  employeeData: EmployeeData | null;
+  onSave: (updatedEmployee: EmployeeData) => void;
 }
 
 export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSave }: EditEmployeeModalProps) {
-  const [formData, setFormData] = useState({
+  const [prevEmployeeData, setPrevEmployeeData] = useState<EmployeeData | null>(null);
+  const [formData, setFormData] = useState<{
+    name: string;
+    department: string;
+    designation: string;
+    status: EmployeeData['status'];
+  }>({
     name: '',
     department: '',
     designation: '',
     status: 'Active'
   });
 
-  // When the modal opens or employee changes, pre-fill the data
-  useEffect(() => {
+  // Sync state with props during render when employeeData changes
+  if (employeeData !== prevEmployeeData) {
+    setPrevEmployeeData(employeeData);
     if (employeeData) {
       setFormData({
         name: employeeData.name,
@@ -28,7 +36,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
         status: employeeData.status
       });
     }
-  }, [employeeData]);
+  }
 
   if (!isOpen || !employeeData) return null;
 

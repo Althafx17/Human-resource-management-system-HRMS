@@ -387,3 +387,6 @@
   font-weight: 600;
   color: #334155;
 }
+.flexCard {
+  flex: 1;
+}

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { X, User } from 'lucide-react';
 import styles from './AddEmployeeModal.module.css';
+import type { EmployeeData } from './data';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   // We add this prop so the main page can update its list
-  onAdd: (newEmployee: any) => void; 
+  onAdd: (newEmployee: EmployeeData) => void; 
 }
 
 export default function AddEmployeeModal({ isOpen, onClose, onAdd }: AddEmployeeModalProps) {
