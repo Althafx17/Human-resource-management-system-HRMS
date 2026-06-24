@@ -24,10 +24,76 @@ const TABS = [
 
 // 2. A Mock Database representing what your Django API will eventually return
 const MOCK_DATABASE: EmployeeData[] = [
-  { id: 'EMP001', name: 'John Smith', designation: 'Sr.Back End Developer', department: 'Engineering', status: 'Active', avatar: 'https://i.pravatar.cc/150?u=1' },
-  { id: 'EMP002', name: 'Sara John', designation: 'Sr.UI UX Designer', department: 'Design', status: 'Active', avatar: 'https://i.pravatar.cc/150?u=2' },
+  {
+    id: 'EMP001',
+    name: 'John Smith',
+    avatar: 'https://i.pravatar.cc/150?u=1',
+    designation: 'Sr.Back End Developer',
+    department: 'Engineering',
+    status: 'Active',
+    phone: '+1 234 567 890',
+    email: 'john.smith@company.com',
+    dob: '1990-05-15',
+    address: '123 Tech Street, CA',
+    joiningDate: '2022-01-10',
+    reportingManager: 'Sarah Connor',
+    workLocation: 'San Francisco (Hybrid)',
+    shift: 'Standard (9:00 AM - 5:00 PM)',
+    basicSalary: '$95,000 / Year',
+    paymentFrequency: 'Bi-Weekly',
+    bankName: 'Chase Bank',
+    accountNumber: '**** **** 4321',
+    emergencyContactName: 'Jane Doe',
+    emergencyContactPhone: '+1 234 567 891',
+    skills: ['REACT', 'TYPESCRIPT', 'NODEJS', 'PYTHON']
+  },
+  {
+    id: 'EMP002',
+    name: 'Sara John',
+    avatar: 'https://i.pravatar.cc/150?u=2',
+    designation: 'Sr.UI UX Designer',
+    department: 'Design',
+    status: 'Active',
+    phone: '+1 234 567 892',
+    email: 'sara.john@company.com',
+    dob: '1992-08-20',
+    address: '456 Art Ave, SF',
+    joiningDate: '2023-03-15',
+    reportingManager: 'Sarah Connor',
+    workLocation: 'San Francisco (Hybrid)',
+    shift: 'Standard (9:00 AM - 5:00 PM)',
+    basicSalary: '$90,000 / Year',
+    paymentFrequency: 'Bi-Weekly',
+    bankName: 'Wells Fargo',
+    accountNumber: '**** **** 8765',
+    emergencyContactName: 'Robert John',
+    emergencyContactPhone: '+1 234 567 893',
+    skills: ['FIGMA', 'UI/UX', 'ILLUSTRATOR', 'PHOTOSHOP']
+  },
   // Adding a fallback default so the app doesn't crash if an unknown ID is clicked
-  { id: 'DEFAULT', name: 'New Employee', designation: 'Staff', department: 'General', status: 'Active', avatar: 'https://i.pravatar.cc/150?u=new' }
+  {
+    id: 'DEFAULT',
+    name: 'New Employee',
+    avatar: 'https://i.pravatar.cc/150?u=new',
+    designation: 'Staff',
+    department: 'General',
+    status: 'Active',
+    phone: '+1 000 000 0000',
+    email: 'new.employee@company.com',
+    dob: '1995-01-01',
+    address: '123 Main Street',
+    joiningDate: '2026-06-01',
+    reportingManager: 'None',
+    workLocation: 'Remote',
+    shift: 'Standard (9:00 AM - 5:00 PM)',
+    basicSalary: '$50,000 / Year',
+    paymentFrequency: 'Monthly',
+    bankName: 'Generic Bank',
+    accountNumber: '**** **** 0000',
+    emergencyContactName: 'Next of Kin',
+    emergencyContactPhone: '+1 000 000 0001',
+    skills: []
+  }
 ];
 
 export default function EmployeeDetails() {
@@ -49,13 +115,14 @@ export default function EmployeeDetails() {
   }
 
   const renderTabContent = () => {
+    if (!employeeData) return null;
     switch (activeTab) {
-      case 'OVERVIEW': return <OverviewTab />;
-      case 'JOB_DETAILS': return <JobDetailsTab />;
-      case 'PAYROLL': return <PayrollTab />;
+      case 'OVERVIEW': return <OverviewTab employee={employeeData} />;
+      case 'JOB_DETAILS': return <JobDetailsTab employee={employeeData} />;
+      case 'PAYROLL': return <PayrollTab employee={employeeData} />;
       case 'CONTRACT': return <ContractTab />;
       case 'DOCUMENTS': return <DocumentsTab />;
-      default: return <OverviewTab />;
+      default: return <OverviewTab employee={employeeData} />;
     }
   };
 
@@ -88,8 +155,8 @@ export default function EmployeeDetails() {
                 {employeeData.designation.toUpperCase()} • {employeeData.department.toUpperCase()} • <span>{employeeData.id}</span>
               </p>
               <div className={styles.contactInfo}>
-                <span className={styles.contactItem}><Phone size={14} /> +1 234 567 890</span>
-                <span className={styles.contactItem}><Mail size={14} /> {employeeData.name.split(' ')[0].toLowerCase()}@company.com</span>
+                <span className={styles.contactItem}><Phone size={14} /> {employeeData.phone || '+1 234 567 890'}</span>
+                <span className={styles.contactItem}><Mail size={14} /> {employeeData.email || `${employeeData.name.split(' ')[0].toLowerCase()}@company.com`}</span>
               </div>
             </div>
           </div>

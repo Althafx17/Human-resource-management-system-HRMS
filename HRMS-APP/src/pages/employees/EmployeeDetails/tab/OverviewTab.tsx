@@ -1,7 +1,12 @@
 import { Calendar, Clock } from 'lucide-react';
 import styles from '../EmployeeDetails.module.css';
+import type { EmployeeData } from '../../data';
 
-export default function OverviewTab() {
+interface OverviewTabProps {
+  employee: EmployeeData;
+}
+
+export default function OverviewTab({ employee }: OverviewTabProps) {
   return (
     <div className={styles.contentGrid}>
       <div className={styles.leftColumn}>
@@ -46,10 +51,10 @@ export default function OverviewTab() {
             <div className={styles.blueLine}></div> PRIMARY INFO
           </div>
           <div className={styles.infoGrid}>
-            <div className={styles.infoGroup}><label>DATE OF BIRTH</label><span>1990-05-15</span></div>
-            <div className={styles.infoGroup}><label>PHONE</label><span>+1 234 567 890</span></div>
-            <div className={styles.infoGroup}><label>ADDRESS</label><span>123 Tech Street, CA</span></div>
-            <div className={styles.infoGroup}><label>JOINING DATE</label><span>2022-01-10</span></div>
+            <div className={styles.infoGroup}><label>DATE OF BIRTH</label><span>{employee.dob || '—'}</span></div>
+            <div className={styles.infoGroup}><label>PHONE</label><span>{employee.phone || '—'}</span></div>
+            <div className={styles.infoGroup}><label>ADDRESS</label><span>{employee.address || '—'}</span></div>
+            <div className={styles.infoGroup}><label>JOINING DATE</label><span>{employee.joiningDate || '—'}</span></div>
           </div>
         </div>
       </div>
@@ -60,7 +65,8 @@ export default function OverviewTab() {
             <div className={styles.redLine}></div> EMERGENCY
           </div>
           <div className={styles.emergencyBox}>
-            <h4>Jane Doe</h4><p>(+1 234 567 891)</p>
+            <h4>{employee.emergencyContactName || '—'}</h4>
+            <p>{employee.emergencyContactPhone || '—'}</p>
           </div>
         </div>
         <div className={styles.card}>
@@ -68,8 +74,13 @@ export default function OverviewTab() {
             <div className={styles.blueLine}></div> SKILLS
           </div>
           <div className={styles.skillsContainer}>
-            <span className={styles.skillBadge}>REACT</span>
-            <span className={styles.skillBadge}>TYPESCRIPT</span>
+            {employee.skills && employee.skills.length > 0 ? (
+              employee.skills.map((skill, index) => (
+                <span key={index} className={styles.skillBadge}>{skill.toUpperCase()}</span>
+              ))
+            ) : (
+              <span className={styles.mutedText} style={{ fontSize: '14px' }}>No skills added yet</span>
+            )}
           </div>
         </div>
       </div>

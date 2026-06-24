@@ -4,18 +4,55 @@ import { Search, SquarePen, Trash2, Eye } from 'lucide-react';
 import styles from './Employees.module.css';
 import AddEmployeeModal from "./AddEmployeeModal";
 import EditEmployeeModal from "./EditEmployeeModal";
-interface EmployeeData {
-  id: string;
-  name: string;
-  avatar: string;
-  designation: string;
-  department: string;
-  status: 'Active' | 'On Leave' | 'In Active';
-}
+import type { EmployeeData } from './data';
 
 const INITIAL_EMPLOYEES: EmployeeData[] = [
-  { id: 'EMP001', name: 'John Smith', avatar: 'https://i.pravatar.cc/150?u=1', designation: 'Sr.Back End Developer', department: 'Engineering', status: 'Active' },
-  { id: 'EMP002', name: 'Sara John', avatar: 'https://i.pravatar.cc/150?u=2', designation: 'Sr.UI UX Designer', department: 'Design', status: 'Active' },
+  {
+    id: 'EMP001',
+    name: 'John Smith',
+    avatar: 'https://i.pravatar.cc/150?u=1',
+    designation: 'Sr.Back End Developer',
+    department: 'Engineering',
+    status: 'Active',
+    phone: '+1 234 567 890',
+    email: 'john.smith@company.com',
+    dob: '1990-05-15',
+    address: '123 Tech Street, CA',
+    joiningDate: '2022-01-10',
+    reportingManager: 'Sarah Connor',
+    workLocation: 'San Francisco (Hybrid)',
+    shift: 'Standard (9:00 AM - 5:00 PM)',
+    basicSalary: '$95,000 / Year',
+    paymentFrequency: 'Bi-Weekly',
+    bankName: 'Chase Bank',
+    accountNumber: '**** **** 4321',
+    emergencyContactName: 'Jane Doe',
+    emergencyContactPhone: '+1 234 567 891',
+    skills: ['REACT', 'TYPESCRIPT', 'NODEJS', 'PYTHON']
+  },
+  {
+    id: 'EMP002',
+    name: 'Sara John',
+    avatar: 'https://i.pravatar.cc/150?u=2',
+    designation: 'Sr.UI UX Designer',
+    department: 'Design',
+    status: 'Active',
+    phone: '+1 234 567 892',
+    email: 'sara.john@company.com',
+    dob: '1992-08-20',
+    address: '456 Art Ave, SF',
+    joiningDate: '2023-03-15',
+    reportingManager: 'Sarah Connor',
+    workLocation: 'San Francisco (Hybrid)',
+    shift: 'Standard (9:00 AM - 5:00 PM)',
+    basicSalary: '$90,000 / Year',
+    paymentFrequency: 'Bi-Weekly',
+    bankName: 'Wells Fargo',
+    accountNumber: '**** **** 8765',
+    emergencyContactName: 'Robert John',
+    emergencyContactPhone: '+1 234 567 893',
+    skills: ['FIGMA', 'UI/UX', 'ILLUSTRATOR', 'PHOTOSHOP']
+  }
 ];
 
 export default function Employees() {
