@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, User } from 'lucide-react';
 import styles from './AddEmployeeModal.module.css';
-import type { EmployeeData } from './data';
+import type { EmployeeData } from './types';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;

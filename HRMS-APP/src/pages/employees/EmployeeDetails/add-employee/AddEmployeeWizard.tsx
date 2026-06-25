@@ -14,8 +14,8 @@ import Step4Payroll from './Step4Payroll';
 import Step5WorkArea from './Step5WorkArea';
 import Step6Documents from './Step6Documents';
 
-import type { EmployeeData } from '../../data';
-import { addEmployee, employeeData } from '../../data';
+import type { EmployeeData } from '../../types';
+import { employeeApi } from '../../../../services/employeeApi';
 
 interface AddEmployeeWizardProps {
   isEditMode?: boolean;
@@ -35,6 +35,7 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [prevInitialData, setPrevInitialData] = useState<Partial<EmployeeData> | null | undefined>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Master form state holding all fields from steps 1 to 6
   const [formData, setFormData] = useState({
@@ -106,9 +107,8 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
     } else {
       // Finalize Registration / Save Profile
       let empId = formData.id;
-      if (!isEditMode) {
-        const nextNum = employeeData.length + 1;
-        empId = `EMP${String(nextNum).padStart(3, '0')}`;
+      if (!isEditMode && !empId) {
+        empId = `EMP${Math.floor(100 + Math.random() * 900)}`;
       }
 
       const skillsArray = formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -119,17 +119,22 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
         skills: skillsArray
       };
 
-      if (isEditMode) {
-        const idx = employeeData.findIndex(emp => emp.id === payload.id);
-        if (idx !== -1) {
-          employeeData[idx] = payload;
-        }
-      } else {
-        addEmployee(payload);
-      }
+      setIsSubmitting(true);
+      const apiCall = isEditMode
+        ? employeeApi.update(payload.id, payload)
+        : employeeApi.create(payload);
 
-      alert(isEditMode ? 'Employee profile updated successfully!' : 'Employee registered successfully!');
-      navigate('/employees');
+      apiCall
+        .then(() => {
+          setIsSubmitting(false);
+          alert(isEditMode ? 'Employee profile updated successfully!' : 'Employee registered successfully!');
+          navigate('/employees');
+        })
+        .catch(err => {
+          setIsSubmitting(false);
+          console.error(err);
+          alert('An error occurred: ' + (err.message || 'unknown error'));
+        });
     }
   };
 
@@ -222,7 +227,7 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
       {/* Footer Navigation Bar */}
       <div className={styles.footer}>
         {currentStep > 1 ? (
-          <button type="button" className={styles.btnSec} onClick={handleBack}>
+          <button type="button" className={styles.btnSec} onClick={handleBack} disabled={isSubmitting}>
             <ChevronLeft size={16} /> Back
           </button>
         ) : (
@@ -230,11 +235,13 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
         )}
 
         <div className={styles.footerRight}>
-          <button type="button" className={styles.btnDiscard} onClick={handleDiscard}>
+          <button type="button" className={styles.btnDiscard} onClick={handleDiscard} disabled={isSubmitting}>
             Discard
           </button>
-          <button type="button" className={styles.btnPrimary} onClick={handleNext}>
-            {currentStep === 6 ? (
+          <button type="button" className={styles.btnPrimary} onClick={handleNext} disabled={isSubmitting}>
+            {isSubmitting ? (
+              'Saving...'
+            ) : currentStep === 6 ? (
               isEditMode ? 'Save Profile' : 'Finalize Registration'
             ) : (
               <>Next Step <ChevronRight size={16} /></>

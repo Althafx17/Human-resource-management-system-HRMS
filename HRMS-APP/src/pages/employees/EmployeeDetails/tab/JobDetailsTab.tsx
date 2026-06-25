@@ -1,5 +1,5 @@
 import styles from '../EmployeeDetails.module.css';
-import type { EmployeeData } from '../../data';
+import type { EmployeeData } from '../../types';
 
 interface JobDetailsTabProps {
   employee: EmployeeData;

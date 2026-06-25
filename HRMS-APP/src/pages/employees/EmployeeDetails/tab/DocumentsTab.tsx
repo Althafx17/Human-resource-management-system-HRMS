@@ -1,27 +1,49 @@
 import { FileText, Download } from 'lucide-react';
 import styles from '../EmployeeDetails.module.css';
+import type { EmployeeData } from '../../types';
 
-export default function DocumentsTab() {
+interface DocumentsTabProps {
+  employee: EmployeeData;
+}
+
+export default function DocumentsTab({ employee }: DocumentsTabProps) {
+  // Extract files from employee data
+  const docs = [
+    { name: 'Resume', fileName: employee.resumeFile },
+    { name: 'Certificates', fileName: employee.certificatesFile },
+    { name: 'Contract File', fileName: employee.contractFile }
+  ].filter(doc => doc.fileName); // Only show if they exist
+
   return (
     <div className={styles.card}>
       <div className={styles.sectionTitle}>
         <div className={styles.blueLine}></div> UPLOADED FILES
       </div>
       <div className={styles.documentList}>
-        
-        {/* Reusable Document Row Item */}
-        {[ 'Signed_Contract.pdf', 'ID_Verification.pdf', 'Resume_2022.pdf' ].map(doc => (
-          <div key={doc} className={styles.documentRow}>
-            <div className={styles.documentMeta}>
-              <FileText size={20} color="#64748b" />
-              <span className={styles.documentName}>{doc}</span>
+        {docs.length > 0 ? (
+          docs.map(doc => (
+            <div key={doc.name} className={styles.documentRow}>
+              <div className={styles.documentMeta}>
+                <FileText size={20} color="#64748b" />
+                <div>
+                  <span className={styles.documentName} style={{ display: 'block', fontWeight: '600' }}>{doc.name}</span>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>{doc.fileName}</span>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                className={`${styles.btnOutline} ${styles.documentDownloadBtn}`} 
+                title={`Download ${doc.name}`} 
+                aria-label={`Download ${doc.name}`}
+                onClick={() => alert(`Downloading: ${doc.fileName}`)}
+              >
+                <Download size={14} /> Download
+              </button>
             </div>
-            <button type="button" className={`${styles.btnOutline} ${styles.documentDownloadBtn}`} title={`Download ${doc}`} aria-label={`Download ${doc}`}>
-              <Download size={14} /> Download
-            </button>
-          </div>
-        ))}
-
+          ))
+        ) : (
+          <span style={{ fontSize: '14px', color: '#64748b' }}>No documents uploaded yet.</span>
+        )}
       </div>
     </div>
   );

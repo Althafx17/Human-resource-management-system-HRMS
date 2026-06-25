@@ -2,20 +2,22 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 // We can reuse the exact same CSS module!
 import styles from './AddEmployeeModal.module.css'; 
-import type { EmployeeData } from './data';
+import type { EmployeeData } from './types';
+import { employeeApi } from '../../services/employeeApi';
 
 interface EditEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   employeeData: EmployeeData | null;
-  onSave: (updatedEmployee: EmployeeData) => void;
+  onSaveSuccess: (updatedEmployee: EmployeeData) => void;
 }
 
 type ModalTab = 'personal' | 'job' | 'payroll';
 
-export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSave }: EditEmployeeModalProps) {
+export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSaveSuccess }: EditEmployeeModalProps) {
   const [prevEmployeeData, setPrevEmployeeData] = useState<EmployeeData | null>(null);
   const [modalTab, setModalTab] = useState<ModalTab>('personal');
+  const [isSaving, setIsSaving] = useState(false);
   
   const [formData, setFormData] = useState<{
     name: string;
@@ -103,12 +105,24 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
       ? formData.skills.split(',').map(s => s.trim()).filter(Boolean)
       : [];
 
-    onSave({
+    const payload = {
       ...employeeData,
       ...formData,
       skills: skillsArray
-    });
-    onClose();
+    };
+
+    setIsSaving(true);
+    employeeApi.update(employeeData.id, payload)
+      .then((updatedEmployee) => {
+        setIsSaving(false);
+        onSaveSuccess(updatedEmployee);
+        onClose();
+      })
+      .catch(err => {
+        setIsSaving(false);
+        console.error(err);
+        alert('Failed to update employee: ' + (err.message || 'unknown error'));
+      });
   };
 
   return (
@@ -287,8 +301,10 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
           </div>
 
           <div className={styles.footer}>
-            <button type="button" className={styles.btnCancel} onClick={onClose}>Cancel</button>
-            <button type="submit" className={styles.btnSubmit}>Save Changes</button>
+            <button type="button" className={styles.btnCancel} onClick={onClose} disabled={isSaving}>Cancel</button>
+            <button type="submit" className={styles.btnSubmit} disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
         </form>
       </div>
