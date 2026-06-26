@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Search, Plus, FileText, DollarSign, Wallet, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import styles from './Expenses.module.css';
 
+import ExpenseForm from '../../components/ExpenseForm';
+
 interface ExpenseClaim {
   id: string;
   employeeName: string;
@@ -21,6 +23,8 @@ const DUMMY_EXPENSES: ExpenseClaim[] = [
 
 export default function Expenses() {
   const [search, setSearch] = useState('');
+  const [claims, setClaims] = useState<ExpenseClaim[]>(DUMMY_EXPENSES);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const getStatusClass = (status: string) => {
     switch (status) {
@@ -40,15 +44,28 @@ export default function Expenses() {
     }
   };
 
-  const filteredExpenses = DUMMY_EXPENSES.filter(exp =>
+  const handleSave = (data: any) => {
+    const newClaim: ExpenseClaim = {
+      id: `EXP-${101 + claims.length}`,
+      employeeName: 'Admin (You)',
+      avatar: 'https://i.pravatar.cc/150?u=99',
+      category: data.category as any,
+      date: data.date,
+      amount: data.amount,
+      status: 'Pending',
+    };
+    setClaims(prev => [newClaim, ...prev]);
+  };
+
+  const filteredExpenses = claims.filter(exp =>
     exp.employeeName.toLowerCase().includes(search.toLowerCase()) ||
     exp.category.toLowerCase().includes(search.toLowerCase())
   );
 
   // Compute calculated values
-  const totalClaimed = DUMMY_EXPENSES.reduce((sum, item) => sum + item.amount, 0);
-  const totalApproved = DUMMY_EXPENSES.reduce((sum, item) => item.status === 'Approved' ? sum + item.amount : sum, 0);
-  const totalPending = DUMMY_EXPENSES.reduce((sum, item) => item.status === 'Pending' ? sum + item.amount : sum, 0);
+  const totalClaimed = claims.reduce((sum, item) => sum + item.amount, 0);
+  const totalApproved = claims.reduce((sum, item) => item.status === 'Approved' ? sum + item.amount : sum, 0);
+  const totalPending = claims.reduce((sum, item) => item.status === 'Pending' ? sum + item.amount : sum, 0);
 
   return (
     <div className={styles.page}>
@@ -82,7 +99,10 @@ export default function Expenses() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button className={styles.primaryBtn}>
+        <button 
+          className={styles.primaryBtn}
+          onClick={() => setIsDrawerOpen(true)}
+        >
           <Plus size={18} /> New Claim
         </button>
       </div>
@@ -126,6 +146,12 @@ export default function Expenses() {
           </tbody>
         </table>
       </div>
+
+      <ExpenseForm 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+        onSave={handleSave} 
+      />
     </div>
   );
 }

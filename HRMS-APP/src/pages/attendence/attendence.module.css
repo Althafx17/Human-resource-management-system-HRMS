@@ -132,3 +132,22 @@
 .present { background-color: #d1fae5; color: #065f46; }
 .absent { background-color: #fee2e2; color: #991b1b; }
 .late { background-color: #fef3c7; color: #92400e; }
+
+.logBtn {
+  background-color: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.logBtn:hover {
+  background-color: #6d28d9;
+}

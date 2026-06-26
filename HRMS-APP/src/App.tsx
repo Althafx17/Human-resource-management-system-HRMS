@@ -8,7 +8,7 @@ import Shifts from './pages/Shifts/Shifts';
 import Leave from './pages/Leave/Leave';
 import Overtime from './pages/Overtime/Overtime';
 import Expenses from './pages/Expenses/Expenses';
-import Payroll from './pages/Payroll/Payroll';
+import PayrollDashboard from './pages/Payroll/PayrollDashboard';
 import EmployeeDetails from './pages/employees/EmployeeDetails/EmployeeDetails';
 import AddEmployeeWizard from './pages/employees/EmployeeDetails/add-employee/AddEmployeeWizard';
 import Login from './pages/login/Login';
@@ -44,7 +44,7 @@ export default function App() {
 
             <Route path="expenses" element={<Expenses />} />
             
-            <Route path="payroll" element={<Payroll />} />
+            <Route path="payroll" element={<PayrollDashboard />} />
           </Route>
         </Route>
       </Routes>

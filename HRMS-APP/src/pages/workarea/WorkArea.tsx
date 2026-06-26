@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, MapPin, Plus, Building2, Globe, Laptop } from 'lucide-react';
 import styles from './WorkAreas.module.css';
+import AddWorkAreaForm from '../../components/AddWorkAreaForm';
 
 interface WorkArea {
   id: string;
@@ -20,6 +21,8 @@ const DUMMY_AREAS: WorkArea[] = [
 
 export default function WorkAreas() {
   const [search, setSearch] = useState('');
+  const [areas, setAreas] = useState<WorkArea[]>(DUMMY_AREAS);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const getAreaIcon = (type: string) => {
     switch (type) {
@@ -30,7 +33,19 @@ export default function WorkAreas() {
     }
   };
 
-  const filteredAreas = DUMMY_AREAS.filter(area =>
+  const handleSave = (data: any) => {
+    const newArea: WorkArea = {
+      id: `WA00${areas.length + 1}`,
+      name: data.name,
+      type: 'Onsite', // Default type for geofences created on the fly
+      location: `Lat: ${data.latitude.toFixed(4)}, Lon: ${data.longitude.toFixed(4)}`,
+      employeeCount: 0,
+      manager: 'Admin Manager',
+    };
+    setAreas(prev => [newArea, ...prev]);
+  };
+
+  const filteredAreas = areas.filter(area =>
     area.name.toLowerCase().includes(search.toLowerCase()) ||
     area.location.toLowerCase().includes(search.toLowerCase())
   );
@@ -51,7 +66,10 @@ export default function WorkAreas() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button className={styles.addBtn}>
+        <button 
+          className={styles.addBtn}
+          onClick={() => setIsDrawerOpen(true)}
+        >
           <Plus size={18} /> Add Area
         </button>
       </div>
@@ -88,11 +106,17 @@ export default function WorkAreas() {
                   <span className={styles.statLabel}>Lead Manager</span>
                   <span className={styles.statValue} title={area.manager}>{area.manager}</span>
                 </div>
-              </div>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
       </div>
+
+      <AddWorkAreaForm 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+        onSave={handleSave} 
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar } from 'lucide-react';
+import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus } from 'lucide-react';
 import styles from './attendence.module.css';
+import LogAttendanceForm from '../../components/LogAttendanceForm';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Late';
 
@@ -36,6 +37,8 @@ const DUMMY_ATTENDANCE: AttendanceRecord[] = [
 
 export default function Attendance() {
   const [search, setSearch] = useState('');
+  const [records, setRecords] = useState<AttendanceRecord[]>(DUMMY_ATTENDANCE);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const getStatusStyle = (status: AttendanceStatus) => {
     switch (status) {
@@ -55,7 +58,39 @@ export default function Attendance() {
     }
   };
 
-  const filteredAttendance = DUMMY_ATTENDANCE.filter(emp =>
+  const handleSave = (data: any) => {
+    const employeeNames: Record<string, string> = {
+      '1': 'John Smith',
+      '2': 'Sara John',
+      '3': 'Angel Philip',
+      '4': 'Anmariya',
+      '5': 'Augestien',
+    };
+    
+    // Format times into AM/PM
+    const formatTime = (timeStr: string) => {
+      if (!timeStr) return '--';
+      const [hourStr, minStr] = timeStr.split(':');
+      let hour = parseInt(hourStr, 10);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12;
+      hour = hour ? hour : 12; // the hour '0' should be '12'
+      return `${String(hour).padStart(2, '0')}:${minStr} ${ampm}`;
+    };
+
+    const newRecord: AttendanceRecord = {
+      id: `EMP00${data.employeeId}`,
+      name: employeeNames[data.employeeId] || 'Unknown Employee',
+      avatar: `https://i.pravatar.cc/150?u=${data.employeeId}`,
+      date: data.date,
+      checkIn: data.status === 'Absent' ? '--' : formatTime(data.checkIn),
+      checkOut: data.status === 'Absent' ? '--' : formatTime(data.checkOut),
+      status: data.status as AttendanceStatus,
+    };
+    setRecords(prev => [newRecord, ...prev]);
+  };
+
+  const filteredAttendance = records.filter(emp =>
     emp.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -84,6 +119,13 @@ export default function Attendance() {
               title="Filter attendance"
             >
               <SlidersHorizontal size={18} aria-hidden="true" />
+            </button>
+            <button 
+              type="button"
+              className={styles.logBtn}
+              onClick={() => setIsDrawerOpen(true)}
+            >
+              <Plus size={16} /> Log Attendance
             </button>
           </div>
 
@@ -131,6 +173,12 @@ export default function Attendance() {
           </table>
         </div>
       </div>
+      
+      <LogAttendanceForm 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+        onSave={handleSave} 
+      />
     </div>
   );
 }

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Search, Plus, Clock, DollarSign, TrendingUp, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import styles from './Overtime.module.css';
 
+import ReviewOvertime from '../../components/ReviewOvertime';
+
 interface OvertimeRecord {
   id: string;
   employeeName: string;
@@ -22,6 +24,8 @@ const DUMMY_OVERTIME: OvertimeRecord[] = [
 
 export default function Overtime() {
   const [search, setSearch] = useState('');
+  const [records, setRecords] = useState<OvertimeRecord[]>(DUMMY_OVERTIME);
+  const [selectedRequest, setSelectedRequest] = useState<OvertimeRecord | null>(null);
 
   const getStatusClass = (status: string) => {
     switch (status) {
@@ -41,13 +45,21 @@ export default function Overtime() {
     }
   };
 
-  const filteredRecords = DUMMY_OVERTIME.filter(record =>
+  const handleApprove = (id: string) => {
+    setRecords(prev => prev.map(r => r.id === id ? { ...r, status: 'Approved' as const } : r));
+  };
+
+  const handleReject = (id: string) => {
+    setRecords(prev => prev.map(r => r.id === id ? { ...r, status: 'Rejected' as const } : r));
+  };
+
+  const filteredRecords = records.filter(record =>
     record.employeeName.toLowerCase().includes(search.toLowerCase())
   );
 
   // Total calculation aggregates
-  const totalHours = DUMMY_OVERTIME.reduce((sum, item) => item.status === 'Approved' ? sum + item.hoursLogged : sum, 0);
-  const totalPayout = DUMMY_OVERTIME.reduce((sum, item) => item.status === 'Approved' ? sum + item.estPayout : sum, 0);
+  const totalHours = records.reduce((sum, item) => item.status === 'Approved' ? sum + item.hoursLogged : sum, 0);
+  const totalPayout = records.reduce((sum, item) => item.status === 'Approved' ? sum + item.estPayout : sum, 0);
 
   return (
     <div className={styles.page}>
@@ -102,7 +114,12 @@ export default function Overtime() {
           </thead>
           <tbody>
             {filteredRecords.map((record) => (
-              <tr key={record.id}>
+              <tr 
+                key={record.id}
+                onClick={() => setSelectedRequest(record)}
+                style={{ cursor: 'pointer' }}
+                title="Click to review request"
+              >
                 <td>{record.id}</td>
                 <td>
                   <div className={styles.employeeCell}>
@@ -125,6 +142,14 @@ export default function Overtime() {
           </tbody>
         </table>
       </div>
+
+      <ReviewOvertime
+        isOpen={!!selectedRequest}
+        onClose={() => setSelectedRequest(null)}
+        request={selectedRequest || undefined}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
     </div>
   );
 }

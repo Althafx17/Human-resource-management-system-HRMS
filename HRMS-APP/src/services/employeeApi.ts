@@ -135,7 +135,7 @@ export const employeeApi = {
   },
 
   async getById(id: string): Promise<EmployeeData> {
-    const response = await apiClient.get<EmployeeData>(`/employees/${id}`);
+    const response = await apiClient.get<EmployeeData>(`/employees/${id}/`);
     return normalizeEmployee(response.data);
   },
 
@@ -166,7 +166,7 @@ export const employeeApi = {
       };
     }
 
-    const response = await apiClient.post<EmployeeData>('/employees', payload, config);
+    const response = await apiClient.post<EmployeeData>('/employees/', payload, config);
     return normalizeEmployee(response.data);
   },
 

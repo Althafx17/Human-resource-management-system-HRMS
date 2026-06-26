@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Search, Plus, Calendar, CheckCircle, Clock } from 'lucide-react';
 import styles from './Leave.module.css';
 
+import ReviewLeaveRequest from '../../components/ReviewLeaveRequest';
+
 interface LeaveRequest {
   id: string;
   employeeName: string;
@@ -21,6 +23,8 @@ const DUMMY_LEAVES: LeaveRequest[] = [
 
 export default function Leave() {
   const [search, setSearch] = useState('');
+  const [leaves, setLeaves] = useState<LeaveRequest[]>(DUMMY_LEAVES);
+  const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
 
   const getStatusClass = (status: string) => {
     switch (status) {
@@ -31,10 +35,22 @@ export default function Leave() {
     }
   };
 
-  const filteredLeaves = DUMMY_LEAVES.filter(leave =>
+  const handleApprove = (id: string) => {
+    setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: 'Approved' as const } : l));
+  };
+
+  const handleReject = (id: string) => {
+    setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: 'Rejected' as const } : l));
+  };
+
+  const filteredLeaves = leaves.filter(leave =>
     leave.employeeName.toLowerCase().includes(search.toLowerCase()) ||
     leave.type.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Compute calculated values
+  const approvedDays = leaves.filter(l => l.status === 'Approved').reduce((sum, l) => sum + l.days, 0);
+  const pendingRequestsCount = leaves.filter(l => l.status === 'Pending').length;
 
   return (
     <div className={styles.page}>
@@ -44,15 +60,15 @@ export default function Leave() {
       <div className={styles.summaryRow}>
         <div className={styles.widget}>
           <div className={`${styles.widgetIcon} ${styles.iconGreen}`}><CheckCircle size={20} /></div>
-          <div><h4>14 Days</h4><p>Approved This Month</p></div>
+          <div><h4>{approvedDays} Days</h4><p>Approved This Month</p></div>
         </div>
         <div className={styles.widget}>
           <div className={`${styles.widgetIcon} ${styles.iconYellow}`}><Clock size={20} /></div>
-          <div><h4>3 Pending</h4><p>Awaiting Decision</p></div>
+          <div><h4>{pendingRequestsCount} Pending</h4><p>Awaiting Decision</p></div>
         </div>
         <div className={styles.widget}>
           <div className={`${styles.widgetIcon} ${styles.iconBlue}`}><Calendar size={20} /></div>
-          <div><h4>12 Employees</h4><p>On Leave Today</p></div>
+          <div><h4>2 Employees</h4><p>On Leave Today</p></div>
         </div>
       </div>
 
@@ -68,7 +84,7 @@ export default function Leave() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button className={styles.primaryBtn}>
+        <button className={styles.primaryBtn} onClick={() => alert('Add Leave workflow coming soon!')}>
           <Plus size={18} /> Apply Leave
         </button>
       </div>
@@ -88,7 +104,12 @@ export default function Leave() {
           </thead>
           <tbody>
             {filteredLeaves.map((request) => (
-              <tr key={request.id}>
+              <tr 
+                key={request.id} 
+                onClick={() => setSelectedRequest(request)}
+                style={{ cursor: 'pointer' }}
+                title="Click to review request"
+              >
                 <td>{request.id}</td>
                 <td>
                   <div className={styles.employeeCell}>
@@ -109,6 +130,14 @@ export default function Leave() {
           </tbody>
         </table>
       </div>
+
+      <ReviewLeaveRequest
+        isOpen={!!selectedRequest}
+        onClose={() => setSelectedRequest(null)}
+        request={selectedRequest || undefined}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
     </div>
   );
 }

@@ -41,15 +41,22 @@ const DUMMY_SHIFTS: ShiftAssignment[] = [
   }
 ];
 
+import ShiftTemplateForm from '../../components/ShiftTemplateForm';
+
 const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export default function Shifts() {
   const [currentWeek] = useState('June 15 - June 21, 2026');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const getShiftClass = (shiftTime: string) => {
     if (shiftTime === 'Off') return styles.shiftOff;
     if (shiftTime.startsWith('14:00')) return styles.shiftEvening;
     return styles.shiftMorning;
+  };
+
+  const handleSave = (data: any) => {
+    alert(`Shift Template Created!\nName: ${data.shiftName}\nCode: ${data.shiftCode}\nTime: ${data.startTime} - ${data.endTime}`);
   };
 
   return (
@@ -69,7 +76,12 @@ export default function Shifts() {
 
         <div className={styles.actionGroup}>
           <button className={styles.secondaryBtn}><Filter size={16} /> Filter</button>
-          <button className={styles.primaryBtn}><Plus size={16} /> Add Shift</button>
+          <button 
+            className={styles.primaryBtn}
+            onClick={() => setIsDrawerOpen(true)}
+          >
+            <Plus size={16} /> Add Shift
+          </button>
         </div>
       </div>
 
@@ -112,6 +124,12 @@ export default function Shifts() {
           </tbody>
         </table>
       </div>
+
+      <ShiftTemplateForm 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+        onSave={handleSave} 
+      />
     </div>
   );
 }

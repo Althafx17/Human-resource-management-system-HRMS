@@ -1,0 +1,278 @@
+import { useState } from 'react';
+import { 
+  Search, 
+  Wallet, 
+  Check, 
+  TrendingDown, 
+  Users, 
+  Download, 
+  Plus, 
+  MoreVertical, 
+  Eye, 
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
+import styles from './PayrollDashboard.module.css';
+
+interface PayrollRecord {
+  id: string;
+  employeeName: string;
+  avatar: string;
+  designation: string;
+  month: string;
+  basicSalary: number;
+  deductions: number;
+  netPay: number;
+  status: 'Processed' | 'Pending' | 'On Hold';
+}
+
+const INITIAL_RECORDS: PayrollRecord[] = [
+  { id: 'PAY001', employeeName: 'John Smith', avatar: 'https://i.pravatar.cc/150?u=1', designation: 'Sr. Back End Developer', month: 'June 2026', basicSalary: 4500.00, deductions: 120.00, netPay: 4380.00, status: 'Processed' },
+  { id: 'PAY002', employeeName: 'Sara John', avatar: 'https://i.pravatar.cc/150?u=2', designation: 'Sr. UI UX Designer', month: 'June 2026', basicSalary: 4200.00, deductions: 130.00, netPay: 4070.00, status: 'Processed' },
+  { id: 'PAY003', employeeName: 'Angel Philip', avatar: 'https://i.pravatar.cc/150?u=3', designation: 'Finance Manager', month: 'June 2026', basicSalary: 5000.00, deductions: 150.00, netPay: 4850.00, status: 'Pending' },
+  { id: 'PAY004', employeeName: 'Anmariya', avatar: 'https://i.pravatar.cc/150?u=4', designation: 'Mern Stack Developer', month: 'June 2026', basicSalary: 3800.00, deductions: 80.00, netPay: 3720.00, status: 'Pending' },
+  { id: 'PAY005', employeeName: 'Augestien', avatar: 'https://i.pravatar.cc/150?u=5', designation: 'QA Lead', month: 'June 2026', basicSalary: 4100.00, deductions: 100.00, netPay: 4000.00, status: 'On Hold' }
+];
+
+export default function PayrollDashboard() {
+  const [search, setSearch] = useState('');
+  const [month, setMonth] = useState('June');
+  const [year, setYear] = useState('2026');
+  const [records, setRecords] = useState<PayrollRecord[]>(INITIAL_RECORDS);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  // Aggregates calculation
+  // Total Payroll (processed only or sum of all?)
+  // Let's match the requirements: Total Payroll e.g. $9,150, Processed e.g. 2, Deductions e.g. $250, Workforce e.g. 24
+  const processedRecords = records.filter(r => r.status === 'Processed');
+  const totalPayrollVal = processedRecords.reduce((sum, r) => sum + r.netPay, 0);
+  const totalDeductionsVal = processedRecords.reduce((sum, r) => sum + r.deductions, 0);
+  const processedCount = processedRecords.length;
+
+  const filteredRecords = records.filter(record => 
+    record.employeeName.toLowerCase().includes(search.toLowerCase()) ||
+    record.designation.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleProcessPayroll = () => {
+    alert('Processing payroll for current cycle...');
+    // Demo logic: Turn pending to processed
+    setRecords(prev => prev.map(r => r.status === 'Pending' ? { ...r, status: 'Processed' } : r));
+  };
+
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case 'Processed': return styles.processed;
+      case 'Pending': return styles.pending;
+      case 'On Hold': return styles.onHold;
+      default: return '';
+    }
+  };
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Payroll Dashboard</h1>
+          <p className={styles.subtitle}>Track employee earnings, taxes, deductions and process payouts.</p>
+        </div>
+      </div>
+
+      {/* 1. Top Control Bar */}
+      <div className={styles.controlBar}>
+        <div className={styles.leftControls}>
+          <div className={styles.searchWrapper}>
+            <Search size={18} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search employee or designation..."
+              className={styles.searchInput}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className={styles.selectGroup}>
+            <select 
+              className={styles.select} 
+              value={month} 
+              onChange={(e) => setMonth(e.target.value)}
+            >
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+            </select>
+            <select 
+              className={styles.select} 
+              value={year} 
+              onChange={(e) => setYear(e.target.value)}
+            >
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+
+        <div className={styles.rightControls}>
+          <button className={styles.secondaryBtn} onClick={() => alert('Exporting payroll data...')}>
+            <Download size={16} />
+            Export
+          </button>
+          <button className={styles.primaryBtn} onClick={handleProcessPayroll}>
+            <Plus size={16} />
+            Process Payroll
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Statistics Cards Grid */}
+      <div className={styles.statsGrid}>
+        
+        {/* Card 1: Total Payroll */}
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <span className={styles.cardTitle}>Total Payroll</span>
+            <div className={`${styles.iconCircle} ${styles.iconPurple}`}>
+              <Wallet size={20} />
+            </div>
+          </div>
+          <h2 className={styles.cardValue}>
+            ${totalPayrollVal > 0 ? totalPayrollVal.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '8,450.00'}
+          </h2>
+          <span className={styles.cardTrend}>For current cycle</span>
+        </div>
+
+        {/* Card 2: Processed */}
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <span className={styles.cardTitle}>Processed</span>
+            <div className={`${styles.iconCircle} ${styles.iconGreen}`}>
+              <Check size={20} />
+            </div>
+          </div>
+          <h2 className={styles.cardValue}>{processedCount}</h2>
+          <span className={styles.cardTrend}>Employees paid</span>
+        </div>
+
+        {/* Card 3: Deductions */}
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <span className={styles.cardTitle}>Deductions</span>
+            <div className={`${styles.iconCircle} ${styles.iconRed}`}>
+              <TrendingDown size={20} />
+            </div>
+          </div>
+          <h2 className={styles.cardValue}>
+            ${totalDeductionsVal > 0 ? totalDeductionsVal.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '250.00'}
+          </h2>
+          <span className={styles.cardTrend}>Taxes & adjustments</span>
+        </div>
+
+        {/* Card 4: Workforce */}
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <span className={styles.cardTitle}>Workforce</span>
+            <div className={`${styles.iconCircle} ${styles.iconYellow}`}>
+              <Users size={20} />
+            </div>
+          </div>
+          <h2 className={styles.cardValue}>24</h2>
+          <span className={styles.cardTrend}>Active employees</span>
+        </div>
+
+      </div>
+
+      {/* 3. Data Table */}
+      <div className={styles.tableCard}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Month</th>
+                <th>Basic Salary</th>
+                <th>Deductions</th>
+                <th>Net Pay</th>
+                <th>Status</th>
+                <th className={styles.centerAlign}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRecords.map((record) => (
+                <tr key={record.id}>
+                  <td>
+                    <div className={styles.employeeCell}>
+                      <img src={record.avatar} alt={record.employeeName} className={styles.avatar} />
+                      <div className={styles.meta}>
+                        <span className={styles.name}>{record.employeeName}</span>
+                        <span className={styles.role}>{record.designation}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{record.month}</td>
+                  <td>${record.basicSalary.toFixed(2)}</td>
+                  <td className={styles.deductionText}>-${record.deductions.toFixed(2)}</td>
+                  <td className={styles.netPayText}>${record.netPay.toFixed(2)}</td>
+                  <td>
+                    <span className={`${styles.statusBadge} ${getStatusStyle(record.status)}`}>
+                      {record.status === 'Processed' ? (
+                        <CheckCircle size={12} style={{ marginRight: '4px' }} />
+                      ) : (
+                        <AlertCircle size={12} style={{ marginRight: '4px' }} />
+                      )}
+                      {record.status}
+                    </span>
+                  </td>
+                  <td className={styles.centerAlign}>
+                    <div className={styles.actionCell}>
+                      <button 
+                        className={styles.actionBtn}
+                        onClick={() => alert(`Viewing details for ${record.employeeName}`)}
+                        title="View Details"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <div className={styles.menuContainer}>
+                        <button 
+                          className={styles.actionBtn}
+                          onClick={() => setActiveMenuId(activeMenuId === record.id ? null : record.id)}
+                        >
+                          <MoreVertical size={16} />
+                        </button>
+                        {activeMenuId === record.id && (
+                          <div className={styles.dropdownMenu}>
+                            <button onClick={() => {
+                              alert(`Regenerating payroll for ${record.employeeName}`);
+                              setActiveMenuId(null);
+                            }}>
+                              Regenerate
+                            </button>
+                            <button onClick={() => {
+                              alert(`Putting payroll on hold for ${record.employeeName}`);
+                              setActiveMenuId(null);
+                            }} className={styles.dangerOption}>
+                              Hold Payout
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
