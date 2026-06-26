@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { EmployeeData } from '../pages/employees/types';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://employee-management-api-sigma.vercel.app/api';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const apiClient = axios.create({
   baseURL: apiBaseUrl,
