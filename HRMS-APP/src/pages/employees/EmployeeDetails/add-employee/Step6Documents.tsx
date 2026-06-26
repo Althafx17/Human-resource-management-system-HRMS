@@ -4,8 +4,8 @@ import styles from './AddEmployee.module.css';
 
 interface Step6Props {
   data: {
-    resumeFile: string;
-    certificatesFile: string;
+    resumeFile: File | string | null;
+    certificatesFile: File | string | null;
     skills: string;
   };
   updateData: (fields: Partial<Step6Props['data']>) => void;
@@ -22,13 +22,13 @@ export default function Step6Documents({ data, updateData }: Step6Props) {
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      updateData({ resumeFile: e.target.files[0].name });
+      updateData({ resumeFile: e.target.files[0] });
     }
   };
 
   const handleCertChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      updateData({ certificatesFile: e.target.files[0].name });
+      updateData({ certificatesFile: e.target.files[0] });
     }
   };
 
@@ -62,7 +62,9 @@ export default function Step6Documents({ data, updateData }: Step6Props) {
             <div className={styles.dropzoneText}>
               <span>
                 {data.resumeFile ? (
-                  <span style={{ color: '#10b981' }}>Selected: {data.resumeFile}</span>
+                  <span style={{ color: '#10b981' }}>
+                    Selected: {typeof data.resumeFile === 'string' ? data.resumeFile : data.resumeFile.name}
+                  </span>
                 ) : (
                   "Upload Resume / CV"
                 )}
@@ -88,7 +90,9 @@ export default function Step6Documents({ data, updateData }: Step6Props) {
             <div className={styles.dropzoneText}>
               <span>
                 {data.certificatesFile ? (
-                  <span style={{ color: '#10b981' }}>Selected: {data.certificatesFile}</span>
+                  <span style={{ color: '#10b981' }}>
+                    Selected: {typeof data.certificatesFile === 'string' ? data.certificatesFile : data.certificatesFile.name}
+                  </span>
                 ) : (
                   "Upload Certificates"
                 )}

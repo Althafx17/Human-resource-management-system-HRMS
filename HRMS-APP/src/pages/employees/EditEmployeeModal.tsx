@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import styles from './AddEmployeeModal.module.css'; 
 import type { EmployeeData } from './types';
 import { employeeApi } from '../../services/employeeApi';
+import { useToast } from '../../components/ToastContext';
 
 interface EditEmployeeModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface EditEmployeeModalProps {
 type ModalTab = 'personal' | 'job' | 'payroll';
 
 export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSaveSuccess }: EditEmployeeModalProps) {
+  const { showToast } = useToast();
   const [prevEmployeeData, setPrevEmployeeData] = useState<EmployeeData | null>(null);
   const [modalTab, setModalTab] = useState<ModalTab>('personal');
   const [isSaving, setIsSaving] = useState(false);
@@ -121,7 +123,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
       .catch(err => {
         setIsSaving(false);
         console.error(err);
-        alert('Failed to update employee: ' + (err.message || 'unknown error'));
+        showToast('Failed to update employee details', 'error');
       });
   };
 

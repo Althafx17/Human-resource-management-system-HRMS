@@ -5,41 +5,75 @@ import styles from './Employees.module.css';
 import EditEmployeeModal from "./EditEmployeeModal";
 import type { EmployeeData } from './types';
 import { employeeApi } from '../../services/employeeApi';
+import { useToast } from '../../components/ToastContext';
 
 export default function Employees() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
+
   // Convert the dynamic list into interactive React State fetched from API
   const [employees, setEmployees] = useState<EmployeeData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Mapped Lookups
+  const [departments, setDepartments] = useState<Record<number, string>>({});
+  const [designations, setDesignations] = useState<Record<number, string>>({});
+
+  // Pagination & Filtering States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('');
   
   // Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<EmployeeData | null>(null);
 
-  // Fetch employees on mount
+  // Fetch lookups on mount
+  useEffect(() => {
+    employeeApi.getDepartments().then(list => {
+      const map: Record<number, string> = {};
+      list.forEach(d => { map[d.id] = d.name; });
+      setDepartments(map);
+    });
+    employeeApi.getDesignations().then(list => {
+      const map: Record<number, string> = {};
+      list.forEach(d => { map[d.id] = d.title; });
+      setDesignations(map);
+    });
+  }, []);
+
+  // Fetch employees on mount/filter changes
   useEffect(() => {
     let active = true;
-    employeeApi.getAll()
-      .then(data => {
-        console.log("API Response:", data);
-        if (active) {
-          setEmployees(data.results || []);
-          setError(null);
-          setIsLoading(false);
-        }
-      })
-      .catch(err => {
-        if (active) {
-          console.error(err);
-          setError('Failed to fetch employees. Please check your API configuration.');
-          setIsLoading(false);
-        }
-      });
+
+    const delayDebounceFn = setTimeout(() => {
+      employeeApi.getAll(currentPage, searchTerm, departmentFilter)
+        .then(data => {
+          console.log("API Response:", data);
+          if (active) {
+            setEmployees(data.results || []);
+            const total = Math.ceil((data.count || 0) / 10);
+            setTotalPages(total > 0 ? total : 1);
+            setError(null);
+            setIsLoading(false);
+          }
+        })
+        .catch(err => {
+          if (active) {
+            console.error(err);
+            setError('Failed to fetch employees. Please check your API configuration.');
+            setIsLoading(false);
+          }
+        });
+    }, searchTerm ? 400 : 0);
+
     return () => {
       active = false;
+      clearTimeout(delayDebounceFn);
     };
-  }, []);
+  }, [currentPage, searchTerm, departmentFilter]);
 
   // --- ACTIONS ---
 
@@ -49,10 +83,11 @@ export default function Employees() {
       employeeApi.delete(id)
         .then(() => {
           setEmployees(prev => prev.filter(emp => emp.id !== id));
+          showToast('Employee deleted successfully!', 'success');
         })
         .catch(err => {
           console.error(err);
-          alert('Failed to delete employee: ' + (err.message || 'unknown error'));
+          showToast('Failed to delete employee', 'error');
         });
     }
   };
@@ -66,6 +101,7 @@ export default function Employees() {
   // Handle Saving changes from the Edit Modal
   const handleSaveEdit = (updatedEmp: EmployeeData) => {
     setEmployees(prev => prev.map(emp => emp.id === updatedEmp.id ? updatedEmp : emp));
+    showToast('Employee profile updated successfully!', 'success');
   };
 
   // CSS helper
@@ -87,8 +123,45 @@ export default function Employees() {
           <div className={styles.searchGroup}>
             <div className={styles.searchContainer}>
               <Search className={styles.searchIcon} size={18} />
-              <input type="text" placeholder="Search" className={styles.searchInput} />
+              <input 
+                type="text" 
+                placeholder="Search by name..." 
+                className={styles.searchInput} 
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                  setIsLoading(true);
+                }}
+              />
             </div>
+            
+            <select
+              value={departmentFilter}
+              onChange={(e) => {
+                setDepartmentFilter(e.target.value);
+                setCurrentPage(1);
+                setIsLoading(true);
+              }}
+              style={{
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                backgroundColor: 'white',
+                fontSize: '14px',
+                color: '#334155',
+                outline: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              <option value="">All Departments</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Design">Design</option>
+              <option value="Finance">Finance</option>
+              <option value="Marketing">Marketing</option>
+              <option value="General">General</option>
+            </select>
           </div>
           
           <div className={styles.actionGroup}>
@@ -113,11 +186,21 @@ export default function Employees() {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    Loading employees...
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index}>
+                    <td><div className={styles.skeleton} style={{ width: '40px', height: '16px' }}></div></td>
+                    <td>
+                      <div className={styles.employeeCell}>
+                        <div className={`${styles.skeleton} ${styles.skeletonCircle}`} style={{ width: '32px', height: '32px' }}></div>
+                        <div className={styles.skeleton} style={{ width: '120px', height: '16px' }}></div>
+                      </div>
+                    </td>
+                    <td><div className={styles.skeleton} style={{ width: '100px', height: '16px' }}></div></td>
+                    <td><div className={styles.skeleton} style={{ width: '80px', height: '16px' }}></div></td>
+                    <td><div className={styles.skeleton} style={{ width: '60px', height: '24px', borderRadius: '12px' }}></div></td>
+                    <td><div className={styles.skeleton} style={{ width: '90px', height: '28px' }}></div></td>
+                  </tr>
+                ))
               ) : error ? (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>
@@ -140,8 +223,8 @@ export default function Employees() {
                         <span className={styles.empName}>{emp.name}</span>
                       </div>
                     </td>
-                    <td>{emp.designation}</td>
-                    <td>{emp.department}</td>
+                    <td>{designations[Number(emp.designation)] || emp.designation}</td>
+                    <td>{departments[Number(emp.department)] || emp.department}</td>
                     <td>
                       <span className={`${styles.statusPill} ${getStatusClass(emp.status)}`}>
                         {emp.status}
@@ -182,6 +265,34 @@ export default function Employees() {
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className={styles.pagination}>
+          <button 
+            type="button" 
+            className={styles.pageBtn}
+            onClick={() => {
+              setCurrentPage(prev => Math.max(prev - 1, 1));
+              setIsLoading(true);
+            }}
+            disabled={currentPage === 1 || isLoading}
+          >
+            &lt; Previous
+          </button>
+          <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button 
+            type="button" 
+            className={styles.pageBtn}
+            onClick={() => {
+              setCurrentPage(prev => Math.min(prev + 1, totalPages));
+              setIsLoading(true);
+            }}
+            disabled={currentPage === totalPages || isLoading}
+          >
+            Next &gt;
+          </button>
         </div>
       </div>
 

@@ -16,6 +16,7 @@ import Step6Documents from './Step6Documents';
 
 import type { EmployeeData } from '../../types';
 import { employeeApi } from '../../../../services/employeeApi';
+import { useToast } from '../../../../components/ToastContext';
 
 interface AddEmployeeWizardProps {
   isEditMode?: boolean;
@@ -33,6 +34,7 @@ const STEPS_CONFIG = [
 
 export default function AddEmployeeWizard({ isEditMode = false, initialData }: AddEmployeeWizardProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [prevInitialData, setPrevInitialData] = useState<Partial<EmployeeData> | null | undefined>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +63,7 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
     contractStatus: '',
     contractStart: '',
     contractEnd: '',
-    contractFile: '',
+    contractFile: null as File | string | null,
     
     // Step 4: Payroll
     wageType: '',
@@ -78,8 +80,8 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
     attendanceRequired: false,
     
     // Step 6: Documents & Skills
-    resumeFile: '',
-    certificatesFile: '',
+    resumeFile: null as File | string | null,
+    certificatesFile: null as File | string | null,
     skills: ''
   });
 
@@ -105,6 +107,20 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
     if (currentStep < 6) {
       setCurrentStep(prev => prev + 1);
     } else {
+      // Validation Check
+      if (!formData.name.trim()) {
+        showToast('Full Name is required', 'error');
+        return;
+      }
+      if (!formData.department) {
+        showToast('Department is required', 'error');
+        return;
+      }
+      if (!formData.contractType.trim()) {
+        showToast('Contract Type is required', 'error');
+        return;
+      }
+
       // Finalize Registration / Save Profile
       let empId = formData.id;
       if (!isEditMode && !empId) {
@@ -113,27 +129,42 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
 
       const skillsArray = formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
 
+      // Convert local wizard properties into EmployeeData payload shape
       const payload: EmployeeData = {
         ...formData,
         id: empId,
-        skills: skillsArray
+        skills: skillsArray,
+        // Stringify file values if they are names or handle them as is
+        contractFile: formData.contractFile instanceof File ? formData.contractFile.name : (formData.contractFile || undefined),
+        resumeFile: formData.resumeFile instanceof File ? formData.resumeFile.name : (formData.resumeFile || undefined),
+        certificatesFile: formData.certificatesFile instanceof File ? formData.certificatesFile.name : (formData.certificatesFile || undefined),
+      } as unknown as EmployeeData;
+
+      // If we are passing files directly to the API, we can construct API payload with the raw files:
+      const apiPayload: Partial<EmployeeData> & Record<string, unknown> = {
+        ...formData,
+        id: empId,
+        skills: skillsArray,
+        contractFile: formData.contractFile,
+        resumeFile: formData.resumeFile,
+        certificatesFile: formData.certificatesFile,
       };
 
       setIsSubmitting(true);
       const apiCall = isEditMode
-        ? employeeApi.update(payload.id, payload)
-        : employeeApi.create(payload);
+        ? employeeApi.update(payload.id, apiPayload)
+        : employeeApi.create(apiPayload);
 
       apiCall
         .then(() => {
           setIsSubmitting(false);
-          alert(isEditMode ? 'Employee profile updated successfully!' : 'Employee registered successfully!');
+          showToast(isEditMode ? 'Employee profile updated successfully!' : 'Employee registered successfully!', 'success');
           navigate('/employees');
         })
         .catch(err => {
           setIsSubmitting(false);
           console.error(err);
-          alert('An error occurred: ' + (err.message || 'unknown error'));
+          showToast('An error occurred during submission', 'error');
         });
     }
   };

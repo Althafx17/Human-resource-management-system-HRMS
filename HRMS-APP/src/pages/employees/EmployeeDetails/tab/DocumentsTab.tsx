@@ -4,6 +4,9 @@ import type { EmployeeData } from '../../types';
 
 interface DocumentsTabProps {
   employee: EmployeeData;
+  isEditing?: boolean;
+  editData?: EmployeeData | null;
+  onChange?: (fields: Partial<EmployeeData>) => void;
 }
 
 export default function DocumentsTab({ employee }: DocumentsTabProps) {

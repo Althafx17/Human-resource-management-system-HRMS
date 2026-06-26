@@ -8,7 +8,7 @@ interface Step3Props {
     contractStatus: string;
     contractStart: string;
     contractEnd: string;
-    contractFile: string; // filename
+    contractFile: File | string | null; // File object or filename
   };
   updateData: (fields: Partial<Step3Props['data']>) => void;
 }
@@ -23,7 +23,7 @@ export default function Step3Contract({ data, updateData }: Step3Props) {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      updateData({ contractFile: e.target.files[0].name });
+      updateData({ contractFile: e.target.files[0] });
     }
   };
 
@@ -108,7 +108,9 @@ export default function Step3Contract({ data, updateData }: Step3Props) {
             <div className={styles.dropzoneText}>
               <span>
                 {data.contractFile ? (
-                  <span style={{ color: '#10b981' }}>Selected: {data.contractFile}</span>
+                  <span style={{ color: '#10b981' }}>
+                    Selected: {typeof data.contractFile === 'string' ? data.contractFile : data.contractFile.name}
+                  </span>
                 ) : (
                   "Click to upload or drag & drop"
                 )}
