@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-// We can reuse the exact same CSS module!
-import styles from './AddEmployeeModal.module.css'; 
+import styles from './EditEmployeeModal.module.css'; 
 import type { EmployeeData } from './types';
 import { employeeApi } from '../../services/employeeApi';
 import { useToast } from '../../components/ToastContext';
@@ -129,61 +128,33 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px' }}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2>Edit Employee Profile</h2>
-          <button className={styles.closeBtn} onClick={onClose} type="button" title="Close modal" aria-label="Close modal"><X size={20} /></button>
+          <button className={styles.closeBtn} onClick={onClose} type="button" title="Close modal" aria-label="Close modal">
+            <X size={20} />
+          </button>
         </div>
 
         {/* Modal Internal Navigation Tab Bar */}
-        <div style={{ display: 'flex', borderBottom: '1px solid #eef2f6', padding: '0 24px', backgroundColor: '#fdfdfd' }}>
+        <div className={styles.tabsContainer}>
           <button 
             type="button" 
-            style={{
-              padding: '14px 16px',
-              background: 'none',
-              border: 'none',
-              borderBottom: modalTab === 'personal' ? '2px solid #1a3646' : '2px solid transparent',
-              color: modalTab === 'personal' ? '#1a3646' : '#64748b',
-              fontWeight: modalTab === 'personal' ? '600' : '500',
-              cursor: 'pointer',
-              fontSize: '14px',
-              transition: 'all 0.2s'
-            }} 
+            className={`${styles.tab} ${modalTab === 'personal' ? styles.activeTab : ''}`}
             onClick={() => setModalTab('personal')}
           >
             Personal Info
           </button>
           <button 
             type="button" 
-            style={{
-              padding: '14px 16px',
-              background: 'none',
-              border: 'none',
-              borderBottom: modalTab === 'job' ? '2px solid #1a3646' : '2px solid transparent',
-              color: modalTab === 'job' ? '#1a3646' : '#64748b',
-              fontWeight: modalTab === 'job' ? '600' : '500',
-              cursor: 'pointer',
-              fontSize: '14px',
-              transition: 'all 0.2s'
-            }} 
+            className={`${styles.tab} ${modalTab === 'job' ? styles.activeTab : ''}`}
             onClick={() => setModalTab('job')}
           >
             Job Details
           </button>
           <button 
             type="button" 
-            style={{
-              padding: '14px 16px',
-              background: 'none',
-              border: 'none',
-              borderBottom: modalTab === 'payroll' ? '2px solid #1a3646' : '2px solid transparent',
-              color: modalTab === 'payroll' ? '#1a3646' : '#64748b',
-              fontWeight: modalTab === 'payroll' ? '600' : '500',
-              cursor: 'pointer',
-              fontSize: '14px',
-              transition: 'all 0.2s'
-            }} 
+            className={`${styles.tab} ${modalTab === 'payroll' ? styles.activeTab : ''}`}
             onClick={() => setModalTab('payroll')}
           >
             Payroll & Bank
@@ -191,12 +162,12 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className={styles.body} style={{ minHeight: '340px' }}>
+          <div className={styles.body}>
             {/* PERSONAL INFO TAB */}
             {modalTab === 'personal' && (
               <div>
-                <div className={styles.avatarSection} style={{ marginBottom: '16px' }}>
-                  <img src={employeeData.avatar} alt="Avatar" className={styles.avatarImage} style={{ width: '70px', height: '70px', border: '2px solid #1a3646' }} />
+                <div className={styles.avatarSection}>
+                  <img src={employeeData.avatar} alt="Avatar" className={styles.avatarImage} />
                 </div>
                 <div className={styles.formGrid}>
                   <div className={styles.inputGroup}>
@@ -215,7 +186,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
                     <label htmlFor="edit-dob">Date of Birth</label>
                     <input id="edit-dob" type="date" name="dob" value={formData.dob} onChange={handleChange} className={styles.inputField} />
                   </div>
-                  <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
+                  <div className={`${styles.inputGroup} ${styles.spanFull}`}>
                     <label htmlFor="edit-address">Address</label>
                     <input id="edit-address" type="text" name="address" value={formData.address} onChange={handleChange} className={styles.inputField} />
                   </div>
@@ -227,7 +198,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
                     <label htmlFor="edit-emergency-phone">Emergency Contact Phone</label>
                     <input id="edit-emergency-phone" type="text" name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleChange} className={styles.inputField} />
                   </div>
-                  <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
+                  <div className={`${styles.inputGroup} ${styles.spanFull}`}>
                     <label htmlFor="edit-skills">Skills (comma-separated)</label>
                     <input id="edit-skills" type="text" name="skills" value={formData.skills} onChange={handleChange} placeholder="e.g. React, TypeScript, Figma" className={styles.inputField} />
                   </div>
@@ -248,8 +219,9 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
                     <option value="Engineering">Engineering</option>
                     <option value="Design">Design</option>
                     <option value="Finance">Finance</option>
+                    <option value="Human Resources">Human Resources</option>
                     <option value="Marketing">Marketing</option>
-                    <option value="General">General</option>
+                    <option value="Sales">Sales</option>
                   </select>
                 </div>
                 <div className={styles.inputGroup}>
@@ -262,7 +234,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
                 </div>
                 <div className={styles.inputGroup}>
                   <label htmlFor="edit-joining">Joining Date</label>
-                  <input id="edit-joining" type="text" name="joiningDate" value={formData.joiningDate} onChange={handleChange} className={styles.inputField} placeholder="YYYY-MM-DD" />
+                  <input id="edit-joining" type="date" name="joiningDate" value={formData.joiningDate} onChange={handleChange} className={styles.inputField} />
                 </div>
                 <div className={styles.inputGroup}>
                   <label htmlFor="edit-manager">Reporting Manager</label>
@@ -272,7 +244,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
                   <label htmlFor="edit-location">Work Location</label>
                   <input id="edit-location" type="text" name="workLocation" value={formData.workLocation} onChange={handleChange} className={styles.inputField} />
                 </div>
-                <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
+                <div className={`${styles.inputGroup} ${styles.spanFull}`}>
                   <label htmlFor="edit-shift">Shift</label>
                   <input id="edit-shift" type="text" name="shift" value={formData.shift} onChange={handleChange} className={styles.inputField} />
                 </div>

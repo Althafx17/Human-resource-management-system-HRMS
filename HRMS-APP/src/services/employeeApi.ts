@@ -122,7 +122,10 @@ export const employeeApi = {
     const params = new URLSearchParams();
     params.append('page', String(page));
     if (search) params.append('search', search);
-    if (department) params.append('department', department);
+    if (department) {
+      const deptId = departmentNameToId[department] || department;
+      params.append('department', String(deptId));
+    }
 
     const response = await apiClient.get<PaginatedResponse<EmployeeData>>(`/employees/?${params.toString()}`);
     if (response.data && response.data.results) {
