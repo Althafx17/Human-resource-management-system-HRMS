@@ -197,12 +197,12 @@ export const employeeApi = {
       };
     }
 
-    const response = await apiClient.put<EmployeeData>(`/employees/${id}`, payload, config);
+    const response = await apiClient.put<EmployeeData>(`/employees/${id}/`, payload, config);
     return normalizeEmployee(response.data);
   },
 
   async delete(id: string): Promise<void> {
-    await apiClient.delete(`/employees/${id}`);
+    await apiClient.delete(`/employees/${id}/`);
   },
 
   async getDepartments(): Promise<any[]> {

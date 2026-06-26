@@ -104,6 +104,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    if (!employeeData?.id) { console.error("Update failed: Employee ID is undefined"); return; }
     e.preventDefault();
 
     // Process skills comma list back into array
@@ -124,9 +125,9 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
         onSaveSuccess(updatedEmployee);
         onClose();
       })
-      .catch(err => {
+      .catch(error => {
         setIsSaving(false);
-        console.error(err);
+        console.error("Update Error:", error.response?.data || error.message);
         showToast('Failed to update employee details', 'error');
       });
   };

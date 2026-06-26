@@ -79,14 +79,15 @@ export default function Employees() {
 
   // Handle Deleting an employee
   const handleDelete = (id: string) => {
+    if (!id) { console.error("Delete failed: ID is undefined"); return; }
     if (window.confirm("Are you sure you want to delete this employee?")) {
       employeeApi.delete(id)
         .then(() => {
           setEmployees(prev => prev.filter(emp => emp.id !== id));
           showToast('Employee deleted successfully!', 'success');
         })
-        .catch(err => {
-          console.error(err);
+        .catch(error => {
+          console.error("Delete Error:", error.response?.data || error.message);
           showToast('Failed to delete employee', 'error');
         });
     }
