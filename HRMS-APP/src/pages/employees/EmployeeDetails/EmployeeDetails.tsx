@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom'; // 1. Added useParams
 import { 
   ArrowLeft, Phone, Mail, Edit, Download, 
@@ -26,6 +26,7 @@ const TABS = [
 export default function EmployeeDetails() {
   const navigate = useNavigate();
   const { id } = useParams(); // 3. This grabs the ID from the URL (e.g., 'EMP002')
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
   
   const [activeTab, setActiveTab] = useState('OVERVIEW');
@@ -220,8 +221,52 @@ export default function EmployeeDetails() {
 
         <div className={styles.profileHeader}>
           <div className={styles.profileInfo} style={{ width: '100%' }}>
-            <div className={styles.avatarPlaceholder}>
-              <img src={employee.avatar} alt="Avatar" style={{width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover'}} />
+            <div 
+              className={styles.avatarPlaceholder}
+              onClick={() => isEditing && avatarInputRef.current?.click()}
+              style={{ cursor: isEditing ? 'pointer' : 'default', position: 'relative' }}
+              title={isEditing ? "Click to change photo" : undefined}
+            >
+              <input
+                type="file"
+                ref={avatarInputRef}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleTabFormChange({ avatar: file });
+                  }
+                }}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+              <img 
+                src={
+                  editFormData?.avatar instanceof File 
+                    ? URL.createObjectURL(editFormData.avatar) 
+                    : (editFormData?.avatar || employee.avatar)
+                } 
+                alt="Avatar" 
+                style={{width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover'}} 
+              />
+              {isEditing && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background: 'rgba(0, 0, 0, 0.6)',
+                  color: 'white',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  textAlign: 'center',
+                  padding: '4px 0',
+                  borderBottomLeftRadius: '16px',
+                  borderBottomRightRadius: '16px',
+                  pointerEvents: 'none'
+                }}>
+                  Change
+                </div>
+              )}
             </div>
             <div className={styles.details} style={{ flex: 1 }}>
               {isEditing ? (

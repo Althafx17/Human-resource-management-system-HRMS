@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styles from './AddEmployee.module.css';
 
 interface Step1Props {
@@ -8,19 +8,52 @@ interface Step1Props {
     phone: string;
     emergencyContactName: string;
     address: string;
+    avatar?: File | string | null;
   };
   updateData: (fields: Partial<Step1Props['data']>) => void;
 }
 
 export default function Step1PersonalInfo({ data, updateData }: Step1Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     updateData({ [name]: value });
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      updateData({ avatar: file });
+    }
+  };
+
+  const avatarSrc = data.avatar instanceof File
+    ? URL.createObjectURL(data.avatar)
+    : (data.avatar || 'https://i.pravatar.cc/150?u=new');
+
   return (
     <div className={styles.formCard}>
       <h2 className={styles.stepTitle}>Step 1: Personal Info</h2>
+      
+      <div className={styles.avatarSection}>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          accept="image/*" 
+          style={{ display: 'none' }} 
+        />
+        <div className={styles.avatarCircle} onClick={handleUploadClick} title="Upload photo">
+          <img src={avatarSrc} alt="Avatar Preview" className={styles.avatarImage} />
+        </div>
+        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Click circle to change profile photo</span>
+      </div>
+
       <div className={styles.formGrid}>
         <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
           <label htmlFor="name">Full Name</label>

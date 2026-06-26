@@ -48,7 +48,7 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
     phone: '',
     emergencyContactName: '',
     address: '',
-    avatar: 'https://i.pravatar.cc/150?u=new', // default placeholder
+    avatar: 'https://i.pravatar.cc/150?u=new' as File | string, // default placeholder
     
     // Step 2: Job Details
     department: '',

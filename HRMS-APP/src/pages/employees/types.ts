@@ -1,7 +1,7 @@
 export interface EmployeeData {
   id: string;
   name: string;
-  avatar: string;
+  avatar: string | File;
   designation: string;
   department: string;
   status: 'Active' | 'On Leave' | 'In Active';

@@ -20,6 +20,8 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
   const [modalTab, setModalTab] = useState<ModalTab>('personal');
   const [isSaving, setIsSaving] = useState(false);
   
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const [formData, setFormData] = useState<{
     name: string;
     department: string;
@@ -40,6 +42,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
     emergencyContactName: string;
     emergencyContactPhone: string;
     skills: string;
+    avatar: string | File;
   }>({
     name: '',
     department: '',
@@ -59,7 +62,8 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
     accountNumber: '',
     emergencyContactName: '',
     emergencyContactPhone: '',
-    skills: ''
+    skills: '',
+    avatar: ''
   });
 
   // Sync state with props during render when employeeData changes
@@ -85,7 +89,8 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
         accountNumber: employeeData.accountNumber || '',
         emergencyContactName: employeeData.emergencyContactName || '',
         emergencyContactPhone: employeeData.emergencyContactPhone || '',
-        skills: employeeData.skills ? employeeData.skills.join(', ') : ''
+        skills: employeeData.skills ? employeeData.skills.join(', ') : '',
+        avatar: employeeData.avatar || ''
       });
       setModalTab('personal'); // Reset modal tab to personal on load
     }
@@ -167,7 +172,30 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
             {modalTab === 'personal' && (
               <div>
                 <div className={styles.avatarSection}>
-                  <img src={employeeData.avatar} alt="Avatar" className={styles.avatarImage} />
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setFormData(prev => ({ ...prev, avatar: file }));
+                      }
+                    }}
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                  />
+                  <div 
+                    style={{ cursor: 'pointer', position: 'relative', width: '70px', height: '70px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #1a3646' }}
+                    onClick={() => fileInputRef.current?.click()}
+                    title="Change Photo"
+                  >
+                    <img 
+                      src={formData.avatar instanceof File ? URL.createObjectURL(formData.avatar) : (formData.avatar || employeeData.avatar)} 
+                      alt="Avatar" 
+                      className={styles.avatarImage} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
                 </div>
                 <div className={styles.formGrid}>
                   <div className={styles.inputGroup}>
