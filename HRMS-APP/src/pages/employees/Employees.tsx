@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, SquarePen, Trash2, Eye } from 'lucide-react';
 import styles from './Employees.module.css';
-import EditEmployeeModal from "./EditEmployeeModal";
+import EmployeeModal from "./EmployeeModal";
 import type { EmployeeData } from './types';
 import { employeeApi } from '../../services/employeeApi';
 import { useToast } from '../../components/ToastContext';
@@ -298,9 +298,12 @@ export default function Employees() {
       </div>
 
       {/* Render Modals */}
-      <EditEmployeeModal
+      <EmployeeModal
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEmployeeToEdit(null);
+        }}
         employeeData={employeeToEdit}
         onSaveSuccess={handleSaveEdit}
       />

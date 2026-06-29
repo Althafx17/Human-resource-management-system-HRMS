@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import styles from './EditEmployeeModal.module.css'; 
+import { X, User } from 'lucide-react';
+import styles from './EmployeeModal.module.css'; 
 import type { EmployeeData } from './types';
 import { employeeApi } from '../../services/employeeApi';
 import { useToast } from '../../components/ToastContext';
 
-interface EditEmployeeModalProps {
+interface EmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  employeeData: EmployeeData | null;
-  onSaveSuccess: (updatedEmployee: EmployeeData) => void;
+  employeeData: EmployeeData | null; // Null means Add Mode, object means Edit Mode
+  onSaveSuccess: (savedEmployee: EmployeeData) => void;
 }
 
 type ModalTab = 'personal' | 'job' | 'payroll';
 
-export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSaveSuccess }: EditEmployeeModalProps) {
+export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuccess }: EmployeeModalProps) {
   const { showToast } = useToast();
   const [prevEmployeeData, setPrevEmployeeData] = useState<EmployeeData | null>(null);
   const [modalTab, setModalTab] = useState<ModalTab>('personal');
@@ -45,8 +45,8 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
     avatar: string | File;
   }>({
     name: '',
-    department: '',
-    designation: '',
+    department: 'Engineering',
+    designation: 'Full Stack Developer',
     status: 'Active',
     phone: '',
     email: '',
@@ -57,7 +57,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
     workLocation: '',
     shift: '',
     basicSalary: '',
-    paymentFrequency: '',
+    paymentFrequency: 'Monthly',
     bankName: '',
     accountNumber: '',
     emergencyContactName: '',
@@ -72,8 +72,8 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
     if (employeeData) {
       setFormData({
         name: employeeData.name || '',
-        department: employeeData.department || '',
-        designation: employeeData.designation || '',
+        department: employeeData.department || 'Engineering',
+        designation: employeeData.designation || 'Full Stack Developer',
         status: employeeData.status || 'Active',
         phone: employeeData.phone || '',
         email: employeeData.email || '',
@@ -84,7 +84,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
         workLocation: employeeData.workLocation || '',
         shift: employeeData.shift || '',
         basicSalary: employeeData.basicSalary || '',
-        paymentFrequency: employeeData.paymentFrequency || '',
+        paymentFrequency: employeeData.paymentFrequency || 'Monthly',
         bankName: employeeData.bankName || '',
         accountNumber: employeeData.accountNumber || '',
         emergencyContactName: employeeData.emergencyContactName || '',
@@ -93,10 +93,35 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
         avatar: employeeData.avatar || ''
       });
       setModalTab('personal'); // Reset modal tab to personal on load
+    } else {
+      // Initialize empty form for Add Mode
+      setFormData({
+        name: '',
+        department: 'Engineering',
+        designation: 'Full Stack Developer',
+        status: 'Active',
+        phone: '',
+        email: '',
+        dob: '',
+        address: '',
+        joiningDate: new Date().toISOString().split('T')[0],
+        reportingManager: '',
+        workLocation: '',
+        shift: '',
+        basicSalary: '',
+        paymentFrequency: 'Monthly',
+        bankName: '',
+        accountNumber: '',
+        emergencyContactName: '',
+        emergencyContactPhone: '',
+        skills: '',
+        avatar: ''
+      });
+      setModalTab('personal');
     }
   }
 
-  if (!isOpen || !employeeData) return null;
+  if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -104,8 +129,12 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    if (!employeeData?.id) { console.error("Update failed: Employee ID is undefined"); return; }
     e.preventDefault();
+
+    if (!formData.name.trim()) {
+      showToast('Employee name is required', 'error');
+      return;
+    }
 
     // Process skills comma list back into array
     const skillsArray = formData.skills
@@ -113,30 +142,37 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
       : [];
 
     const payload = {
-      ...employeeData,
+      ...(employeeData || {}),
       ...formData,
       skills: skillsArray
     };
 
     setIsSaving(true);
-    employeeApi.update(employeeData.id, payload)
-      .then((updatedEmployee) => {
+    const isEditMode = !!employeeData;
+    const apiCall = isEditMode
+      ? employeeApi.update(employeeData.id, payload)
+      : employeeApi.create(payload);
+
+    apiCall
+      .then((savedEmployee) => {
         setIsSaving(false);
-        onSaveSuccess(updatedEmployee);
+        onSaveSuccess(savedEmployee);
         onClose();
       })
       .catch(error => {
         setIsSaving(false);
-        console.error("Update Error:", error.response?.data || error.message);
-        showToast('Failed to update employee details', 'error');
+        console.error("Save Error:", error.response?.data || error.message);
+        showToast(isEditMode ? 'Failed to update employee details' : 'Failed to create employee', 'error');
       });
   };
+
+  const isEditMode = !!employeeData;
 
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2>Edit Employee Profile</h2>
+          <h2>{isEditMode ? 'Edit Employee Profile' : 'Add New Employee'}</h2>
           <button className={styles.closeBtn} onClick={onClose} type="button" title="Close modal" aria-label="Close modal">
             <X size={20} />
           </button>
@@ -186,21 +222,26 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
                     style={{ display: 'none' }}
                   />
                   <div 
-                    style={{ cursor: 'pointer', position: 'relative', width: '70px', height: '70px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #1a3646' }}
+                    style={{ cursor: 'pointer', position: 'relative', width: '70px', height: '70px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #1a3646', display: 'flex', alignItems: 'center', justify: 'center', backgroundColor: '#f1f5f9' }}
                     onClick={() => fileInputRef.current?.click()}
                     title="Change Photo"
                   >
-                    <img 
-                      src={formData.avatar instanceof File ? URL.createObjectURL(formData.avatar) : (formData.avatar || employeeData.avatar)} 
-                      alt="Avatar" 
-                      className={styles.avatarImage} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                    {formData.avatar ? (
+                      <img 
+                        src={formData.avatar instanceof File ? URL.createObjectURL(formData.avatar) : formData.avatar} 
+                        alt="Avatar" 
+                        className={styles.avatarImage} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <User size={32} color="#64748b" />
+                    )}
                   </div>
                 </div>
+
                 <div className={styles.formGrid}>
                   <div className={styles.inputGroup}>
-                    <label htmlFor="edit-name">Full Name</label>
+                    <label htmlFor="edit-name">Full Name *</label>
                     <input id="edit-name" type="text" name="name" value={formData.name} onChange={handleChange} className={styles.inputField} required />
                   </div>
                   <div className={styles.inputGroup}>
@@ -239,11 +280,11 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
             {modalTab === 'job' && (
               <div className={styles.formGrid}>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-designation">Designation</label>
+                  <label htmlFor="edit-designation">Designation *</label>
                   <input id="edit-designation" type="text" name="designation" value={formData.designation} onChange={handleChange} className={styles.inputField} required />
                 </div>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-department">Department</label>
+                  <label htmlFor="edit-department">Department *</label>
                   <select id="edit-department" name="department" value={formData.department} onChange={handleChange} className={styles.inputField} required>
                     <option value="Engineering">Engineering</option>
                     <option value="Design">Design</option>
@@ -254,7 +295,7 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
                   </select>
                 </div>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-status">Status</label>
+                  <label htmlFor="edit-status">Status *</label>
                   <select id="edit-status" name="status" value={formData.status} onChange={handleChange} className={styles.inputField} required>
                     <option value="Active">Active</option>
                     <option value="On Leave">On Leave</option>
@@ -262,51 +303,66 @@ export default function EditEmployeeModal({ isOpen, onClose, employeeData, onSav
                   </select>
                 </div>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-joining">Joining Date</label>
-                  <input id="edit-joining" type="date" name="joiningDate" value={formData.joiningDate} onChange={handleChange} className={styles.inputField} />
+                  <label htmlFor="edit-joiningDate">Joining Date *</label>
+                  <input id="edit-joiningDate" type="date" name="joiningDate" value={formData.joiningDate} onChange={handleChange} className={styles.inputField} required />
                 </div>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-manager">Reporting Manager</label>
-                  <input id="edit-manager" type="text" name="reportingManager" value={formData.reportingManager} onChange={handleChange} className={styles.inputField} />
+                  <label htmlFor="edit-reportingManager">Reporting Manager</label>
+                  <input id="edit-reportingManager" type="text" name="reportingManager" value={formData.reportingManager} onChange={handleChange} className={styles.inputField} />
                 </div>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-location">Work Location</label>
-                  <input id="edit-location" type="text" name="workLocation" value={formData.workLocation} onChange={handleChange} className={styles.inputField} />
+                  <label htmlFor="edit-workLocation">Work Location</label>
+                  <input id="edit-workLocation" type="text" name="workLocation" value={formData.workLocation} onChange={handleChange} className={styles.inputField} />
                 </div>
-                <div className={`${styles.inputGroup} ${styles.spanFull}`}>
+                <div className={styles.inputGroup}>
                   <label htmlFor="edit-shift">Shift</label>
                   <input id="edit-shift" type="text" name="shift" value={formData.shift} onChange={handleChange} className={styles.inputField} />
                 </div>
               </div>
             )}
 
-            {/* PAYROLL & BANK DETAILS TAB */}
+            {/* PAYROLL TAB */}
             {modalTab === 'payroll' && (
               <div className={styles.formGrid}>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-salary">Basic Salary</label>
-                  <input id="edit-salary" type="text" name="basicSalary" value={formData.basicSalary} onChange={handleChange} className={styles.inputField} />
+                  <label htmlFor="edit-basicSalary">Basic Salary (USD) *</label>
+                  <input id="edit-basicSalary" type="number" name="basicSalary" value={formData.basicSalary} onChange={handleChange} className={styles.inputField} required />
                 </div>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-frequency">Payment Frequency</label>
-                  <input id="edit-frequency" type="text" name="paymentFrequency" value={formData.paymentFrequency} onChange={handleChange} className={styles.inputField} />
+                  <label htmlFor="edit-paymentFrequency">Payment Frequency *</label>
+                  <select id="edit-paymentFrequency" name="paymentFrequency" value={formData.paymentFrequency} onChange={handleChange} className={styles.inputField} required>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Weekly">Weekly</option>
+                    <option value="Bi-Weekly">Bi-Weekly</option>
+                  </select>
                 </div>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-bank">Bank Name</label>
-                  <input id="edit-bank" type="text" name="bankName" value={formData.bankName} onChange={handleChange} className={styles.inputField} />
+                  <label htmlFor="edit-bankName">Bank Name</label>
+                  <input id="edit-bankName" type="text" name="bankName" value={formData.bankName} onChange={handleChange} className={styles.inputField} />
                 </div>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="edit-account">Account Number</label>
-                  <input id="edit-account" type="text" name="accountNumber" value={formData.accountNumber} onChange={handleChange} className={styles.inputField} />
+                  <label htmlFor="edit-accountNumber">Account Number</label>
+                  <input id="edit-accountNumber" type="text" name="accountNumber" value={formData.accountNumber} onChange={handleChange} className={styles.inputField} />
                 </div>
               </div>
             )}
           </div>
 
           <div className={styles.footer}>
-            <button type="button" className={styles.btnCancel} onClick={onClose} disabled={isSaving}>Cancel</button>
-            <button type="submit" className={styles.btnSubmit} disabled={isSaving}>
-              {isSaving ? 'Saving...' : 'Save Changes'}
+            <button 
+              type="button" 
+              className={styles.btnCancel} 
+              onClick={onClose}
+              disabled={isSaving}
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className={styles.btnSave}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Saving...' : 'Save Profile'}
             </button>
           </div>
         </form>

@@ -14,9 +14,9 @@ import Step4Payroll from './Step4Payroll';
 import Step5WorkArea from './Step5WorkArea';
 import Step6Documents from './Step6Documents';
 
-import type { EmployeeData } from '../../types';
-import { employeeApi } from '../../../../services/employeeApi';
-import { useToast } from '../../../../components/ToastContext';
+import type { EmployeeData } from '../types';
+import { employeeApi } from '../../../services/employeeApi';
+import { useToast } from '../../../components/ToastContext';
 
 interface AddEmployeeWizardProps {
   isEditMode?: boolean;

@@ -198,12 +198,12 @@
   background-color: #dc2626;
 }
 
-.btnCancel:disabled, .btnSubmit:disabled {
+.btnCancel:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btnSubmit {
+.btnSave {
   background-color: #1a3646; 
   color: white;
   border: none;
@@ -216,6 +216,11 @@
   height: 40px;
 }
 
-.btnSubmit:hover:not(:disabled) {
-  background-color: #112530;
+.btnSave:hover:not(:disabled) {
+  background-color: #112531;
+}
+
+.btnSave:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

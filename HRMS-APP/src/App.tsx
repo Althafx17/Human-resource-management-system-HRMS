@@ -10,7 +10,7 @@ import Overtime from './pages/Overtime/Overtime';
 import Expenses from './pages/Expenses/Expenses';
 import PayrollDashboard from './pages/Payroll/PayrollDashboard';
 import EmployeeDetails from './pages/employees/EmployeeDetails/EmployeeDetails';
-import AddEmployeeWizard from './pages/employees/EmployeeDetails/add-employee/AddEmployeeWizard';
+import AddEmployeeWizard from './pages/employees/add-employee/AddEmployeeWizard';
 import Login from './pages/login/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
