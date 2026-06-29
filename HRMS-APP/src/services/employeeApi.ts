@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { EmployeeData } from '../pages/employees/types';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+const apiBaseUrl = import.meta.env.VITE_API_TARGET_URL || import.meta.env.VITE_API_BASE_URL || '/api';
 
 const apiClient = axios.create({
   baseURL: apiBaseUrl,
@@ -74,8 +74,13 @@ const designationTitleToId: Record<string, number> = {
   'Staff': 4,
 };
 
+const nameToIdCache: Record<string, number> = {};
+
 function normalizeEmployee(apiData: any): EmployeeData {
   if (!apiData) return apiData;
+  if (apiData.name && apiData.id) {
+    nameToIdCache[apiData.name] = Number(apiData.id);
+  }
   return {
     ...apiData,
     id: String(apiData.id),
@@ -99,7 +104,14 @@ function denormalizeEmployee(formData: any): any {
     apiData.joining_date = formData.joiningDate;
   }
   if (formData.reportingManager !== undefined) {
-    apiData.reporting_manager = formData.reportingManager;
+    const managerVal = formData.reportingManager;
+    if (managerVal === '' || managerVal === 'No Manager' || managerVal === null) {
+      apiData.reporting_manager = null;
+    } else if (!isNaN(Number(managerVal)) && String(managerVal).trim() !== '') {
+      apiData.reporting_manager = Number(managerVal);
+    } else {
+      apiData.reporting_manager = nameToIdCache[managerVal] || null;
+    }
   }
   if (formData.basicSalary) {
     apiData.salary = formData.basicSalary;
