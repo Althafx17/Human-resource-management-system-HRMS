@@ -81,6 +81,13 @@ function normalizeEmployee(apiData: any): EmployeeData {
   if (apiData.name && apiData.id) {
     nameToIdCache[apiData.name] = Number(apiData.id);
   }
+  
+  const rawId = apiData.id;
+  const numericId = isNaN(Number(rawId))
+    ? Array.from(String(rawId)).reduce((sum, char) => sum + char.charCodeAt(0), 0)
+    : Number(rawId);
+  const portraitNum = (numericId % 99) + 1;
+
   return {
     ...apiData,
     id: String(apiData.id),
@@ -89,7 +96,7 @@ function normalizeEmployee(apiData: any): EmployeeData {
     reportingManager: apiData.reportingManager || apiData.reporting_manager || '',
     basicSalary: apiData.basicSalary || apiData.salary || '',
     status: apiData.status || 'Active',
-    avatar: apiData.avatar || `https://i.pravatar.cc/150?u=${apiData.id}`,
+    avatar: apiData.avatar || `https://randomuser.me/api/portraits/men/${portraitNum}.jpg`,
   };
 }
 
