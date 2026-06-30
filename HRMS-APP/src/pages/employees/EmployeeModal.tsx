@@ -1,3 +1,6 @@
+// ==========================================
+// 1. IMPORTS & DEPENDENCIES
+// ==========================================
 import React, { useState } from 'react';
 import { X, User } from 'lucide-react';
 import styles from './EmployeeModal.module.css'; 
@@ -5,23 +8,53 @@ import type { EmployeeData } from './types';
 import { employeeApi } from '../../services/employeeApi';
 import { useToast } from '../../components/ToastContext';
 
+// ==========================================
+// 2. TYPES & INTERFACES
+// ==========================================
+
+/**
+ * Props for the unified EmployeeModal component.
+ */
 interface EmployeeModalProps {
+  /** Controls visibility of the modal card. */
   isOpen: boolean;
+  /** Triggered when the user clicks cancel, close, or background backdrop. */
   onClose: () => void;
-  employeeData: EmployeeData | null; // Null means Add Mode, object means Edit Mode
+  /** Existing employee profile data to edit, or null if creating a new employee. */
+  employeeData: EmployeeData | null;
+  /** Callback triggered when the employee record is successfully created or updated in the backend. */
   onSaveSuccess: (savedEmployee: EmployeeData) => void;
 }
 
+/** Available navigation tabs in the modal form. */
 type ModalTab = 'personal' | 'job' | 'payroll';
 
+// ==========================================
+// 3. MAIN COMPONENT
+// ==========================================
+
+/**
+ * EmployeeModal Component
+ * 
+ * A tabbed popup modal container handling both creation (Add) and updates (Edit) of employee records.
+ * Integrates directly with the `employeeApi` and manages three sub-forms: Personal Info, Job Details, and Payroll.
+ */
 export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuccess }: EmployeeModalProps) {
   const { showToast } = useToast();
+  
+  // Track previous prop data to detect prop changes and sync React state
   const [prevEmployeeData, setPrevEmployeeData] = useState<EmployeeData | null>(null);
+  
+  // Active navigation tab
   const [modalTab, setModalTab] = useState<ModalTab>('personal');
+  
+  // Submit loading state
   const [isSaving, setIsSaving] = useState(false);
   
+  // File input ref for avatar image upload trigger
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  // Form states mapping directly to backend properties
   const [formData, setFormData] = useState<{
     name: string;
     department: string;
@@ -66,10 +99,11 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
     avatar: ''
   });
 
-  // Sync state with props during render when employeeData changes
+  // Sync state values with props when selected employeeData changes
   if (employeeData !== prevEmployeeData) {
     setPrevEmployeeData(employeeData);
     if (employeeData) {
+      // Pre-fill state values for Edit Mode
       setFormData({
         name: employeeData.name || '',
         department: employeeData.department || 'Engineering',
@@ -92,9 +126,10 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
         skills: employeeData.skills ? employeeData.skills.join(', ') : '',
         avatar: employeeData.avatar || ''
       });
-      setModalTab('personal'); // Reset modal tab to personal on load
+      // Reset navigation tab to first tab on profile load
+      setModalTab('personal');
     } else {
-      // Initialize empty form for Add Mode
+      // Clear form properties for Add Mode
       setFormData({
         name: '',
         department: 'Engineering',
@@ -104,6 +139,7 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
         email: '',
         dob: '',
         address: '',
+        // Automatically default joining date to today's local date
         joiningDate: new Date().toISOString().split('T')[0],
         reportingManager: '',
         workLocation: '',
@@ -121,22 +157,31 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
     }
   }
 
+  // Do not render anything if modal is closed
   if (!isOpen) return null;
 
+  /**
+   * Generic text/select input change handler updating form state dynamically.
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  /**
+   * Submits form payload to the backend REST API.
+   * Performs validation, formats comma-separated skills into arrays, and determines POST/PUT API action.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Required name check
     if (!formData.name.trim()) {
       showToast('Employee name is required', 'error');
       return;
     }
 
-    // Process skills comma list back into array
+    // Split skills string back into an array for API compatibility
     const skillsArray = formData.skills
       ? formData.skills.split(',').map(s => s.trim()).filter(Boolean)
       : [];
@@ -249,8 +294,8 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
                     <input id="edit-phone" type="text" name="phone" value={formData.phone} onChange={handleChange} className={styles.inputField} />
                   </div>
                   <div className={styles.inputGroup}>
-                    <label htmlFor="edit-email">Email</label>
-                    <input id="edit-email" type="email" name="email" value={formData.email} onChange={handleChange} className={styles.inputField} />
+                    <label htmlFor="edit-email">Email *</label>
+                    <input id="edit-email" type="email" name="email" value={formData.email} onChange={handleChange} className={styles.inputField} required />
                   </div>
                   <div className={styles.inputGroup}>
                     <label htmlFor="edit-dob">Date of Birth</label>

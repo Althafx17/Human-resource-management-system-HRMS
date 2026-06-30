@@ -1,9 +1,14 @@
+// ==========================================
+// 1. IMPORTS & DEPENDENCIES
+// ==========================================
 import axios from 'axios';
 import type { EmployeeData } from '../pages/employees/types';
 import { getCookie, deleteCookie } from './authApi';
 
+// Base API URL resolving to local Vite proxy /api or Vercel proxy
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
+// Create configured Axios client for employee operations
 const apiClient = axios.create({
   baseURL: apiBaseUrl,
   headers: {
@@ -11,7 +16,11 @@ const apiClient = axios.create({
   },
 });
 
-// Request Interceptor: Attach JWT token if it exists
+/**
+ * Request Interceptor:
+ * Attaches the JWT Bearer token dynamically before sending any request to the backend.
+ * Checks the cookie store first (for 30-day persistence) and falls back to local storage.
+ */
 apiClient.interceptors.request.use(
   (config) => {
     const token = getCookie('access_token') || localStorage.getItem('access_token');
@@ -25,12 +34,16 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response Interceptor: Handle 401 Unauthorized errors
+/**
+ * Response Interceptor:
+ * Intercepts HTTP 401 Unauthorized responses to perform session cleanup.
+ * Clears cookies and local storage tokens, then redirects the browser to the login page.
+ */
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear cookies and local storage
+      // Clear cookies and local storage to reset state
       deleteCookie('access_token');
       deleteCookie('refresh_token');
       deleteCookie('username');
@@ -46,6 +59,13 @@ apiClient.interceptors.response.use(
   }
 );
 
+// ==========================================
+// 2. TYPES & INTERFACES
+// ==========================================
+
+/**
+ * Interface representing a standard paginated response envelope from the Django REST API.
+ */
 interface PaginatedResponse<T> {
   count?: number;
   next?: string | null;
@@ -53,6 +73,11 @@ interface PaginatedResponse<T> {
   results: T[];
 }
 
+// ==========================================
+// 3. UTILITIES & NORMALIZERS
+// ==========================================
+
+// Mappings for UI string values to backend primary key IDs
 const departmentNameToId: Record<string, number> = {
   'Engineering': 1,
   'IT': 1,
@@ -79,14 +104,25 @@ const designationTitleToId: Record<string, number> = {
   'Staff': 4,
 };
 
+// Global cache populated during fetch to map employee names back to primary keys
 const nameToIdCache: Record<string, number> = {};
 
+/**
+ * Normalizes backend raw employee records into UI-compatible camelCase models.
+ * Also seeds nameToIdCache mapping and generates a deterministic male profile picture.
+ * 
+ * @param {any} apiData - Raw employee object returned from the backend.
+ * @returns {EmployeeData} Normalized employee data for frontend components.
+ */
 function normalizeEmployee(apiData: any): EmployeeData {
   if (!apiData) return apiData;
+  
+  // Seed the cache with the name to PK ID mapping
   if (apiData.name && apiData.id) {
     nameToIdCache[apiData.name] = Number(apiData.id);
   }
   
+  // Calculate deterministic male avatar using numerical value or string char code aggregation
   const rawId = apiData.id;
   const numericId = isNaN(Number(rawId))
     ? Array.from(String(rawId)).reduce((sum, char) => sum + char.charCodeAt(0), 0)
@@ -105,16 +141,26 @@ function normalizeEmployee(apiData: any): EmployeeData {
   };
 }
 
+/**
+ * Denormalizes frontend camelCase employee models back into backend snake_case parameters.
+ * Automatically translates nested relation names (e.g. manager, department) back into integers.
+ * 
+ * @param {any} formData - Employee form details from the UI state.
+ * @returns {any} Denormalized object suitable for POST/PUT payloads.
+ */
 function denormalizeEmployee(formData: any): any {
   if (!formData) return formData;
   const apiData = { ...formData };
   
+  // Map dob and joiningDate properties to date_of_birth and joining_date
   if (formData.dob) {
     apiData.date_of_birth = formData.dob;
   }
   if (formData.joiningDate) {
     apiData.joining_date = formData.joiningDate;
   }
+  
+  // Handle manager relations mapping. Converts manager name string or blank values safely
   if (formData.reportingManager !== undefined) {
     const managerVal = formData.reportingManager;
     if (managerVal === '' || managerVal === 'No Manager' || managerVal === null) {
@@ -122,6 +168,7 @@ function denormalizeEmployee(formData: any): any {
     } else if (!isNaN(Number(managerVal)) && String(managerVal).trim() !== '') {
       apiData.reporting_manager = Number(managerVal);
     } else {
+      // Lookup manager ID from cache if a text name string was passed
       apiData.reporting_manager = nameToIdCache[managerVal] || null;
     }
   }
@@ -129,6 +176,7 @@ function denormalizeEmployee(formData: any): any {
     apiData.salary = formData.basicSalary;
   }
   
+  // Map department and designation titles back to backend PK IDs
   if (formData.department) {
     const deptStr = String(formData.department);
     apiData.department = departmentNameToId[deptStr] || (isNaN(Number(deptStr)) ? 1 : Number(deptStr));
@@ -141,7 +189,19 @@ function denormalizeEmployee(formData: any): any {
   return apiData;
 }
 
+// ==========================================
+// 4. MAIN SERVICE OPERATIONS (CRUD)
+// ==========================================
+
 export const employeeApi = {
+  /**
+   * Fetches paginated employee list with optional name search and department filters.
+   * 
+   * @param {number} [page=1] - The page number to fetch.
+   * @param {string} [search=''] - Term to filter employees by name.
+   * @param {string} [department=''] - Department filter.
+   * @returns {Promise<PaginatedResponse<EmployeeData>>} Paginated employee records.
+   */
   async getAll(page = 1, search = '', department = ''): Promise<PaginatedResponse<EmployeeData>> {
     const params = new URLSearchParams();
     params.append('page', String(page));
@@ -158,17 +218,32 @@ export const employeeApi = {
     return response.data;
   },
 
+  /**
+   * Fetches detailed data for a specific employee.
+   * Note: Django backend expects a trailing slash at the end of the URL path.
+   * 
+   * @param {string} id - The database ID of the employee.
+   * @returns {Promise<EmployeeData>} Normalized employee record details.
+   */
   async getById(id: string): Promise<EmployeeData> {
     const response = await apiClient.get<EmployeeData>(`/employees/${id}/`);
     return normalizeEmployee(response.data);
   },
 
+  /**
+   * Registers a new employee in the backend system.
+   * Handles multipart/form-data payload wrapping if the avatar file attachment is present.
+   * 
+   * @param {Partial<EmployeeData>} data - Form fields payload.
+   * @returns {Promise<EmployeeData>} Created employee record details.
+   */
   async create(data: Partial<EmployeeData> & Record<string, unknown>): Promise<EmployeeData> {
     const apiData = denormalizeEmployee(data);
     const hasFile = Object.values(apiData).some(value => value instanceof File);
     let payload: FormData | any = apiData;
     let config = {};
 
+    // Assemble form data envelope if uploading image files
     if (hasFile) {
       const formData = new FormData();
       Object.entries(apiData).forEach(([key, value]) => {
@@ -194,12 +269,21 @@ export const employeeApi = {
     return normalizeEmployee(response.data);
   },
 
+  /**
+   * Updates an existing employee profile details.
+   * Note: Django backend expects a trailing slash at the end of the URL path.
+   * 
+   * @param {string} id - The database ID of the employee to modify.
+   * @param {Partial<EmployeeData>} data - Fields payload with modifications.
+   * @returns {Promise<EmployeeData>} Updated employee record details.
+   */
   async update(id: string, data: Partial<EmployeeData> & Record<string, unknown>): Promise<EmployeeData> {
     const apiData = denormalizeEmployee(data);
     const hasFile = Object.values(apiData).some(value => value instanceof File);
     let payload: FormData | any = apiData;
     let config = {};
 
+    // Assemble form data envelope if uploading image files
     if (hasFile) {
       const formData = new FormData();
       Object.entries(apiData).forEach(([key, value]) => {
@@ -225,10 +309,22 @@ export const employeeApi = {
     return normalizeEmployee(response.data);
   },
 
+  /**
+   * Deletes an employee profile from the system.
+   * Note: Django backend expects a trailing slash at the end of the URL path.
+   * 
+   * @param {string} id - The database ID of the employee.
+   * @returns {Promise<void>} Resolves when delete operation is successful.
+   */
   async delete(id: string): Promise<void> {
     await apiClient.delete(`/employees/${id}/`);
   },
 
+  /**
+   * Fetches list of available departments options.
+   * 
+   * @returns {Promise<any[]>} List of department objects.
+   */
   async getDepartments(): Promise<any[]> {
     try {
       const response = await apiClient.get<PaginatedResponse<any>>('/departments/');
@@ -239,6 +335,11 @@ export const employeeApi = {
     }
   },
 
+  /**
+   * Fetches list of available designations options.
+   * 
+   * @returns {Promise<any[]>} List of designation objects.
+   */
   async getDesignations(): Promise<any[]> {
     try {
       const response = await apiClient.get<PaginatedResponse<any>>('/designations/');
