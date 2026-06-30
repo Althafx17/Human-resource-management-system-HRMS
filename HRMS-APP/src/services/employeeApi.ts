@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { EmployeeData } from '../pages/employees/types';
+import { getCookie, deleteCookie } from './authApi';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -13,7 +14,7 @@ const apiClient = axios.create({
 // Request Interceptor: Attach JWT token if it exists
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = getCookie('access_token') || localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,7 +30,11 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear local storage and redirect to login page
+      // Clear cookies and local storage
+      deleteCookie('access_token');
+      deleteCookie('refresh_token');
+      deleteCookie('username');
+
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('username');
