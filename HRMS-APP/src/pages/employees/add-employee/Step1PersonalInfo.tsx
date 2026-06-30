@@ -6,6 +6,7 @@ interface Step1Props {
     name: string;
     dob: string;
     phone: string;
+    email: string;
     emergencyContactName: string;
     address: string;
     avatar?: File | string | null;
@@ -91,6 +92,20 @@ export default function Step1PersonalInfo({ data, updateData }: Step1Props) {
             onChange={handleChange}
             placeholder="+1 (234) 567-8900"
             className={styles.inputField}
+          />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label htmlFor="email">Email Address *</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            value={data.email || ''}
+            onChange={handleChange}
+            placeholder="john.doe@company.com"
+            className={styles.inputField}
+            required
           />
         </div>
 
