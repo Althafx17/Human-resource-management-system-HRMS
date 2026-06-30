@@ -6,7 +6,7 @@
       "destination": "https://employee-management-api-sigma.vercel.app/api/:path*"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
