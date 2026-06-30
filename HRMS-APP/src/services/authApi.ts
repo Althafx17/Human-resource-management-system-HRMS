@@ -11,7 +11,9 @@ const authClient = axios.create({
 
 export const authApi = {
   async login(username: string, password: string): Promise<{ access: string; refresh?: string }> {
-    const response = await authClient.post<{ access: string; refresh?: string }>('/token/', { username, password });
+    // Updated endpoint to /users/login/ (plural, with trailing slash)
+    const response = await authClient.post<{ access: string; refresh?: string }>('/users/login/', { username, password });
+    
     if (response.data && response.data.access) {
       localStorage.setItem('access_token', response.data.access);
       if (response.data.refresh) {
@@ -26,7 +28,6 @@ export const authApi = {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('username');
-    // Clear all potential employee details caching or states by reloading
     window.location.href = '/login';
   },
 
