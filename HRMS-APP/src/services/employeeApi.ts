@@ -247,6 +247,10 @@ export const employeeApi = {
           } else if (value instanceof File) {
             formData.append(key, value);
           } else {
+            // Guard: If value is an existing avatar URL string, skip appending it to FormData
+            if (key === 'avatar' && typeof value === 'string' && value.startsWith('http')) {
+              return;
+            }
             formData.append(key, String(value));
           }
         }
@@ -287,6 +291,10 @@ export const employeeApi = {
           } else if (value instanceof File) {
             formData.append(key, value);
           } else {
+            // Guard: If value is an existing avatar URL string, skip appending it to FormData
+            if (key === 'avatar' && typeof value === 'string' && value.startsWith('http')) {
+              return;
+            }
             formData.append(key, String(value));
           }
         }

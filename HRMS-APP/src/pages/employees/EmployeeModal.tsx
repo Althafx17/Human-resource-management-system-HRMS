@@ -51,8 +51,23 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
   // Submit loading state
   const [isSaving, setIsSaving] = useState(false);
   
+  // Explicit states to handle profile photo upload files and preview URLs
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  
   // File input ref for avatar image upload trigger
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  /**
+   * File selection change handler generating local preview URL objects.
+   */
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
 
   // Form states mapping directly to backend properties
   const [formData, setFormData] = useState<{
@@ -126,6 +141,8 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
         skills: employeeData.skills ? employeeData.skills.join(', ') : '',
         avatar: employeeData.avatar || ''
       });
+      setAvatarFile(null);
+      setPreviewUrl(employeeData.avatar || '');
       // Reset navigation tab to first tab on profile load
       setModalTab('personal');
     } else {
@@ -153,6 +170,8 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
         skills: '',
         avatar: ''
       });
+      setAvatarFile(null);
+      setPreviewUrl('');
       setModalTab('personal');
     }
   }
@@ -189,7 +208,8 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
     const payload = {
       ...(employeeData || {}),
       ...formData,
-      skills: skillsArray
+      skills: skillsArray,
+      avatar: avatarFile || formData.avatar
     };
 
     setIsSaving(true);
@@ -257,12 +277,7 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
                   <input
                     type="file"
                     ref={fileInputRef}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setFormData(prev => ({ ...prev, avatar: file }));
-                      }
-                    }}
+                    onChange={handleFileChange}
                     accept="image/*"
                     style={{ display: 'none' }}
                   />
@@ -271,10 +286,10 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
                     onClick={() => fileInputRef.current?.click()}
                     title="Change Photo"
                   >
-                    {formData.avatar ? (
+                    {previewUrl ? (
                       <img 
-                        src={formData.avatar instanceof File ? URL.createObjectURL(formData.avatar) : formData.avatar} 
-                        alt="Avatar" 
+                        src={previewUrl} 
+                        alt="Avatar Preview" 
                         className={styles.avatarImage} 
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
