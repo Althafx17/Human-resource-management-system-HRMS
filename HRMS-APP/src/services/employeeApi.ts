@@ -4,6 +4,7 @@
 import axios from 'axios';
 import type { EmployeeData } from '../pages/employees/types';
 import { getCookie, deleteCookie } from './authApi';
+import { getDeterministicMaleAvatar } from '../utils/avatarUtils';
 
 // Base API URL resolving to local Vite proxy /api or Vercel proxy
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -121,13 +122,6 @@ function normalizeEmployee(apiData: any): EmployeeData {
   if (apiData.name && apiData.id) {
     nameToIdCache[apiData.name] = Number(apiData.id);
   }
-  
-  // Calculate deterministic male avatar using numerical value or string char code aggregation
-  const rawId = apiData.id;
-  const numericId = isNaN(Number(rawId))
-    ? Array.from(String(rawId)).reduce((sum, char) => sum + char.charCodeAt(0), 0)
-    : Number(rawId);
-  const portraitNum = (numericId % 99) + 1;
 
   return {
     ...apiData,
@@ -137,7 +131,7 @@ function normalizeEmployee(apiData: any): EmployeeData {
     reportingManager: apiData.reportingManager || apiData.reporting_manager || '',
     basicSalary: apiData.basicSalary || apiData.salary || '',
     status: apiData.status || 'Active',
-    avatar: apiData.avatar || `https://randomuser.me/api/portraits/men/${portraitNum}.jpg`,
+    avatar: apiData.avatar || getDeterministicMaleAvatar(apiData.id),
   };
 }
 
