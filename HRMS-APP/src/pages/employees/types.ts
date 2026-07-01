@@ -4,7 +4,7 @@ export interface EmployeeData {
   avatar: string | File;
   designation: string;
   department: string;
-  status: 'Active' | 'On Leave' | 'In Active';
+  status: 'Active' | 'Inactive' | 'On Leave' | 'In Active';
   phone?: string;
   email?: string;
   dob?: string;

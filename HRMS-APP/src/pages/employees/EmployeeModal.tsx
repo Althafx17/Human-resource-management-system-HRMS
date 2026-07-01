@@ -343,8 +343,7 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
                   <label htmlFor="edit-status">Status *</label>
                   <select id="edit-status" name="status" value={formData.status} onChange={handleChange} className={styles.inputField} required>
                     <option value="Active">Active</option>
-                    <option value="On Leave">On Leave</option>
-                    <option value="In Active">In Active</option>
+                    <option value="Inactive">Inactive</option>
                   </select>
                 </div>
                 <div className={styles.inputGroup}>

@@ -110,6 +110,7 @@ export default function Employees() {
     switch (status) {
       case 'Active': return styles.statusActive;
       case 'On Leave': return styles.statusOnLeave;
+      case 'Inactive':
       case 'In Active': return styles.statusInActive;
       default: return '';
     }
