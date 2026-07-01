@@ -1,5 +1,8 @@
+// ==========================================
+// 1. IMPORTS & DEPENDENCIES
+// ==========================================
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom'; // 1. Added useParams
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
   ArrowLeft, Phone, Mail, Edit, Download, 
   Eye, Briefcase, DollarSign, FileText, ShieldCheck 
@@ -14,7 +17,13 @@ import DocumentsTab from './tab/DocumentsTab';
 import type { EmployeeData } from '../types';
 import { employeeApi } from '../../../services/employeeApi';
 import { useToast } from '../../../components/ToastContext';
+import { EmployeeProvider, useEmployeeContext } from './EmployeeContext';
 
+// ==========================================
+// 2. CONSTANTS & TYPES
+// ==========================================
+
+/** Tab configurations for view switching */
 const TABS = [
   { id: 'OVERVIEW', label: 'OVERVIEW', icon: Eye },
   { id: 'JOB_DETAILS', label: 'JOB DETAILS', icon: Briefcase },
@@ -23,34 +32,44 @@ const TABS = [
   { id: 'DOCUMENTS', label: 'DOCUMENTS', icon: ShieldCheck },
 ];
 
-export default function EmployeeDetails() {
+// ==========================================
+// 3. MAIN COMPONENT CONTENT
+// ==========================================
+
+/**
+ * EmployeeDetailsContent Component
+ * 
+ * Renders the internal layout of the employee profile screen, consuming state from EmployeeContext.
+ * Coordinates profile inline editing and handles lookups mapping.
+ */
+function EmployeeDetailsContent() {
   const navigate = useNavigate();
-  const { id } = useParams(); // 3. This grabs the ID from the URL (e.g., 'EMP002')
+  const { id } = useParams();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
   
+  // Consume shared state from context
+  const { employee, isLoading, error, setEmployee } = useEmployeeContext();
+  
+  // Editing state controls
   const [activeTab, setActiveTab] = useState('OVERVIEW');
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState<EmployeeData | null>(null);
 
-  const [employee, setEmployee] = useState<EmployeeData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Mapped primary key lookups
   const [managers, setManagers] = useState<string[]>([]);
   const [departments, setDepartments] = useState<Record<number, string>>({});
   const [designations, setDesignations] = useState<Record<number, string>>({});
 
+  // Reset local edit states if URL ID parameter changes
   const [prevId, setPrevId] = useState(id);
   if (id !== prevId) {
     setPrevId(id);
-    setEmployee(null);
     setIsEditing(false);
     setEditFormData(null);
-    setIsLoading(true);
-    setError(null);
   }
 
-  // Fetch departments and designations lookups
+  // Fetch departments and designations lookups on component mount
   useEffect(() => {
     employeeApi.getDepartments().then(list => {
       const map: Record<number, string> = {};
@@ -64,33 +83,7 @@ export default function EmployeeDetails() {
     });
   }, []);
 
-  // Fetch employee details by ID
-  useEffect(() => {
-    if (!id) return;
-    let active = true;
-    
-    employeeApi.getById(id)
-      .then(data => {
-        if (active) {
-          setEmployee(data);
-          setError(null);
-          setIsLoading(false);
-        }
-      })
-      .catch(err => {
-        if (active) {
-          console.error(err);
-          setError('Failed to load employee profile.');
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  // Fetch all employees to populate the managers dropdown
+  // Fetch managers candidates from the employee lists
   useEffect(() => {
     employeeApi.getAll()
       .then(res => {
@@ -108,10 +101,16 @@ export default function EmployeeDetails() {
       });
   }, []);
 
+  /**
+   * Updates state during inline editing changes inside subtabs.
+   */
   const handleTabFormChange = (fields: Partial<EmployeeData>) => {
     setEditFormData(prev => prev ? { ...prev, ...fields } : null);
   };
 
+  /**
+   * Helper mapping tabs to their sub-views.
+   */
   const renderTabContent = () => {
     if (!employee) return null;
     const currentData = isEditing && editFormData ? editFormData : employee;
@@ -121,7 +120,7 @@ export default function EmployeeDetails() {
       designation: designations[Number(currentData.designation)] || currentData.designation,
     };
     switch (activeTab) {
-      case 'OVERVIEW': return <OverviewTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} onSave={handleSaveEdit} onCancel={handleCancelEdit} />;
+      case 'OVERVIEW': return <OverviewTab isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} onSave={handleSaveEdit} onCancel={handleCancelEdit} />;
       case 'JOB_DETAILS': return <JobDetailsTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
       case 'PAYROLL': return <PayrollTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
       case 'CONTRACT': return <ContractTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
@@ -140,6 +139,10 @@ export default function EmployeeDetails() {
     setEditFormData(null);
   };
 
+  /**
+   * Submits edited profile details back to the backend.
+   * On success, syncs the updated employee model globally in the Context.
+   */
   const handleSaveEdit = () => {
     if (!editFormData || !id) return;
 
@@ -161,6 +164,9 @@ export default function EmployeeDetails() {
       });
   };
 
+  /**
+   * Filters candidate list of managers to exclude the employee themselves.
+   */
   const getAvailableManagers = () => {
     const defaultManagers = ['Sarah Connor', 'Sarah John', 'John Smith']; 
     const currentManager = employee?.reportingManager;
@@ -172,6 +178,9 @@ export default function EmployeeDetails() {
     ])).filter(name => name !== employee?.name);
   };
 
+  /**
+   * Directly updates the employee manager relation.
+   */
   const handleManagerChange = (managerName: string) => {
     if (!employee || !id) return;
     
@@ -186,6 +195,7 @@ export default function EmployeeDetails() {
       });
   };
 
+  // Render skeleton screens if the context is loading
   if (isLoading) {
     return (
       <div className={styles.page}>
@@ -208,6 +218,7 @@ export default function EmployeeDetails() {
       </div>
     );
   }
+
   if (error) return <div style={{ padding: '40px', textAlign: 'center', color: '#ef4444' }}>{error}</div>;
   if (!employee) return <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Employee profile not found.</div>;
 
@@ -215,7 +226,7 @@ export default function EmployeeDetails() {
     <div className={styles.page}>
       
       <div className={styles.headerWrapper}>
-        <button className={styles.backBtn} onClick={() => navigate(-1)}>
+        <button className={styles.backBtn} onClick={() => navigate(-1)} type="button" aria-label="Go Back" title="Go Back">
           <ArrowLeft size={20} />
         </button>
 
@@ -291,8 +302,7 @@ export default function EmployeeDetails() {
                         className={styles.inlineInput}
                       >
                         <option value="Active">Active</option>
-                        <option value="On Leave">On Leave</option>
-                        <option value="In Active">In Active</option>
+                        <option value="Inactive">Inactive</option>
                       </select>
                     </div>
                   </div>
@@ -417,5 +427,28 @@ export default function EmployeeDetails() {
       </div>
       
     </div>
+  );
+}
+
+// ==========================================
+// 4. EXPORTED LAYOUT COMPONENT
+// ==========================================
+
+/**
+ * EmployeeDetails Component (Default Export)
+ * 
+ * Outer boundary parsing URL params and wrapping content inside the EmployeeProvider.
+ */
+export default function EmployeeDetails() {
+  const { id } = useParams();
+
+  if (!id) {
+    return <div style={{ padding: '40px', textAlign: 'center', color: '#ef4444' }}>Invalid Employee ID</div>;
+  }
+
+  return (
+    <EmployeeProvider employeeId={id}>
+      <EmployeeDetailsContent />
+    </EmployeeProvider>
   );
 }

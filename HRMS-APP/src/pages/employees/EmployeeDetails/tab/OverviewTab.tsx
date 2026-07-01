@@ -2,9 +2,9 @@ import React from 'react';
 import { Calendar, Clock } from 'lucide-react';
 import styles from '../EmployeeDetails.module.css';
 import type { EmployeeData } from '../../types';
+import { useEmployeeContext } from '../EmployeeContext';
 
 interface OverviewTabProps {
-  employee: EmployeeData;
   isEditing?: boolean;
   editData?: EmployeeData | null;
   onChange?: (fields: Partial<EmployeeData>) => void;
@@ -12,7 +12,9 @@ interface OverviewTabProps {
   onCancel?: () => void;
 }
 
-export default function OverviewTab({ employee, isEditing, editData, onChange, onSave, onCancel }: OverviewTabProps) {
+export default function OverviewTab({ isEditing, editData, onChange, onSave, onCancel }: OverviewTabProps) {
+  const { employee } = useEmployeeContext();
+  if (!employee) return null;
   const data = isEditing && editData ? editData : employee;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
