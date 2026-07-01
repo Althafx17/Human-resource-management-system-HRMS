@@ -23,7 +23,7 @@ export interface EmployeeData {
   
   // Step 3
   contractType?: string;
-  contractStatus?: string;
+  contractStatus?: 'Active' | 'Suspended' | 'Expired' | 'Pending' | '';
   contractStart?: string;
   contractEnd?: string;
   contractFile?: string;

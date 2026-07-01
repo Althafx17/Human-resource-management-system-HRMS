@@ -75,9 +75,11 @@ export default function ContractTab({ employee, isEditing, editData, onChange }:
               onChange={handleInputChange} 
               className={styles.inlineInput}
             >
+              <option value="" disabled>Select Status</option>
               <option value="Active">Active</option>
+              <option value="Suspended">Suspended</option>
               <option value="Expired">Expired</option>
-              <option value="Terminated">Terminated</option>
+              <option value="Pending">Pending</option>
             </select>
           ) : (
             <span>{data.contractStatus || '—'}</span>
