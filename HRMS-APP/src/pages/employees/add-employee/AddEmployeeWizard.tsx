@@ -49,7 +49,7 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
     email: '',
     emergencyContactName: '',
     address: '',
-    avatar: 'https://i.pravatar.cc/150?u=new' as File | string, // default placeholder
+    avatar: '' as File | string,
     
     // Step 2: Job Details
     department: '',

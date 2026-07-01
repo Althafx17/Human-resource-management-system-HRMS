@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { User } from 'lucide-react';
 import styles from './AddEmployee.module.css';
 
 interface Step1Props {
@@ -35,7 +36,7 @@ export default function Step1PersonalInfo({ data, updateData }: Step1Props) {
 
   const avatarSrc = data.avatar instanceof File
     ? URL.createObjectURL(data.avatar)
-    : (data.avatar || 'https://i.pravatar.cc/150?u=new');
+    : (data.avatar || '');
 
   return (
     <div className={styles.formCard}>
@@ -50,7 +51,11 @@ export default function Step1PersonalInfo({ data, updateData }: Step1Props) {
           style={{ display: 'none' }} 
         />
         <div className={styles.avatarCircle} onClick={handleUploadClick} title="Upload photo">
-          <img src={avatarSrc} alt="Avatar Preview" className={styles.avatarImage} />
+          {avatarSrc ? (
+            <img src={avatarSrc} alt="Avatar Preview" className={styles.avatarImage} />
+          ) : (
+            <User size={40} color="#94a3b8" />
+          )}
         </div>
         <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Click circle to change profile photo</span>
       </div>
