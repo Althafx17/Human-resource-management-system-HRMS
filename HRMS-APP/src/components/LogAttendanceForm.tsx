@@ -1,21 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import SlideOverDrawer from './SlideOverDrawer';
 import styles from './FormStyles.module.css';
+import { employeeApi } from '../services/employeeApi';
+import type { EmployeeData } from '../pages/employees/types';
 
 interface LogAttendanceFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSave?: (data: any) => void;
 }
-
-const DUMMY_EMPLOYEES = [
-  { id: '1', name: 'John Smith' },
-  { id: '2', name: 'Sara John' },
-  { id: '3', name: 'Angel Philip' },
-  { id: '4', name: 'Anmariya' },
-  { id: '5', name: 'Augestien' },
-];
 
 const DUMMY_LOCATIONS = [
   { id: 'HQ', name: 'Headquarters - Floor 3' },
@@ -31,6 +25,34 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [location, setLocation] = useState('');
+  const [employees, setEmployees] = useState<EmployeeData[]>([]);
+
+  // Load employee list on mount / drawer display
+  useEffect(() => {
+    if (isOpen) {
+      const loadEmployees = async () => {
+        try {
+          let list: EmployeeData[] = [];
+          let page = 1;
+          let hasMore = true;
+          while (hasMore && page <= 5) {
+            const data = await employeeApi.getAll(page);
+            if (data.results && data.results.length > 0) {
+              list = [...list, ...data.results];
+              hasMore = !!data.next;
+              page++;
+            } else {
+              hasMore = false;
+            }
+          }
+          setEmployees(list);
+        } catch (e) {
+          console.error('Failed to load employees for attendance:', e);
+        }
+      };
+      loadEmployees();
+    }
+  }, [isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +112,7 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
             required
           >
             <option value="">Select Employee</option>
-            {DUMMY_EMPLOYEES.map((emp) => (
+            {employees.map((emp) => (
               <option key={emp.id} value={emp.id}>
                 {emp.name}
               </option>
