@@ -26,6 +26,10 @@ export default function Employees() {
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   
+  // Navigation states parsed from standard Django REST Framework next/previous keys
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrev, setHasPrev] = useState(false);
+  
   // Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<EmployeeData | null>(null);
@@ -44,35 +48,40 @@ export default function Employees() {
     });
   }, []);
 
-  // Fetch employees on mount/filter changes
-  useEffect(() => {
-    let active = true;
+  /**
+   * Performs the API call to load a specific page of employees.
+   * Leverages the next/previous page keys from the backend response.
+   */
+  const loadEmployees = (page = 1) => {
+    setIsLoading(true);
+    employeeApi.getAll(page, searchTerm, departmentFilter)
+      .then(data => {
+        console.log("API Response:", data);
+        setEmployees(data.results || []);
+        setHasNext(!!data.next);
+        setHasPrev(!!data.previous);
+        
+        // Compute total pages based on count fallback (assumes page size 10)
+        const total = Math.ceil((data.count || 0) / 10);
+        setTotalPages(total > 0 ? total : 1);
+        
+        setError(null);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setError('Failed to fetch employees. Please check your API configuration.');
+        setIsLoading(false);
+      });
+  };
 
+  // Re-fetch employee list whenever page, search query, or department filter changes
+  useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      employeeApi.getAll(currentPage, searchTerm, departmentFilter)
-        .then(data => {
-          console.log("API Response:", data);
-          if (active) {
-            setEmployees(data.results || []);
-            const total = Math.ceil((data.count || 0) / 10);
-            setTotalPages(total > 0 ? total : 1);
-            setError(null);
-            setIsLoading(false);
-          }
-        })
-        .catch(err => {
-          if (active) {
-            console.error(err);
-            setError('Failed to fetch employees. Please check your API configuration.');
-            setIsLoading(false);
-          }
-        });
+      loadEmployees(currentPage);
     }, searchTerm ? 400 : 0);
 
-    return () => {
-      active = false;
-      clearTimeout(delayDebounceFn);
-    };
+    return () => clearTimeout(delayDebounceFn);
   }, [currentPage, searchTerm, departmentFilter]);
 
   // --- ACTIONS ---
@@ -83,7 +92,7 @@ export default function Employees() {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       employeeApi.delete(id)
         .then(() => {
-          setEmployees(prev => prev.filter(emp => emp.id !== id));
+          loadEmployees(currentPage);
           showToast('Employee deleted successfully!', 'success');
         })
         .catch(error => {
@@ -101,7 +110,7 @@ export default function Employees() {
 
   // Handle Saving changes from the Edit Modal
   const handleSaveEdit = (updatedEmp: EmployeeData) => {
-    setEmployees(prev => prev.map(emp => emp.id === updatedEmp.id ? updatedEmp : emp));
+    loadEmployees(currentPage);
     showToast('Employee profile updated successfully!', 'success');
   };
 
@@ -277,7 +286,7 @@ export default function Employees() {
               setCurrentPage(prev => Math.max(prev - 1, 1));
               setIsLoading(true);
             }}
-            disabled={currentPage === 1 || isLoading}
+            disabled={!hasPrev || isLoading}
           >
             &lt; Previous
           </button>
@@ -291,7 +300,7 @@ export default function Employees() {
               setCurrentPage(prev => Math.min(prev + 1, totalPages));
               setIsLoading(true);
             }}
-            disabled={currentPage === totalPages || isLoading}
+            disabled={!hasNext || isLoading}
           >
             Next &gt;
           </button>
