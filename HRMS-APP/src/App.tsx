@@ -4,7 +4,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Employees from './pages/employees/Employees';
 import Attendance from './pages/attendence/attendence';
 import WorkAreas from './pages/workarea/WorkArea';
-import Shifts from './pages/Shifts/Shifts';
+import ShiftAdminLayout from './pages/Shifts/ShiftAdminLayout';
 import Leave from './pages/Leave/Leave';
 import Overtime from './pages/Overtime/Overtime';
 import Expenses from './pages/Expenses/Expenses';
@@ -36,7 +36,7 @@ export default function App() {
 
             <Route path="work-areas" element={<WorkAreas />} />
 
-            <Route path="shifts" element={<Shifts />} />
+            <Route path="shifts" element={<ShiftAdminLayout />} />
 
             <Route path="leave" element={<Leave />} />
 
