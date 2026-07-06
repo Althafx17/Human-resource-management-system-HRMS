@@ -98,8 +98,8 @@ export default function Attendance() {
         let page = 1;
         let hasMore = true;
         
-        // Loop and load up to 5 pages of staff configurations to seed cache
-        while (hasMore && page <= 5) {
+        // Loop and load up to 10 pages of staff configurations to seed cache
+        while (hasMore && page <= 10) {
           const data = await employeeApi.getAll(page);
           if (data.results && data.results.length > 0) {
             allEmployees = [...allEmployees, ...data.results];

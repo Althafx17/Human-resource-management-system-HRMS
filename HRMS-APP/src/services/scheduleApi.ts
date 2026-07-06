@@ -22,7 +22,7 @@ export const scheduleApi = {
     let employeesList: any[] = [];
     let page = 1;
     let hasMore = true;
-    while (hasMore && page <= 5) {
+    while (hasMore && page <= 10) {
       const data = await employeeApi.getAll(page);
       if (data.results && data.results.length > 0) {
         employeesList = [...employeesList, ...data.results];

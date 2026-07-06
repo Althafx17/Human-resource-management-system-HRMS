@@ -197,7 +197,7 @@ export default function Employees() {
             </thead>
             <tbody>
               {isLoading ? (
-                Array.from({ length: 5 }).map((_, index) => (
+                Array.from({ length: 10 }).map((_, index) => (
                   <tr key={index}>
                     <td><div className={styles.skeleton} style={{ width: '40px', height: '16px' }}></div></td>
                     <td>
