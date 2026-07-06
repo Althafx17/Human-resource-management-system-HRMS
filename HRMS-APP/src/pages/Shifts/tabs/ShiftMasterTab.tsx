@@ -26,7 +26,7 @@ export default function ShiftMasterTab() {
    */
   const loadShifts = () => {
     setIsLoading(true);
-    shiftAdminApi.getShifts()
+    shiftAdminApi.shifts.getAll()
       .then(data => {
         setShifts(data);
         setIsLoading(false);
@@ -48,7 +48,7 @@ export default function ShiftMasterTab() {
   const handleSave = (data: Omit<ShiftTemplate, 'id'>) => {
     if (selectedShift) {
       // Update
-      shiftAdminApi.updateShift(selectedShift.id, data)
+      shiftAdminApi.shifts.update(selectedShift.id, data)
         .then(() => {
           showToast('Shift template updated successfully!', 'success');
           loadShifts();
@@ -59,7 +59,7 @@ export default function ShiftMasterTab() {
         });
     } else {
       // Create
-      shiftAdminApi.createShift(data)
+      shiftAdminApi.shifts.create(data)
         .then(() => {
           showToast('New shift template registered!', 'success');
           loadShifts();
@@ -78,7 +78,7 @@ export default function ShiftMasterTab() {
    */
   const handleDelete = (id: number) => {
     if (window.confirm('Are you sure you want to delete this shift template? This may impact active assignments.')) {
-      shiftAdminApi.deleteShift(id)
+      shiftAdminApi.shifts.delete(id)
         .then(() => {
           showToast('Shift template deleted successfully.', 'success');
           loadShifts();

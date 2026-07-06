@@ -61,87 +61,108 @@ export const shiftAdminApi = {
   // ==========================================
   // SHIFT TEMPLATES CRUD (Real API via Django)
   // ==========================================
-  
-  /**
-   * Fetches all registered shift templates from backend database.
-   */
-  getShifts: async (): Promise<ShiftTemplate[]> => {
-    const response = await axiosInstance.get<{ results: any[] }>('/shifts/');
-    const results = response.data.results || [];
-    return results.map(r => ({
-      id: r.id,
-      name: r.name,
-      code: r.code,
-      start_time: r.start_time ? r.start_time.substring(0, 5) : '09:00',
-      end_time: r.end_time ? r.end_time.substring(0, 5) : '18:00',
-      duration_hours: r.duration_hours || 8,
-      break_mins: r.break_mins || 60,
-      late_grace_mins: r.late_grace_mins || 15,
-      allow_overtime: r.allow_overtime || false,
-    }));
-  },
+  shifts: {
+    /**
+     * Fetches all registered shift templates from backend database.
+     */
+    getAll: async (): Promise<ShiftTemplate[]> => {
+      const response = await axiosInstance.get<any>('/shifts/');
+      const results = response.data.results || response.data || [];
+      const list = Array.isArray(results) ? results : (results.results || []);
+      return list.map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        code: r.code,
+        start_time: r.start_time ? r.start_time.substring(0, 5) : '09:00',
+        end_time: r.end_time ? r.end_time.substring(0, 5) : '18:00',
+        duration_hours: r.duration_hours || 8,
+        break_mins: r.break_mins || 60,
+        late_grace_mins: r.late_grace_mins || 15,
+        allow_overtime: r.allow_overtime || false,
+      }));
+    },
 
-  /**
-   * Saves a new shift template pattern.
-   */
-  createShift: async (data: Omit<ShiftTemplate, 'id'>): Promise<ShiftTemplate> => {
-    const payload = {
-      name: data.name,
-      code: data.code,
-      start_time: data.start_time.length === 5 ? `${data.start_time}:00` : data.start_time,
-      end_time: data.end_time.length === 5 ? `${data.end_time}:00` : data.end_time,
-      break_mins: data.break_mins,
-      late_grace_mins: data.late_grace_mins,
-      allow_overtime: data.allow_overtime,
-    };
-    const response = await axiosInstance.post<any>('/shifts/', payload);
-    const r = response.data;
-    return {
-      id: r.id,
-      name: r.name,
-      code: r.code,
-      start_time: r.start_time ? r.start_time.substring(0, 5) : '09:00',
-      end_time: r.end_time ? r.end_time.substring(0, 5) : '18:00',
-      duration_hours: r.duration_hours || 8,
-      break_mins: r.break_mins || 60,
-      late_grace_mins: r.late_grace_mins || 15,
-      allow_overtime: r.allow_overtime || false,
-    };
-  },
+    /**
+     * Reads a specific shift template by ID.
+     */
+    getById: async (id: number): Promise<ShiftTemplate> => {
+      const response = await axiosInstance.get<any>(`/shifts/${id}/`);
+      const r = response.data;
+      return {
+        id: r.id,
+        name: r.name,
+        code: r.code,
+        start_time: r.start_time ? r.start_time.substring(0, 5) : '09:00',
+        end_time: r.end_time ? r.end_time.substring(0, 5) : '18:00',
+        duration_hours: r.duration_hours || 8,
+        break_mins: r.break_mins || 60,
+        late_grace_mins: r.late_grace_mins || 15,
+        allow_overtime: r.allow_overtime || false,
+      };
+    },
 
-  /**
-   * Modifies an existing shift template.
-   */
-  updateShift: async (id: number, data: Partial<ShiftTemplate>): Promise<ShiftTemplate> => {
-    const payload: any = {};
-    if (data.name) payload.name = data.name;
-    if (data.code) payload.code = data.code;
-    if (data.start_time) payload.start_time = data.start_time.length === 5 ? `${data.start_time}:00` : data.start_time;
-    if (data.end_time) payload.end_time = data.end_time.length === 5 ? `${data.end_time}:00` : data.end_time;
-    if (data.break_mins !== undefined) payload.break_mins = data.break_mins;
-    if (data.late_grace_mins !== undefined) payload.late_grace_mins = data.late_grace_mins;
-    if (data.allow_overtime !== undefined) payload.allow_overtime = data.allow_overtime;
+    /**
+     * Saves a new shift template pattern.
+     */
+    create: async (data: Omit<ShiftTemplate, 'id'>): Promise<ShiftTemplate> => {
+      const payload = {
+        name: data.name,
+        code: data.code,
+        start_time: data.start_time.length === 5 ? `${data.start_time}:00` : data.start_time,
+        end_time: data.end_time.length === 5 ? `${data.end_time}:00` : data.end_time,
+        break_mins: data.break_mins,
+        late_grace_mins: data.late_grace_mins,
+        allow_overtime: data.allow_overtime,
+      };
+      const response = await axiosInstance.post<any>('/shifts/', payload);
+      const r = response.data;
+      return {
+        id: r.id,
+        name: r.name,
+        code: r.code,
+        start_time: r.start_time ? r.start_time.substring(0, 5) : '09:00',
+        end_time: r.end_time ? r.end_time.substring(0, 5) : '18:00',
+        duration_hours: r.duration_hours || 8,
+        break_mins: r.break_mins || 60,
+        late_grace_mins: r.late_grace_mins || 15,
+        allow_overtime: r.allow_overtime || false,
+      };
+    },
 
-    const response = await axiosInstance.put<any>(`/shifts/${id}/`, payload);
-    const r = response.data;
-    return {
-      id: r.id,
-      name: r.name,
-      code: r.code,
-      start_time: r.start_time ? r.start_time.substring(0, 5) : '09:00',
-      end_time: r.end_time ? r.end_time.substring(0, 5) : '18:00',
-      duration_hours: r.duration_hours || 8,
-      break_mins: r.break_mins || 60,
-      late_grace_mins: r.late_grace_mins || 15,
-      allow_overtime: r.allow_overtime || false,
-    };
-  },
+    /**
+     * Modifies an existing shift template.
+     */
+    update: async (id: number, data: Partial<ShiftTemplate>): Promise<ShiftTemplate> => {
+      const payload: any = {};
+      if (data.name) payload.name = data.name;
+      if (data.code) payload.code = data.code;
+      if (data.start_time) payload.start_time = data.start_time.length === 5 ? `${data.start_time}:00` : data.start_time;
+      if (data.end_time) payload.end_time = data.end_time.length === 5 ? `${data.end_time}:00` : data.end_time;
+      if (data.break_mins !== undefined) payload.break_mins = data.break_mins;
+      if (data.late_grace_mins !== undefined) payload.late_grace_mins = data.late_grace_mins;
+      if (data.allow_overtime !== undefined) payload.allow_overtime = data.allow_overtime;
 
-  /**
-   * Removes a shift template.
-   */
-  deleteShift: async (id: number): Promise<void> => {
-    await axiosInstance.delete(`/shifts/${id}/`);
+      const response = await axiosInstance.put<any>(`/shifts/${id}/`, payload);
+      const r = response.data;
+      return {
+        id: r.id,
+        name: r.name,
+        code: r.code,
+        start_time: r.start_time ? r.start_time.substring(0, 5) : '09:00',
+        end_time: r.end_time ? r.end_time.substring(0, 5) : '18:00',
+        duration_hours: r.duration_hours || 8,
+        break_mins: r.break_mins || 60,
+        late_grace_mins: r.late_grace_mins || 15,
+        allow_overtime: r.allow_overtime || false,
+      };
+    },
+
+    /**
+     * Removes a shift template.
+     */
+    delete: async (id: number): Promise<void> => {
+      await axiosInstance.delete(`/shifts/${id}/`);
+    }
   },
 
   // ==========================================
@@ -288,7 +309,7 @@ export const shiftAdminApi = {
 
         if (activeAssignment) {
           // Fetch shift details
-          const shifts = await shiftAdminApi.getShifts();
+          const shifts = await shiftAdminApi.shifts.getAll();
           const shiftMatch = shifts.find(s => s.id === activeAssignment.shift);
           if (shiftMatch) {
             return {

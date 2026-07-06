@@ -44,7 +44,7 @@ export default function AssignShiftModal({ isOpen, onClose, onSave }: AssignShif
       
       Promise.all([
         Promise.all(employeeRequests),
-        shiftAdminApi.getShifts()
+        shiftAdminApi.shifts.getAll()
       ]).then(([employeeResults, shiftResults]) => {
         // Flatten non-null results list
         const flattenedEmps: EmployeeData[] = [];

@@ -36,7 +36,7 @@ export default function AssignmentsTab() {
     
     Promise.all([
       Promise.all(employeeRequests),
-      shiftAdminApi.getShifts(),
+      shiftAdminApi.shifts.getAll(),
       shiftAdminApi.getAssignments()
     ]).then(([employeeResults, shiftResults, assignmentResults]) => {
       // Assemble employee lookup map
