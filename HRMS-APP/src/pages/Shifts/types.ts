@@ -51,3 +51,14 @@ export interface Holiday {
   applicable_scope: string;
   is_optional: boolean;
 }
+
+export interface ResolverQuery {
+  employee_id: number | string;
+  date: string; // YYYY-MM-DD
+}
+
+export interface ResolverResult {
+  status: string; // e.g. "Working Day", "Weekly Off", "Holiday"
+  expected_hours: string; // e.g. "8 hrs"
+  assigned_shift_name: string; // e.g. "General Shift (GS)"
+}
