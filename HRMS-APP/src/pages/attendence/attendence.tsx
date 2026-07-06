@@ -2,7 +2,7 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download } from 'lucide-react';
+import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download, Clock } from 'lucide-react';
 import styles from './attendence.module.css';
 import LogAttendanceForm from '../../components/LogAttendanceForm';
 import { attendanceApi } from '../../services/attendanceApi';
