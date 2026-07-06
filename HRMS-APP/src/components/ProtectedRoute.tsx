@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { getCookie } from '../services/authApi';
+import { getCookie } from '../utils/cookieUtils';
 
 export default function ProtectedRoute() {
   const token = getCookie('access_token') || localStorage.getItem('access_token');

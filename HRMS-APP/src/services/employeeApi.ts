@@ -1,64 +1,10 @@
 // ==========================================
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
-import axios from 'axios';
+import { axiosInstance } from './axiosInstance';
 import type { EmployeeData } from '../pages/employees/types';
-import { getCookie, deleteCookie } from './authApi';
+import { getCookie } from '../utils/cookieUtils';
 import { getDeterministicMaleAvatar } from '../utils/avatarUtils';
-
-// Base API URL resolving to local Vite proxy /api or Vercel proxy
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-
-// Create configured Axios client for employee operations
-const apiClient = axios.create({
-  baseURL: apiBaseUrl,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-/**
- * Request Interceptor:
- * Attaches the JWT Bearer token dynamically before sending any request to the backend.
- * Checks the cookie store first (for 30-day persistence) and falls back to local storage.
- */
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = getCookie('access_token') || localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-/**
- * Response Interceptor:
- * Intercepts HTTP 401 Unauthorized responses to perform session cleanup.
- * Clears cookies and local storage tokens, then redirects the browser to the login page.
- */
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear cookies and local storage to reset state
-      deleteCookie('access_token');
-      deleteCookie('refresh_token');
-      deleteCookie('username');
-
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('username');
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-      }
-    }
-    return Promise.reject(error);
-  }
-);
 
 // ==========================================
 // 2. TYPES & INTERFACES
@@ -205,7 +151,7 @@ export const employeeApi = {
       params.append('department', String(deptId));
     }
 
-    const response = await apiClient.get<PaginatedResponse<EmployeeData>>(`/employees/?${params.toString()}`);
+    const response = await axiosInstance.get<PaginatedResponse<EmployeeData>>(`/employees/?${params.toString()}`);
     if (response.data && response.data.results) {
       response.data.results = response.data.results.map(normalizeEmployee);
     }
@@ -220,7 +166,7 @@ export const employeeApi = {
    * @returns {Promise<EmployeeData>} Normalized employee record details.
    */
   async getById(id: string): Promise<EmployeeData> {
-    const response = await apiClient.get<EmployeeData>(`/employees/${id}/`);
+    const response = await axiosInstance.get<EmployeeData>(`/employees/${id}/`);
     return normalizeEmployee(response.data);
   },
 
@@ -263,7 +209,7 @@ export const employeeApi = {
       };
     }
 
-    const response = await apiClient.post<EmployeeData>('/employees/', payload, config);
+    const response = await axiosInstance.post<EmployeeData>('/employees/', payload, config);
     return normalizeEmployee(response.data);
   },
 
@@ -307,7 +253,7 @@ export const employeeApi = {
       };
     }
 
-    const response = await apiClient.put<EmployeeData>(`/employees/${id}/`, payload, config);
+    const response = await axiosInstance.put<EmployeeData>(`/employees/${id}/`, payload, config);
     return normalizeEmployee(response.data);
   },
 
@@ -319,7 +265,7 @@ export const employeeApi = {
    * @returns {Promise<void>} Resolves when delete operation is successful.
    */
   async delete(id: string): Promise<void> {
-    await apiClient.delete(`/employees/${id}/`);
+    await axiosInstance.delete(`/employees/${id}/`);
   },
 
   /**
@@ -329,7 +275,7 @@ export const employeeApi = {
    */
   async getDepartments(): Promise<any[]> {
     try {
-      const response = await apiClient.get<PaginatedResponse<any>>('/departments/');
+      const response = await axiosInstance.get<PaginatedResponse<any>>('/departments/');
       return response.data.results || [];
     } catch (e) {
       console.error('Failed to fetch departments:', e);
@@ -344,7 +290,7 @@ export const employeeApi = {
    */
   async getDesignations(): Promise<any[]> {
     try {
-      const response = await apiClient.get<PaginatedResponse<any>>('/designations/');
+      const response = await axiosInstance.get<PaginatedResponse<any>>('/designations/');
       return response.data.results || [];
     } catch (e) {
       console.error('Failed to fetch designations:', e);

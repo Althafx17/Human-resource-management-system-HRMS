@@ -1,58 +1,7 @@
-import axios from 'axios';
-import { getCookie, deleteCookie } from './authApi';
-
-// Base URL resolving to local proxy /api
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-
-// Create a dedicated Axios instance for attendance & shift management APIs
-const attendanceClient = axios.create({
-  baseURL: apiBaseUrl,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-/**
- * Request Interceptor:
- * Attaches the JWT Bearer token dynamically before sending any request to the backend.
- * Checks the cookie store first (for 30-day persistence) and falls back to local storage.
- */
-attendanceClient.interceptors.request.use(
-  (config) => {
-    const token = getCookie('access_token') || localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-/**
- * Response Interceptor:
- * Intercepts HTTP 401 Unauthorized responses to perform session cleanup.
- * Clears cookies and local storage tokens, then redirects the browser to the login page.
- */
-attendanceClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      deleteCookie('access_token');
-      deleteCookie('refresh_token');
-      deleteCookie('username');
-
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('username');
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+// ==========================================
+// 1. IMPORTS & DEPENDENCIES
+// ==========================================
+import { axiosInstance } from './axiosInstance';
 
 // ==========================================
 // 1. TypeScript Interfaces & Type definitions
@@ -144,7 +93,7 @@ export const attendanceApi = {
    * Fetches all configured shifts from the backend.
    */
   async getAllShifts(): Promise<PaginatedResponse<Shift>> {
-    const response = await attendanceClient.get<PaginatedResponse<Shift>>('/shifts/');
+    const response = await axiosInstance.get<PaginatedResponse<Shift>>('/shifts/');
     return response.data;
   },
 
@@ -152,7 +101,7 @@ export const attendanceApi = {
    * Fetches details of a specific shift by its ID.
    */
   async getShiftById(id: number): Promise<Shift> {
-    const response = await attendanceClient.get<Shift>(`/shifts/${id}/`);
+    const response = await axiosInstance.get<Shift>(`/shifts/${id}/`);
     return response.data;
   },
 
@@ -160,7 +109,7 @@ export const attendanceApi = {
    * Creates a new shift pattern (Admin/Manager authorization required).
    */
   async createShift(data: Shift): Promise<Shift> {
-    const response = await attendanceClient.post<Shift>('/shifts/', data);
+    const response = await axiosInstance.post<Shift>('/shifts/', data);
     return response.data;
   },
 
@@ -168,7 +117,7 @@ export const attendanceApi = {
    * Updates an existing shift details by ID.
    */
   async updateShift(id: number, data: Partial<Shift>): Promise<Shift> {
-    const response = await attendanceClient.put<Shift>(`/shifts/${id}/`, data);
+    const response = await axiosInstance.put<Shift>(`/shifts/${id}/`, data);
     return response.data;
   },
 
@@ -176,7 +125,7 @@ export const attendanceApi = {
    * Deletes a shift pattern by ID.
    */
   async deleteShift(id: number): Promise<void> {
-    await attendanceClient.delete(`/shifts/${id}/`);
+    await axiosInstance.delete(`/shifts/${id}/`);
   },
 
   // --- SHIFT ASSIGNMENTS (DATED SHIFTS) ---
@@ -190,7 +139,7 @@ export const attendanceApi = {
     if (date) params.append('date', date);
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await attendanceClient.get<PaginatedResponse<ShiftAssignment>>(`/shift-assignments/${query}`);
+    const response = await axiosInstance.get<PaginatedResponse<ShiftAssignment>>(`/shift-assignments/${query}`);
     return response.data;
   },
 
@@ -198,7 +147,7 @@ export const attendanceApi = {
    * Assigns a specific shift to an employee for a specific date range.
    */
   async createAssignment(data: ShiftAssignment): Promise<ShiftAssignment> {
-    const response = await attendanceClient.post<ShiftAssignment>('/shift-assignments/', data);
+    const response = await axiosInstance.post<ShiftAssignment>('/shift-assignments/', data);
     return response.data;
   },
 
@@ -206,7 +155,7 @@ export const attendanceApi = {
    * Removes a date-based shift assignment.
    */
   async deleteAssignment(id: number): Promise<void> {
-    await attendanceClient.delete(`/shift-assignments/${id}/`);
+    await axiosInstance.delete(`/shift-assignments/${id}/`);
   },
 
   // --- WEEKLY SCHEDULES (RECURRING SCHEDULES) ---
@@ -216,7 +165,7 @@ export const attendanceApi = {
    */
   async getWeeklySchedules(employeeId?: number): Promise<PaginatedResponse<WeeklySchedule>> {
     const query = employeeId ? `?employee=${employeeId}` : '';
-    const response = await attendanceClient.get<PaginatedResponse<WeeklySchedule>>(`/weekly-schedules/${query}`);
+    const response = await axiosInstance.get<PaginatedResponse<WeeklySchedule>>(`/weekly-schedules/${query}`);
     return response.data;
   },
 
@@ -224,7 +173,7 @@ export const attendanceApi = {
    * Creates a recurring weekly schedule for an employee (e.g. Day Shift on Mondays).
    */
   async createWeeklySchedule(data: WeeklySchedule): Promise<WeeklySchedule> {
-    const response = await attendanceClient.post<WeeklySchedule>('/weekly-schedules/', data);
+    const response = await axiosInstance.post<WeeklySchedule>('/weekly-schedules/', data);
     return response.data;
   },
 
@@ -232,7 +181,7 @@ export const attendanceApi = {
    * Deletes a weekly schedule assignment.
    */
   async deleteWeeklySchedule(id: number): Promise<void> {
-    await attendanceClient.delete(`/weekly-schedules/${id}/`);
+    await axiosInstance.delete(`/weekly-schedules/${id}/`);
   },
 
   // --- SHIFT SWAPPING REQUESTS ---
@@ -241,7 +190,7 @@ export const attendanceApi = {
    * Lists all coworker swap requests submitted in the organization.
    */
   async getSwapRequests(): Promise<PaginatedResponse<ShiftSwapRequest>> {
-    const response = await attendanceClient.get<PaginatedResponse<ShiftSwapRequest>>('/shift-swap-requests/');
+    const response = await axiosInstance.get<PaginatedResponse<ShiftSwapRequest>>('/shift-swap-requests/');
     return response.data;
   },
 
@@ -249,7 +198,7 @@ export const attendanceApi = {
    * Submits a new swap request from an employee to a coworker.
    */
   async createSwapRequest(data: ShiftSwapRequest): Promise<ShiftSwapRequest> {
-    const response = await attendanceClient.post<ShiftSwapRequest>('/shift-swap-requests/', data);
+    const response = await axiosInstance.post<ShiftSwapRequest>('/shift-swap-requests/', data);
     return response.data;
   },
 
@@ -257,7 +206,7 @@ export const attendanceApi = {
    * Updates status of a shift swap request (Manager Approvals/Rejections).
    */
   async updateSwapRequestStatus(id: number, status: 'Approved' | 'Rejected', managerId: number): Promise<ShiftSwapRequest> {
-    const response = await attendanceClient.patch<ShiftSwapRequest>(`/shift-swap-requests/${id}/`, {
+    const response = await axiosInstance.patch<ShiftSwapRequest>(`/shift-swap-requests/${id}/`, {
       status,
       approved_by: managerId,
       approved_at: new Date().toISOString()
@@ -271,7 +220,7 @@ export const attendanceApi = {
    * Lists all overtime rules.
    */
   async getOvertimeRules(): Promise<PaginatedResponse<OvertimeRule>> {
-    const response = await attendanceClient.get<PaginatedResponse<OvertimeRule>>('/overtime-rules/');
+    const response = await axiosInstance.get<PaginatedResponse<OvertimeRule>>('/overtime-rules/');
     return response.data;
   },
 
@@ -279,7 +228,7 @@ export const attendanceApi = {
    * Creates a new overtime rule.
    */
   async createOvertimeRule(data: OvertimeRule): Promise<OvertimeRule> {
-    const response = await attendanceClient.post<OvertimeRule>('/overtime-rules/', data);
+    const response = await axiosInstance.post<OvertimeRule>('/overtime-rules/', data);
     return response.data;
   },
 
@@ -287,7 +236,7 @@ export const attendanceApi = {
    * Updates an overtime rule by ID.
    */
   async updateOvertimeRule(id: number, data: Partial<OvertimeRule>): Promise<OvertimeRule> {
-    const response = await attendanceClient.put<OvertimeRule>(`/overtime-rules/${id}/`, data);
+    const response = await axiosInstance.put<OvertimeRule>(`/overtime-rules/${id}/`, data);
     return response.data;
   },
 
@@ -295,7 +244,7 @@ export const attendanceApi = {
    * Deletes an overtime rule.
    */
   async deleteOvertimeRule(id: number): Promise<void> {
-    await attendanceClient.delete(`/overtime-rules/${id}/`);
+    await axiosInstance.delete(`/overtime-rules/${id}/`);
   },
 
   // --- ATTENDANCE TRACKING AND LOGGING ---
@@ -309,7 +258,7 @@ export const attendanceApi = {
     if (date) params.append('date', date);
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await attendanceClient.get<PaginatedResponse<Attendance>>(`/attendances/${query}`);
+    const response = await axiosInstance.get<PaginatedResponse<Attendance>>(`/attendances/${query}`);
     return response.data;
   },
 
@@ -317,7 +266,7 @@ export const attendanceApi = {
    * Logs a new attendance check-in/check-out entry.
    */
   async logAttendance(data: Attendance): Promise<Attendance> {
-    const response = await attendanceClient.post<Attendance>('/attendances/', data);
+    const response = await axiosInstance.post<Attendance>('/attendances/', data);
     return response.data;
   },
 
@@ -325,7 +274,7 @@ export const attendanceApi = {
    * Updates an existing attendance entry (e.g. logging a check-out).
    */
   async updateAttendance(id: number, data: Partial<Attendance>): Promise<Attendance> {
-    const response = await attendanceClient.put<Attendance>(`/attendances/${id}/`, data);
+    const response = await axiosInstance.put<Attendance>(`/attendances/${id}/`, data);
     return response.data;
   },
 
@@ -333,6 +282,6 @@ export const attendanceApi = {
    * Deletes an attendance record by ID.
    */
   async deleteAttendance(id: number): Promise<void> {
-    await attendanceClient.delete(`/attendances/${id}/`);
+    await axiosInstance.delete(`/attendances/${id}/`);
   }
 };
