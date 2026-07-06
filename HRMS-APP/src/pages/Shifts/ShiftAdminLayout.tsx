@@ -5,6 +5,13 @@ import { useState } from 'react';
 import { Settings, UserCheck, CalendarDays, Palmtree, Wrench } from 'lucide-react';
 import styles from './ShiftAdminLayout.module.css';
 
+// Importing settings tab views
+import ShiftMasterTab from './tabs/ShiftMasterTab';
+import AssignmentsTab from './tabs/AssignmentsTab';
+import WeeklyOffsTab from './tabs/WeeklyOffsTab';
+import HolidaysTab from './tabs/HolidaysTab';
+import ResolverToolTab from './tabs/ResolverToolTab';
+
 // ==========================================
 // 2. MAIN COMPONENT
 // ==========================================
@@ -64,22 +71,12 @@ export default function ShiftAdminLayout() {
           </p>
         </div>
 
-        {/* Tab Content Entry Points */}
-        {activeTab === 'master' && (
-          <div>Shift Master Content (Ready for Step 3)</div>
-        )}
-        {activeTab === 'assignments' && (
-          <div>Assignments Content (Ready for Step 4)</div>
-        )}
-        {activeTab === 'offs' && (
-          <div>Weekly Offs Content (Ready for Step 5)</div>
-        )}
-        {activeTab === 'holidays' && (
-          <div>Holidays Content (Ready for Step 5)</div>
-        )}
-        {activeTab === 'resolver' && (
-          <div>Resolver Content (Ready for Step 6)</div>
-        )}
+        {/* Tab Content Components */}
+        {activeTab === 'master' && <ShiftMasterTab />}
+        {activeTab === 'assignments' && <AssignmentsTab />}
+        {activeTab === 'offs' && <WeeklyOffsTab />}
+        {activeTab === 'holidays' && <HolidaysTab />}
+        {activeTab === 'resolver' && <ResolverToolTab />}
       </main>
     </div>
   );
