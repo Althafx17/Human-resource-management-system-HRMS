@@ -66,11 +66,11 @@ export default function Attendance() {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [employeeMap, setEmployeeMap] = useState<Record<string, EmployeeData>>({});
 
-  // Calculate dynamic KPIs from active records and lookups state
+  // Calculate dynamic KPIs from active records and lookups state with defensive fallbacks
   const totalWorkforce = Object.keys(employeeMap).length;
-  const presentCount = records.filter(r => r.status.toLowerCase() === 'present').length;
-  const lateCount = records.filter(r => r.status.toLowerCase() === 'late').length;
-  const absentCount = records.filter(r => r.status.toLowerCase() === 'absent').length;
+  const presentCount = records.filter(r => (r.status || '').toLowerCase() === 'present').length;
+  const lateCount = records.filter(r => (r.status || '').toLowerCase() === 'late').length;
+  const absentCount = records.filter(r => (r.status || '').toLowerCase() === 'absent').length;
 
   /**
    * Helper mapping standard attendance status strings to visual CSS modules classes.
@@ -139,15 +139,15 @@ export default function Attendance() {
       .then(res => {
         const results = res.results || [];
         const mapped: AttendanceRecord[] = results.map(rec => {
-          const emp = employeeMap[String(rec.employee)];
+          const emp = rec.employee ? employeeMap[String(rec.employee)] : null;
           return {
             id: rec.id || 0,
-            name: emp ? emp.name : `Employee #${rec.employee}`,
-            avatar: emp ? emp.avatar : getDeterministicMaleAvatar(rec.employee),
-            date: rec.date,
+            name: emp ? emp.name : `Employee #${rec.employee || 'Unknown'}`,
+            avatar: emp ? emp.avatar : getDeterministicMaleAvatar(rec.employee || 0),
+            date: rec.date || '',
             checkIn: formatTime(rec.check_in),
             checkOut: formatTime(rec.check_out),
-            status: rec.status,
+            status: rec.status || 'Present',
             location: rec.location || 'Main Office',
           };
         });
