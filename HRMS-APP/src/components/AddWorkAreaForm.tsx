@@ -1,19 +1,49 @@
-import React, { useState } from 'react';
+// ==========================================
+// 1. IMPORTS & DEPENDENCIES
+// ==========================================
+import React, { useState, useEffect } from 'react';
 import SlideOverDrawer from './SlideOverDrawer';
 import styles from './FormStyles.module.css';
+import type { WorkArea } from '../pages/workarea/types';
 
+// ==========================================
+// 2. TYPES & PROPS
+// ==========================================
 interface AddWorkAreaFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSave?: (data: any) => void;
+  initialData?: WorkArea | null; // Null/undefined triggers Add mode
 }
 
-export default function AddWorkAreaForm({ isOpen, onClose, onSave }: AddWorkAreaFormProps) {
+// ==========================================
+// 3. MAIN FORM COMPONENT
+// ==========================================
+export default function AddWorkAreaForm({ isOpen, onClose, onSave, initialData }: AddWorkAreaFormProps) {
   const [name, setName] = useState('');
-  const [status, setStatus] = useState('Active');
+  const [status, setStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [radius, setRadius] = useState('100');
+
+  // Sync state variables with edit fields when opening drawer
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setName(initialData.name);
+        setStatus(initialData.status);
+        setLatitude(String(initialData.latitude));
+        setLongitude(String(initialData.longitude));
+        setRadius(String(initialData.radius));
+      } else {
+        setName('');
+        setStatus('ACTIVE');
+        setLatitude('');
+        setLongitude('');
+        setRadius('100');
+      }
+    }
+  }, [initialData, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +77,7 @@ export default function AddWorkAreaForm({ isOpen, onClose, onSave }: AddWorkArea
         className={styles.saveBtn} 
         onClick={handleSubmit}
       >
-        + Save Work Area
+        {initialData ? 'Save Changes' : '+ Save Work Area'}
       </button>
     </>
   );
@@ -56,8 +86,8 @@ export default function AddWorkAreaForm({ isOpen, onClose, onSave }: AddWorkArea
     <SlideOverDrawer
       isOpen={isOpen}
       onClose={onClose}
-      title="Add Work Area"
-      subtitle="Define a geofenced area for onsite attendance logging"
+      title={initialData ? "Edit Work Area" : "Add Work Area"}
+      subtitle={initialData ? "Modify geofence boundary coordinates" : "Define a geofenced area for onsite attendance logging"}
       footerActions={footerActions}
     >
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -85,11 +115,11 @@ export default function AddWorkAreaForm({ isOpen, onClose, onSave }: AddWorkArea
           <select
             className={styles.select}
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={(e) => setStatus(e.target.value as 'ACTIVE' | 'INACTIVE')}
             required
           >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
           </select>
         </div>
 
