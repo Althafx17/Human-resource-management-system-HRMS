@@ -47,35 +47,38 @@ export default function ShiftAdminLayout() {
 
       {/* Dynamic Content Panel */}
       <main className={styles.content}>
+        <div style={{ marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+            {activeTab === 'master' && 'Shift Templates'}
+            {activeTab === 'assignments' && 'Shift Assignments'}
+            {activeTab === 'offs' && 'Weekly Offs Configuration'}
+            {activeTab === 'holidays' && 'Holidays List'}
+            {activeTab === 'resolver' && 'Schedule Resolver Tool'}
+          </h1>
+          <p style={{ fontSize: '14px', color: '#64748b', margin: '4px 0 0 0' }}>
+            {activeTab === 'master' && 'Define working hours, late grace rules, and overtime allowances.'}
+            {activeTab === 'assignments' && 'Map active employees to shift templates and schedule effective dates.'}
+            {activeTab === 'offs' && 'Manage weekly rest patterns and weekend definitions.'}
+            {activeTab === 'holidays' && 'Configure calendar dates for mandatory and optional holidays.'}
+            {activeTab === 'resolver' && 'Query and test active rules for a specific employee and target date.'}
+          </p>
+        </div>
+
+        {/* Tab Content Entry Points */}
         {activeTab === 'master' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }}>Shift Templates Master</h2>
-            <p style={{ color: '#64748b' }}>Configure standard shift timings and overtime options here.</p>
-          </div>
+          <div>Shift Master Content (Ready for Step 3)</div>
         )}
         {activeTab === 'assignments' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }}>Shift Assignments</h2>
-            <p style={{ color: '#64748b' }}>Assign shift patterns to employees and schedule effective dates.</p>
-          </div>
+          <div>Assignments Content (Ready for Step 4)</div>
         )}
         {activeTab === 'offs' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }}>Weekly Offs Configuration</h2>
-            <p style={{ color: '#64748b' }}>Manage weekly recurring rest days and scopes.</p>
-          </div>
+          <div>Weekly Offs Content (Ready for Step 5)</div>
         )}
         {activeTab === 'holidays' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }}>Holidays List</h2>
-            <p style={{ color: '#64748b' }}>Configure optional and statutory holiday listings.</p>
-          </div>
+          <div>Holidays Content (Ready for Step 5)</div>
         )}
         {activeTab === 'resolver' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }}>Schedule Resolver Tool</h2>
-            <p style={{ color: '#64748b' }}>Inspect expected workday shifts and details for individual dates.</p>
-          </div>
+          <div>Resolver Content (Ready for Step 6)</div>
         )}
       </main>
     </div>

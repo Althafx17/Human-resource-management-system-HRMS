@@ -23,6 +23,7 @@ export interface ShiftTemplate {
   code: string; // e.g., "GS-01"
   start_time: string; // HH:MM
   end_time: string; // HH:MM
+  duration_hours?: number;
   break_mins: number;
   late_grace_mins: number;
   allow_overtime: boolean;
@@ -57,8 +58,8 @@ export interface ResolverQuery {
   date: string; // YYYY-MM-DD
 }
 
-export interface ResolverResult {
-  status: string; // e.g. "Working Day", "Weekly Off", "Holiday"
-  expected_hours: string; // e.g. "8 hrs"
-  assigned_shift_name: string; // e.g. "General Shift (GS)"
+export interface ResolverResponse {
+  status: 'Working Day' | 'Holiday' | 'Weekly Off';
+  expected_hours: string; // e.g., "8 hrs"
+  assigned_shift_name: string; // e.g., "General Shift (GS)"
 }

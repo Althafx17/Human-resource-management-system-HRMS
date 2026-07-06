@@ -51,6 +51,17 @@
   background-color: #f5f3ff;
   color: #7c3aed;
   font-weight: 600;
+  position: relative;
+}
+
+.activeItem::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  width: 6px;
+  height: 6px;
+  background-color: #7c3aed;
+  border-radius: 50%;
 }
 
 .content {
