@@ -122,6 +122,7 @@ export interface Attendance {
   status: string; // "Present", "Absent", "Late"
   employee: number; // Employee database ID
   shift?: number | null; // Shift database ID
+  location?: string; // Geolocation or branch area label
 }
 
 export interface PaginatedResponse<T> {
@@ -326,5 +327,12 @@ export const attendanceApi = {
   async updateAttendance(id: number, data: Partial<Attendance>): Promise<Attendance> {
     const response = await attendanceClient.put<Attendance>(`/attendances/${id}/`, data);
     return response.data;
+  },
+
+  /**
+   * Deletes an attendance record by ID.
+   */
+  async deleteAttendance(id: number): Promise<void> {
+    await attendanceClient.delete(`/attendances/${id}/`);
   }
 };

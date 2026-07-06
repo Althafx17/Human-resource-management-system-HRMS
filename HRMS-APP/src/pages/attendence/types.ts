@@ -14,4 +14,5 @@ export interface AttendanceRecord {
   checkIn: string;
   checkOut: string;
   status: 'Present' | 'Absent' | 'Late' | 'Half Day' | string;
+  location: string; // <-- New field
 }

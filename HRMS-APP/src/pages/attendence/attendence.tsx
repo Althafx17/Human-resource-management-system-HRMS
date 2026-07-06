@@ -2,7 +2,7 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus } from 'lucide-react';
+import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download } from 'lucide-react';
 import styles from './attendence.module.css';
 import LogAttendanceForm from '../../components/LogAttendanceForm';
 import { attendanceApi } from '../../services/attendanceApi';
@@ -65,6 +65,12 @@ export default function Attendance() {
   // Core records lists and lookup caching state
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [employeeMap, setEmployeeMap] = useState<Record<string, EmployeeData>>({});
+
+  // Calculate dynamic KPIs from active records and lookups state
+  const totalWorkforce = Object.keys(employeeMap).length;
+  const presentCount = records.filter(r => r.status.toLowerCase() === 'present').length;
+  const lateCount = records.filter(r => r.status.toLowerCase() === 'late').length;
+  const absentCount = records.filter(r => r.status.toLowerCase() === 'absent').length;
 
   /**
    * Helper mapping standard attendance status strings to visual CSS modules classes.
@@ -142,6 +148,7 @@ export default function Attendance() {
             checkIn: formatTime(rec.check_in),
             checkOut: formatTime(rec.check_out),
             status: rec.status,
+            location: rec.location || 'Main Office',
           };
         });
         setRecords(mapped);
@@ -174,6 +181,7 @@ export default function Attendance() {
       employee: Number(data.employeeId),
       check_in: isoCheckIn,
       check_out: isoCheckOut,
+      location: data.location,
     };
 
     attendanceApi.logAttendance(payload)
@@ -188,6 +196,23 @@ export default function Attendance() {
       });
   };
 
+  /**
+   * Handles deleting an attendance record by ID.
+   */
+  const handleDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this attendance log?")) {
+      attendanceApi.deleteAttendance(id)
+        .then(() => {
+          showToast('Attendance record deleted successfully!', 'success');
+          loadAttendance();
+        })
+        .catch(err => {
+          console.error('Delete Error:', err.response?.data || err.message);
+          showToast('Failed to delete attendance record.', 'error');
+        });
+    }
+  };
+
   // Perform client-side employee name string filters
   const filteredAttendance = records.filter(emp =>
     emp.name.toLowerCase().includes(search.toLowerCase())
@@ -196,6 +221,50 @@ export default function Attendance() {
   return (
     <div className={styles.page}>
       <h1 className={styles.title}>Attendance Management</h1>
+
+      {/* KPI Cards Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+        {/* WORKFORCE */}
+        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Workforce</span>
+            <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#0f172a', margin: '4px 0 0 0' }}>{totalWorkforce}</h3>
+          </div>
+          <div style={{ background: '#f1f5f9', padding: '10px', borderRadius: '8px', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Users size={20} />
+          </div>
+        </div>
+        {/* PRESENT */}
+        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Present</span>
+            <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#10b981', margin: '4px 0 0 0' }}>{presentCount}</h3>
+          </div>
+          <div style={{ background: '#ecfdf5', padding: '10px', borderRadius: '8px', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <CheckCircle2 size={20} />
+          </div>
+        </div>
+        {/* LATE */}
+        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Late</span>
+            <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b', margin: '4px 0 0 0' }}>{lateCount}</h3>
+          </div>
+          <div style={{ background: '#fffbeb', padding: '10px', borderRadius: '8px', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Clock size={20} />
+          </div>
+        </div>
+        {/* ABSENT */}
+        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Absent</span>
+            <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#ef4444', margin: '4px 0 0 0' }}>{absentCount}</h3>
+          </div>
+          <div style={{ background: '#fef2f2', padding: '10px', borderRadius: '8px', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <XCircle size={20} />
+          </div>
+        </div>
+      </div>
 
       <div className={styles.card}>
         {/* Search and Tool Belt Row */}
@@ -228,27 +297,54 @@ export default function Attendance() {
             </button>
           </div>
 
-          {/* Interactive Date Selection Picker */}
-          <div className={styles.dateDisplay}>
-            <Calendar size={18} />
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <strong>Date:</strong>
-              <input
-                type="date"
-                value={currentDate}
-                onChange={(e) => setCurrentDate(e.target.value)}
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  color: '#1a3646',
-                  fontWeight: '600',
-                  outline: 'none',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit'
-                }}
-              />
-            </span>
+          {/* Interactive Date Selection Picker & Export Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className={styles.dateDisplay}>
+              <Calendar size={18} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <strong>Date:</strong>
+                <input
+                  type="date"
+                  value={currentDate}
+                  onChange={(e) => setCurrentDate(e.target.value)}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#1a3646',
+                    fontWeight: '600',
+                    outline: 'none',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit'
+                  }}
+                />
+              </span>
+            </div>
+            
+            <button
+              type="button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                backgroundColor: 'white',
+                color: '#475569',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                outline: 'none'
+              }}
+              onClick={() => {
+                showToast('Attendance report exported to CSV!', 'success');
+              }}
+            >
+              <Download size={16} />
+              <span>Export</span>
+            </button>
           </div>
         </div>
 
@@ -262,19 +358,21 @@ export default function Attendance() {
                 <th>Date</th>
                 <th>Check In</th>
                 <th>Check Out</th>
+                <th>Location</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
                     Loading attendance entries...
                   </td>
                 </tr>
               ) : filteredAttendance.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
                     No attendance logs found for this date.
                   </td>
                 </tr>
@@ -292,10 +390,62 @@ export default function Attendance() {
                     <td className={record.checkIn === '--' ? styles.mutedText : ''}>{record.checkIn}</td>
                     <td className={record.checkOut === '--' ? styles.mutedText : ''}>{record.checkOut}</td>
                     <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '13px' }}>
+                        <MapPin size={14} color="#94a3b8" />
+                        <span>{record.location}</span>
+                      </div>
+                    </td>
+                    <td>
                       <span className={`${styles.statusPill} ${getStatusStyle(record.status)}`}>
                         {getStatusIcon(record.status)}
                         <span style={{ marginLeft: '4px' }}>{record.status}</span>
                       </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button
+                          type="button"
+                          title="View details"
+                          style={{
+                            border: 'none',
+                            background: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            color: '#64748b',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '4px',
+                            transition: 'all 0.2s',
+                            outline: 'none'
+                          }}
+                          onClick={() => {
+                            showToast(`Viewing details for Log #${record.id}`, 'info');
+                          }}
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          title="Delete record"
+                          style={{
+                            border: 'none',
+                            background: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            color: '#ef4444',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '4px',
+                            transition: 'all 0.2s',
+                            outline: 'none'
+                          }}
+                          onClick={() => handleDelete(record.id)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -12,10 +12,8 @@ interface LogAttendanceFormProps {
 }
 
 const DUMMY_LOCATIONS = [
-  { id: 'HQ', name: 'Headquarters - Floor 3' },
-  { id: 'DS', name: 'Design Studio - London' },
-  { id: 'RD', name: 'R&D Engineering Lab - California' },
-  { id: 'REM', name: 'Remote' },
+  { id: 'Main Office', name: 'Main Office' },
+  { id: 'Branch A', name: 'Branch A' },
 ];
 
 export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttendanceFormProps) {
@@ -80,7 +78,7 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
         className={styles.discardBtn} 
         onClick={onClose}
       >
-        Discard
+        DISCARD
       </button>
       <button 
         type="button" 
@@ -88,7 +86,7 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
         onClick={handleSubmit}
       >
         <Check size={16} />
-        Save Entry
+        SAVE ENTRY
       </button>
     </>
   );
@@ -144,6 +142,7 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
               <option value="Present">Present</option>
               <option value="Absent">Absent</option>
               <option value="Late">Late</option>
+              <option value="Half Day">Half Day</option>
             </select>
           </div>
         </div>
