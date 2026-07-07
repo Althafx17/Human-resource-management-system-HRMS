@@ -169,12 +169,12 @@ function EmployeeDetailsContent() {
    */
   const getAvailableManagers = () => {
     const defaultManagers = ['Sarah Connor', 'Sarah John', 'John Smith']; 
-    const currentManager = employee?.reportingManager;
+    const currentManager = employee?.reportingManager
     
     return Array.from(new Set([
       ...(currentManager ? [currentManager] : []),
       ...managers,
-      ...defaultManagers
+      ...defaultManagers     
     ])).filter(name => name !== employee?.name);
   };
 
