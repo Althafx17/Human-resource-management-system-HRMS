@@ -430,3 +430,186 @@
   background-color: white;
   box-shadow: 0 0 0 2px rgba(26, 54, 70, 0.1);
 }
+
+.detailsSkeletonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.titleSkeleton {
+  width: 200px;
+  height: 24px;
+}
+
+.subtitleSkeleton {
+  width: 150px;
+  height: 16px;
+}
+
+.textSkeleton {
+  width: 250px;
+  height: 14px;
+}
+
+.cardSkeleton {
+  margin-top: 24px;
+  min-height: 200px;
+}
+
+.cardSkeletonTitle {
+  width: 100px;
+  height: 20px;
+  margin-bottom: 16px;
+}
+
+.cardSkeletonBody {
+  width: 100%;
+  height: 100px;
+}
+
+.errorWrapper {
+  padding: 40px;
+  text-align: center;
+  color: #ef4444;
+}
+
+.notFoundWrapper {
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+}
+
+.profileInfoFull {
+  width: 100%;
+}
+
+.avatarOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  padding: 4px 0;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  pointer-events: none;
+}
+
+.details {
+  flex: 1;
+}
+
+.skeletonAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+}
+
+.editableAvatar {
+  cursor: pointer;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.editFormContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.editFormRow {
+  display: flex;
+  gap: 10px;
+}
+
+.editFormCol {
+  flex: 1;
+}
+
+.editFormColStatus {
+  width: 120px;
+}
+
+.editLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.reportingManagerRow {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reportingManagerLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.reportingManagerInput {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a3646;
+  outline: none;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.headerActionsWrapper {
+  display: flex;
+  gap: 8px;
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+.editFormContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.editFormRow {
+  display: flex;
+  gap: 10px;
+}
+
+.editFormCol {
+  flex: 1;
+}
+
+.editFormColStatus {
+  width: 120px;
+}
+
+.editLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}

@@ -202,25 +202,25 @@ function EmployeeDetailsContent() {
         <div className={styles.headerWrapper}>
           <div className={styles.profileHeader}>
             <div className={styles.profileInfo}>
-              <div className={`${styles.skeleton} ${styles.skeletonCircle}`} style={{ width: '80px', height: '80px', borderRadius: '16px' }}></div>
-              <div className={styles.details} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div className={styles.skeleton} style={{ width: '200px', height: '24px' }}></div>
-                <div className={styles.skeleton} style={{ width: '150px', height: '16px' }}></div>
-                <div className={styles.skeleton} style={{ width: '250px', height: '14px' }}></div>
+              <div className={`${styles.skeleton} ${styles.skeletonAvatar}`}></div>
+              <div className={`${styles.details} ${styles.detailsSkeletonWrapper}`}>
+                <div className={`${styles.skeleton} ${styles.titleSkeleton}`}></div>
+                <div className={`${styles.skeleton} ${styles.subtitleSkeleton}`}></div>
+                <div className={`${styles.skeleton} ${styles.textSkeleton}`}></div>
               </div>
             </div>
           </div>
         </div>
-        <div className={styles.card} style={{ marginTop: '24px', minHeight: '200px' }}>
-          <div className={styles.skeleton} style={{ width: '100px', height: '20px', marginBottom: '16px' }}></div>
-          <div className={styles.skeleton} style={{ width: '100%', height: '100px' }}></div>
+        <div className={`${styles.card} ${styles.cardSkeleton}`}>
+          <div className={`${styles.skeleton} ${styles.cardSkeletonTitle}`}></div>
+          <div className={`${styles.skeleton} ${styles.cardSkeletonBody}`}></div>
         </div>
       </div>
     );
   }
 
-  if (error) return <div style={{ padding: '40px', textAlign: 'center', color: '#ef4444' }}>{error}</div>;
-  if (!employee) return <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Employee profile not found.</div>;
+  if (error) return <div className={styles.errorWrapper}>{error}</div>;
+  if (!employee) return <div className={styles.notFoundWrapper}>Employee profile not found.</div>;
 
   return (
     <div className={styles.page}>
@@ -231,11 +231,10 @@ function EmployeeDetailsContent() {
         </button>
 
         <div className={styles.profileHeader}>
-          <div className={styles.profileInfo} style={{ width: '100%' }}>
+          <div className={`${styles.profileInfo} ${styles.profileInfoFull}`}>
             <div 
-              className={styles.avatarPlaceholder}
+              className={`${styles.avatarPlaceholder} ${isEditing ? styles.editableAvatar : ''}`}
               onClick={() => isEditing && avatarInputRef.current?.click()}
-              style={{ cursor: isEditing ? 'pointer' : 'default', position: 'relative' }}
               title={isEditing ? "Click to change photo" : undefined}
             >
               <input
@@ -248,7 +247,7 @@ function EmployeeDetailsContent() {
                   }
                 }}
                 accept="image/*"
-                style={{ display: 'none' }}
+                className={styles.hiddenFileInput}
                 title="Upload employee profile image"
                 aria-label="Upload employee profile image"
               />
@@ -259,34 +258,20 @@ function EmployeeDetailsContent() {
                     : (editFormData?.avatar || employee.avatar)
                 } 
                 alt="Avatar" 
-                style={{width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover'}} 
+                className={styles.avatarImage} 
               />
               {isEditing && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: 'rgba(0, 0, 0, 0.6)',
-                  color: 'white',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textAlign: 'center',
-                  padding: '4px 0',
-                  borderBottomLeftRadius: '16px',
-                  borderBottomRightRadius: '16px',
-                  pointerEvents: 'none'
-                }}>
+                <div className={styles.avatarOverlay}>
                   Change
                 </div>
               )}
             </div>
-            <div className={styles.details} style={{ flex: 1 }}>
+            <div className={styles.details}>
               {isEditing ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '500px' }}>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label htmlFor="fullNameInput" style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Full Name</label>
+                <div className={styles.editFormContainer}>
+                  <div className={styles.editFormRow}>
+                    <div className={styles.editFormCol}>
+                      <label htmlFor="fullNameInput" className={styles.editLabel}>Full Name</label>
                       <input 
                         id="fullNameInput"
                         type="text" 
@@ -296,8 +281,8 @@ function EmployeeDetailsContent() {
                         className={styles.inlineInput} 
                       />
                     </div>
-                    <div style={{ width: '120px' }}>
-                      <label htmlFor="statusSelect" style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Status</label>
+                    <div className={styles.editFormColStatus}>
+                      <label htmlFor="statusSelect" className={styles.editLabel}>Status</label>
                       <select 
                         id="statusSelect"
                         name="status" 
@@ -312,9 +297,9 @@ function EmployeeDetailsContent() {
                     </div>
                   </div>
                   
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label htmlFor="designationSelect" style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Designation</label>
+                  <div className={styles.editFormRow}>
+                    <div className={styles.editFormCol}>
+                      <label htmlFor="designationSelect" className={styles.editLabel}>Designation</label>
                       <select 
                         id="designationSelect"
                         name="designation" 
@@ -329,8 +314,8 @@ function EmployeeDetailsContent() {
                         <option value="4">Sales Executive</option>
                       </select>
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <label htmlFor="departmentSelect" style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Department</label>
+                    <div className={styles.editFormCol}>
+                      <label htmlFor="departmentSelect" className={styles.editLabel}>Department</label>
                       <select 
                         id="departmentSelect"
                         name="department" 
@@ -361,23 +346,13 @@ function EmployeeDetailsContent() {
                     <span className={styles.contactItem}><Mail size={14} /> {employee.email || `${(employee.name || '').split(' ')[0].toLowerCase()}@company.com`}</span>
                   </div>
                   
-                  <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: '600', color: '#64748b' }}>Reporting Manager:</span>
+                  <div className={styles.reportingManagerRow}>
+                    <span className={styles.reportingManagerLabel}>Reporting Manager:</span>
                     <select
                       value={employee.reportingManager || ''}
                       onChange={(e) => handleManagerChange(e.target.value)}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: '#1a3646',
-                        outline: 'none',
-                        background: '#f8fafc',
-                        cursor: 'pointer',
-                        transition: 'border-color 0.2s'
-                      }}
+                      className={styles.reportingManagerInput}
+                      title="Select reporting manager"
                     >
                       <option value="">No Manager</option>
                       {getAvailableManagers().map((managerName) => (
@@ -392,7 +367,7 @@ function EmployeeDetailsContent() {
             </div>
           </div>
 
-          <div className={styles.headerActions} style={{ display: 'flex', gap: '8px', alignSelf: 'flex-start', flexShrink: 0 }}>
+          <div className={`${styles.headerActions} ${styles.headerActionsWrapper}`}>
             {isEditing ? (
               <>
                 <button className={styles.btnOutline} onClick={handleCancelEdit}>
@@ -452,7 +427,7 @@ export default function EmployeeDetails() {
   const { id } = useParams();
 
   if (!id) {
-    return <div style={{ padding: '40px', textAlign: 'center', color: '#ef4444' }}>Invalid Employee ID</div>;
+    return <div className={styles.errorWrapper}>Invalid Employee ID</div>;
   }
 
   return (

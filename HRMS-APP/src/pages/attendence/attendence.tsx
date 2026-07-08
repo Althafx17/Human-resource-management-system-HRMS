@@ -161,29 +161,7 @@ export default function Attendance() {
   const lateCount = records.filter(r => (r.status || '').toLowerCase() === 'late').length;
   const absentCount = records.filter(r => (r.status || '').toLowerCase() === 'absent').length;
 
-  /**
-   * Helper mapping standard attendance status strings to visual CSS modules classes.
-   */
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'Present': return styles.present;
-      case 'Absent': return styles.absent;
-      case 'Late': return styles.late;
-      default: return '';
-    }
-  };
 
-  /**
-   * Helper rendering small status indicators next to status pills.
-   */
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Present': return <CheckCircle2 size={14} />;
-      case 'Absent': return <XCircle size={14} />;
-      case 'Late': return <AlertCircle size={14} />;
-      default: return null;
-    }
-  };
 
   // Fetch all employees once on component mount to build ID lookup map
   useEffect(() => {
@@ -232,7 +210,7 @@ export default function Attendance() {
           return {
             id: rec.id || 0,
             name: emp ? emp.name : `Employee #${rec.employee || 'Unknown'}`,
-            avatar: emp ? emp.avatar : getDeterministicMaleAvatar(rec.employee || 0),
+            avatar: emp ? (emp.avatar instanceof File ? URL.createObjectURL(emp.avatar) : emp.avatar || '') : getDeterministicMaleAvatar(rec.employee || 0),
             date: rec.date || '',
             checkIn: formatTime(rec.check_in),
             checkOut: formatTime(rec.check_out),
