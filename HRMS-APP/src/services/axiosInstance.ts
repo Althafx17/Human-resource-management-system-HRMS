@@ -2,6 +2,8 @@
 // 1. IMPORTS & CONFIGURATIONS
 // ==========================================
 import axios from 'axios';
+// ---> NEW: Import the auth utility
+import { authUtils } from '../utils/authUtils';
 import { getCookie, deleteCookie } from '../utils/cookieUtils';
 
 // Base URL resolves to backend target or local dev proxy
@@ -20,7 +22,8 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = getCookie('access_token') || localStorage.getItem('access_token');
+    // ---> CHANGED: Retrieve token via authUtils and fallback to custom cookie store or localStorage
+    const token = authUtils.getAccessToken() || getCookie('access_token') || localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -39,7 +42,8 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear cookie credentials
+      // ---> CHANGED: Clear authUtils cookies and custom cookies
+      authUtils.clearTokens();
       deleteCookie('access_token');
       deleteCookie('refresh_token');
       deleteCookie('username');

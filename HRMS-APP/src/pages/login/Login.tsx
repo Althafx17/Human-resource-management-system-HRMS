@@ -23,7 +23,8 @@ export default function Login() {
     setError(null);
 
     try {
-      await authApi.login(username, password);
+      // ---> CHANGED: Call login passing credentials object
+      await authApi.login({ username, password });
       navigate('/employees');
     } catch (err) {
       console.error(err);
