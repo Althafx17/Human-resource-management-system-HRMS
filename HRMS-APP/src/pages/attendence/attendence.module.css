@@ -132,6 +132,7 @@
 .present { background-color: #d1fae5; color: #065f46; }
 .absent { background-color: #fee2e2; color: #991b1b; }
 .late { background-color: #fef3c7; color: #92400e; }
+.halfDay { background-color: #f3e8ff; color: #6b21a8; }
 
 .logBtn {
   background-color: #7c3aed;

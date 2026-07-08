@@ -2,7 +2,7 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download, Clock, X } from 'lucide-react';
+import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download, Clock, X, PieChart } from 'lucide-react';
 import styles from './attendence.module.css';
 import LogAttendanceForm from '../../components/LogAttendanceForm';
 import { attendanceApi } from '../../services/attendanceApi';
@@ -51,33 +51,39 @@ const formatTime = (isoTimeStr: string | null | undefined): string => {
  */
 // ---> NEW: Standard StatusPill component to enforce consistent styling and capitalization
 function StatusPill({ status }: { status: string }) {
-  const normalized = status ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase() : 'Absent';
+  // Normalize string for case sensitivity mapping
+  const normalized = status ? status.toLowerCase() : 'absent';
   
   const getStatusStyle = (s: string) => {
     switch (s) {
-      case 'Present': return styles.present;
-      case 'Absent': return styles.absent;
-      case 'Late': return styles.late;
-      case 'Half Day': return styles.late; // Share same color standard
+      case 'present': return styles.present;
+      case 'absent': return styles.absent;
+      case 'late': return styles.late;
+      case 'half day': return styles.halfDay; // ---> NEW: Half Day variant styling
       default: return '';
     }
   };
 
   const getStatusIcon = (s: string) => {
     switch (s) {
-      case 'Present': return <CheckCircle2 size={14} />;
-      case 'Absent': return <XCircle size={14} />;
-      case 'Late':
-      case 'Half Day':
-        return <AlertCircle size={14} />;
+      case 'present': return <CheckCircle2 size={14} />;
+      case 'absent': return <XCircle size={14} />;
+      case 'late': return <AlertCircle size={14} />;
+      case 'half day': return <PieChart size={14} />; // ---> NEW: Half Day variant icon
       default: return null;
     }
   };
 
+  // Capitalize for user view display representation e.g. "half day" -> "Half Day"
+  const formattedText = normalized
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
   return (
     <span className={`${styles.statusPill} ${getStatusStyle(normalized)}`}>
       {getStatusIcon(normalized)}
-      <span className={styles.statusLabelText}>{normalized}</span>
+      <span className={styles.statusLabelText}>{formattedText}</span>
     </span>
   );
 }
