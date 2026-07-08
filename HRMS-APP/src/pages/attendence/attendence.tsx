@@ -2,7 +2,7 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download, Clock } from 'lucide-react';
+import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download, Clock, X } from 'lucide-react';
 import styles from './attendence.module.css';
 import LogAttendanceForm from '../../components/LogAttendanceForm';
 import { attendanceApi } from '../../services/attendanceApi';
@@ -65,6 +65,10 @@ export default function Attendance() {
   // Core records lists and lookup caching state
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [employeeMap, setEmployeeMap] = useState<Record<string, EmployeeData>>({});
+
+  // Details Modal States
+  const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   // Calculate dynamic KPIs from active records and lookups state with defensive fallbacks
   const totalWorkforce = Object.keys(employeeMap).length;
@@ -420,7 +424,8 @@ export default function Attendance() {
                             outline: 'none'
                           }}
                           onClick={() => {
-                            showToast(`Viewing details for Log #${record.id}`, 'info');
+                            setSelectedRecord(record);
+                            setIsDetailOpen(true);
                           }}
                         >
                           <Eye size={14} />
@@ -461,6 +466,80 @@ export default function Attendance() {
         onClose={() => setIsDrawerOpen(false)} 
         onSave={handleSave} 
       />
+
+      {/* Attendance Details Modal Overlay */}
+      {isDetailOpen && selectedRecord && (
+        <div className={styles.modalOverlay} onClick={() => setIsDetailOpen(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <span className={styles.modalTitle}>Attendance Details</span>
+              <button 
+                type="button" 
+                className={styles.closeBtn} 
+                onClick={() => setIsDetailOpen(false)}
+                title="Close details"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className={styles.detailBody}>
+              {/* Employee Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
+                <img 
+                  src={selectedRecord.avatar || ''} 
+                  alt={selectedRecord.name}
+                  style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
+                />
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#0f172a' }}>{selectedRecord.name}</h4>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>Log ID: #{selectedRecord.id}</p>
+                </div>
+              </div>
+
+              {/* Status Info */}
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Status</span>
+                <span className={`${styles.statusPill} ${getStatusStyle(selectedRecord.status)}`}>
+                  {getStatusIcon(selectedRecord.status)}
+                  <span style={{ marginLeft: '4px' }}>{selectedRecord.status}</span>
+                </span>
+              </div>
+
+              {/* Date Info */}
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Date</span>
+                <span className={styles.detailValue}>{selectedRecord.date}</span>
+              </div>
+
+              {/* Check-In Info */}
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Check In</span>
+                <span className={styles.detailValue} style={{ color: selectedRecord.checkIn === '--' ? '#94a3b8' : '#0f172a' }}>
+                  {selectedRecord.checkIn}
+                </span>
+              </div>
+
+              {/* Check-Out Info */}
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Check Out</span>
+                <span className={styles.detailValue} style={{ color: selectedRecord.checkOut === '--' ? '#94a3b8' : '#0f172a' }}>
+                  {selectedRecord.checkOut}
+                </span>
+              </div>
+
+              {/* Location Info */}
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Location</span>
+                <span className={styles.detailValue} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <MapPin size={14} color="#94a3b8" />
+                  {selectedRecord.location}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
