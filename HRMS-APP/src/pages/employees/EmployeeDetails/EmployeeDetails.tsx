@@ -249,6 +249,8 @@ function EmployeeDetailsContent() {
                 }}
                 accept="image/*"
                 style={{ display: 'none' }}
+                title="Upload employee profile image"
+                aria-label="Upload employee profile image"
               />
               <img 
                 src={
@@ -284,8 +286,9 @@ function EmployeeDetailsContent() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '500px' }}>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Full Name</label>
+                      <label htmlFor="fullNameInput" style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Full Name</label>
                       <input 
+                        id="fullNameInput"
                         type="text" 
                         name="name" 
                         value={editFormData?.name || ''} 
@@ -294,12 +297,14 @@ function EmployeeDetailsContent() {
                       />
                     </div>
                     <div style={{ width: '120px' }}>
-                      <label style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Status</label>
+                      <label htmlFor="statusSelect" style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Status</label>
                       <select 
+                        id="statusSelect"
                         name="status" 
                         value={editFormData?.status || ''} 
                         onChange={(e) => handleTabFormChange({ status: e.target.value as any })} 
                         className={styles.inlineInput}
+                        title="Employee status"
                       >
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
@@ -309,12 +314,14 @@ function EmployeeDetailsContent() {
                   
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Designation</label>
+                      <label htmlFor="designationSelect" style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Designation</label>
                       <select 
+                        id="designationSelect"
                         name="designation" 
                         value={editFormData?.designation || ''} 
                         onChange={(e) => handleTabFormChange({ designation: e.target.value })} 
                         className={styles.inlineInput}
+                        title="Employee designation"
                       >
                         <option value="1">Full Stack Developer</option>
                         <option value="2">HR Executive</option>
@@ -323,12 +330,14 @@ function EmployeeDetailsContent() {
                       </select>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Department</label>
+                      <label htmlFor="departmentSelect" style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Department</label>
                       <select 
+                        id="departmentSelect"
                         name="department" 
                         value={editFormData?.department || ''} 
                         onChange={(e) => handleTabFormChange({ department: e.target.value })} 
                         className={styles.inlineInput}
+                        title="Employee department"
                       >
                         <option value="1">IT</option>
                         <option value="2">HR</option>

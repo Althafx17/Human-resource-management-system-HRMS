@@ -48,7 +48,9 @@ export default function Step1PersonalInfo({ data, updateData }: Step1Props) {
           ref={fileInputRef} 
           onChange={handleFileChange} 
           accept="image/*" 
-          style={{ display: 'none' }} 
+          className={styles.hiddenFileInput}
+          title="Upload employee profile image"
+          aria-label="Upload employee profile image"
         />
         <div className={styles.avatarCircle} onClick={handleUploadClick} title="Upload photo">
           {avatarSrc ? (
@@ -57,7 +59,7 @@ export default function Step1PersonalInfo({ data, updateData }: Step1Props) {
             <User size={40} color="#94a3b8" />
           )}
         </div>
-        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Click circle to change profile photo</span>
+        <span className={styles.avatarHint}>Click circle to change profile photo</span>
       </div>
 
       <div className={styles.formGrid}>
