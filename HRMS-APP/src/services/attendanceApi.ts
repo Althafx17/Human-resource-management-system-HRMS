@@ -271,10 +271,10 @@ export const attendanceApi = {
   },
 
   /**
-   * Updates an existing attendance entry (e.g. logging a check-out).
+   * Updates an existing attendance entry.
    */
   async updateAttendance(id: number, data: Partial<Attendance>): Promise<Attendance> {
-    const response = await axiosInstance.put<Attendance>(`/attendances/${id}/`, data);
+    const response = await axiosInstance.patch<Attendance>(`/attendance/${id}/`, data);
     return response.data;
   },
 

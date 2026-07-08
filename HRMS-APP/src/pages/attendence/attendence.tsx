@@ -82,6 +82,30 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
+// ---> NEW: Helper function to parse diverse time formats to 24-hour HH:mm
+function parseTimeTo24Hour(timeStr: string | null | undefined): string {
+  if (!timeStr || timeStr === '--') return '';
+  const is24Hr = /^([01]\d|2[0-3]):[0-5]\d$/.test(timeStr);
+  if (is24Hr) return timeStr;
+
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (match) {
+    let hours = parseInt(match[1], 10);
+    const minutes = match[2];
+    const ampm = match[3].toUpperCase();
+    if (ampm === 'PM' && hours < 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+    return `${String(hours).padStart(2, '0')}:${minutes}`;
+  }
+
+  if (timeStr.includes('T')) {
+    const timePart = timeStr.split('T')[1];
+    if (timePart) return timePart.substring(0, 5);
+  }
+
+  return '';
+}
+
 export default function Attendance() {
   const { showToast } = useToast();
   
@@ -102,6 +126,28 @@ export default function Attendance() {
   // Details Modal States
   const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  // ---> NEW: Local state for modal edits
+  const [editData, setEditData] = useState({
+    date: selectedRecord?.date || '',
+    checkIn: parseTimeTo24Hour(selectedRecord?.checkIn) || '',
+    checkOut: parseTimeTo24Hour(selectedRecord?.checkOut) || '',
+    location: selectedRecord?.location || 'Main Office',
+    status: selectedRecord?.status || ''
+  });
+
+  // Ensure state updates if selectedRecord changes
+  useEffect(() => {
+    if (selectedRecord) {
+      setEditData({
+        date: selectedRecord.date,
+        checkIn: parseTimeTo24Hour(selectedRecord.checkIn),
+        checkOut: parseTimeTo24Hour(selectedRecord.checkOut),
+        location: selectedRecord.location || 'Main Office',
+        status: selectedRecord.status
+      });
+    }
+  }, [selectedRecord]);
 
   // Calculate dynamic KPIs from active records and lookups state with defensive fallbacks
   const totalWorkforce = Object.keys(employeeMap).length;
@@ -250,25 +296,30 @@ export default function Attendance() {
     }
   };
 
-  // ---> NEW: Handler for status updates
-  const handleStatusChange = async (recordId: number, newStatus: string) => {
+  // ---> NEW: Save handler for modal edits
+  const handleSaveChanges = async () => {
+    if (!selectedRecord) return;
     try {
-      await attendanceApi.updateStatus(recordId, newStatus);
-      showToast('Attendance status updated successfully!', 'success');
-      
-      // Update local state to reflect changes instantly
-      setRecords(prevRecords => 
-        prevRecords.map(record => 
-          record.id === recordId ? { ...record, status: newStatus } : record
-        )
-      );
-      
-      // If the selected record in the drawer is stored in a separate state, update that too
-      setSelectedRecord(prev => prev && prev.id === recordId ? { ...prev, status: newStatus } : prev);
+      // Format times to ISO strings before sending to Django
+      const payload = {
+        date: editData.date,
+        status: editData.status,
+        location: editData.location,
+        check_in: editData.checkIn ? `${editData.date}T${editData.checkIn}:00Z` : null,
+        check_out: editData.checkOut ? `${editData.date}T${editData.checkOut}:00Z` : null,
+      };
 
+      await attendanceApi.updateAttendance(selectedRecord.id, payload);
+      showToast('Attendance record updated successfully!', 'success');
+      
+      // Trigger a refresh of the main table
+      loadAttendance();
+      
+      // Close modal
+      setIsDetailOpen(false);
     } catch (error) {
-      console.error("Failed to update status", error);
-      showToast('Failed to update attendance status.', 'error');
+      console.error("Failed to update record:", error);
+      showToast('Failed to save changes.', 'error');
     }
   };
 
@@ -507,12 +558,12 @@ export default function Attendance() {
 
               {/* Status Info */}
               <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Status</span>
-                {/* ---> CHANGED: Replaced static status text with an editable dropdown */}
+                <span className={styles.detailLabel}>Status *</span>
+                {/* ---> CHANGED: Replaced status list with neutral disabled placeholder option */}
                 <div className={styles.statusWrapper}>
                   <select 
-                    value={selectedRecord.status} 
-                    onChange={(e) => handleStatusChange(selectedRecord.id, e.target.value)}
+                    value={editData.status} 
+                    onChange={(e) => setEditData({ ...editData, status: e.target.value })}
                     className={styles.statusDropdown}
                     title="Select attendance status"
                     aria-label="Select attendance status"
@@ -527,33 +578,75 @@ export default function Attendance() {
 
               {/* Date Info */}
               <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Date</span>
-                <span className={styles.detailValue}>{selectedRecord.date}</span>
+                <span className={styles.detailLabel}>Date *</span>
+                {/* ---> CHANGED: Date input */}
+                <input 
+                  type="date" 
+                  value={editData.date} 
+                  onChange={(e) => setEditData({ ...editData, date: e.target.value })} 
+                  className={styles.statusDropdown}
+                  title="Edit attendance date"
+                  aria-label="Edit attendance date"
+                  required
+                />
               </div>
 
               {/* Check-In Info */}
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Check In</span>
-                <span className={`${styles.detailValue} ${selectedRecord.checkIn === '--' ? styles.mutedValue : ''}`}>
-                  {selectedRecord.checkIn}
-                </span>
+                {/* ---> CHANGED: Check In time input */}
+                <input 
+                  type="time" 
+                  value={editData.checkIn} 
+                  onChange={(e) => setEditData({ ...editData, checkIn: e.target.value })} 
+                  className={styles.statusDropdown}
+                  title="Edit Check-in Time"
+                  aria-label="Edit Check-in Time"
+                />
               </div>
 
               {/* Check-Out Info */}
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Check Out</span>
-                <span className={`${styles.detailValue} ${selectedRecord.checkOut === '--' ? styles.mutedValue : ''}`}>
-                  {selectedRecord.checkOut}
-                </span>
+                {/* ---> CHANGED: Check Out time input */}
+                <input 
+                  type="time" 
+                  value={editData.checkOut} 
+                  onChange={(e) => setEditData({ ...editData, checkOut: e.target.value })} 
+                  className={styles.statusDropdown}
+                  title="Edit Check-out Time"
+                  aria-label="Edit Check-out Time"
+                />
               </div>
 
               {/* Location Info */}
               <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Location</span>
-                <span className={`${styles.detailValue} ${styles.locationVal}`}>
-                  <MapPin size={14} color="#94a3b8" />
-                  {selectedRecord.location}
-                </span>
+                <span className={styles.detailLabel}>Location *</span>
+                {/* ---> CHANGED: Location dropdown */}
+                <select 
+                  value={editData.location} 
+                  onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                  className={styles.statusDropdown}
+                  title="Select Location"
+                  aria-label="Select Location"
+                  required
+                >
+                  <option value="Main Office">Main Office</option>
+                  <option value="Branch A">Branch A</option>
+                  <option value="Remote">Remote</option>
+                </select>
+              </div>
+
+              {/* ---> NEW: Modal Footer Save Button */}
+              <div className={styles.modalFooter}>
+                <button 
+                  type="button" 
+                  onClick={handleSaveChanges} 
+                  className={styles.logBtn}
+                  title="Save updates"
+                >
+                  Save Updates
+                </button>
               </div>
             </div>
           </div>

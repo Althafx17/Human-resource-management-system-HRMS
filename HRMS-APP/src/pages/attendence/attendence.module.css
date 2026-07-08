@@ -369,6 +369,14 @@
   color: #94a3b8 !important;
 }
 
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+}
+
 /* KPI Cards Layout */
 .kpiGrid {
   display: grid;
