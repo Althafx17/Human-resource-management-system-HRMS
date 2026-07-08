@@ -19,7 +19,8 @@ const DUMMY_LOCATIONS = [
 export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttendanceFormProps) {
   const [employeeId, setEmployeeId] = useState('');
   const [date, setDate] = useState('');
-  const [status, setStatus] = useState('Present');
+  // ---> CHANGED: Initialized status as an empty string
+  const [status, setStatus] = useState('');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [location, setLocation] = useState('');
@@ -54,6 +55,13 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // ---> NEW: Validation guard
+    if (!status) {
+      alert("Please select an attendance status before saving.");
+      return;
+    }
+
     if (!employeeId || !date || !location) {
       alert('Please fill in all required fields.');
       return;
@@ -108,6 +116,8 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
             value={employeeId}
             onChange={(e) => setEmployeeId(e.target.value)}
             required
+            title="Select employee"
+            aria-label="Select employee"
           >
             <option value="">Select Employee</option>
             {employees.map((emp) => (
@@ -133,12 +143,16 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
 
           <div className={styles.formGroup}>
             <label className={styles.label}>Status *</label>
+            {/* ---> CHANGED: Replaced status list with neutral disabled placeholder option */}
             <select
               className={styles.select}
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               required
+              title="Select attendance status"
+              aria-label="Select attendance status"
             >
+              <option value="" disabled>Select Status</option>
               <option value="Present">Present</option>
               <option value="Absent">Absent</option>
               <option value="Late">Late</option>
