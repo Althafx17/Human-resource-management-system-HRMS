@@ -258,7 +258,7 @@ export const attendanceApi = {
     if (date) params.append('date', date);
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await axiosInstance.get<PaginatedResponse<Attendance>>(`/attendances/${query}`);
+    const response = await axiosInstance.get<PaginatedResponse<Attendance>>(`/attendance/${query}`);
     return response.data;
   },
 
@@ -266,7 +266,7 @@ export const attendanceApi = {
    * Logs a new attendance check-in/check-out entry.
    */
   async logAttendance(data: Attendance): Promise<Attendance> {
-    const response = await axiosInstance.post<Attendance>('/attendances/', data);
+    const response = await axiosInstance.post<Attendance>('/attendance/', data);
     return response.data;
   },
 
@@ -282,6 +282,6 @@ export const attendanceApi = {
    * Deletes an attendance record by ID.
    */
   async deleteAttendance(id: number): Promise<void> {
-    await axiosInstance.delete(`/attendances/${id}/`);
+    await axiosInstance.delete(`/attendance/${id}/`);
   }
 };
