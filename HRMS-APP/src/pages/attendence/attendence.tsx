@@ -49,6 +49,39 @@ const formatTime = (isoTimeStr: string | null | undefined): string => {
  * Manages daily attendance records for the HRMS. Fetches real employee details 
  * and maps them back to the foreign keys returned by the attendance API endpoints.
  */
+// ---> NEW: Standard StatusPill component to enforce consistent styling and capitalization
+function StatusPill({ status }: { status: string }) {
+  const normalized = status ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase() : 'Absent';
+  
+  const getStatusStyle = (s: string) => {
+    switch (s) {
+      case 'Present': return styles.present;
+      case 'Absent': return styles.absent;
+      case 'Late': return styles.late;
+      case 'Half Day': return styles.late; // Share same color standard
+      default: return '';
+    }
+  };
+
+  const getStatusIcon = (s: string) => {
+    switch (s) {
+      case 'Present': return <CheckCircle2 size={14} />;
+      case 'Absent': return <XCircle size={14} />;
+      case 'Late':
+      case 'Half Day':
+        return <AlertCircle size={14} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <span className={`${styles.statusPill} ${getStatusStyle(normalized)}`}>
+      {getStatusIcon(normalized)}
+      <span style={{ marginLeft: '4px' }}>{normalized}</span>
+    </span>
+  );
+}
+
 export default function Attendance() {
   const { showToast } = useToast();
   
@@ -214,6 +247,28 @@ export default function Attendance() {
           console.error('Delete Error:', err.response?.data || err.message);
           showToast('Failed to delete attendance record.', 'error');
         });
+    }
+  };
+
+  // ---> NEW: Handler for status updates
+  const handleStatusChange = async (recordId: number, newStatus: string) => {
+    try {
+      await attendanceApi.updateStatus(recordId, newStatus);
+      showToast('Attendance status updated successfully!', 'success');
+      
+      // Update local state to reflect changes instantly
+      setRecords(prevRecords => 
+        prevRecords.map(record => 
+          record.id === recordId ? { ...record, status: newStatus } : record
+        )
+      );
+      
+      // If the selected record in the drawer is stored in a separate state, update that too
+      setSelectedRecord(prev => prev && prev.id === recordId ? { ...prev, status: newStatus } : prev);
+
+    } catch (error) {
+      console.error("Failed to update status", error);
+      showToast('Failed to update attendance status.', 'error');
     }
   };
 
@@ -400,10 +455,8 @@ export default function Attendance() {
                       </div>
                     </td>
                     <td>
-                      <span className={`${styles.statusPill} ${getStatusStyle(record.status)}`}>
-                        {getStatusIcon(record.status)}
-                        <span style={{ marginLeft: '4px' }}>{record.status}</span>
-                      </span>
+                      {/* ---> CHANGED: Standardized status rendering inside the table map */}
+                      <StatusPill status={record.status} />
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -500,10 +553,29 @@ export default function Attendance() {
               {/* Status Info */}
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Status</span>
-                <span className={`${styles.statusPill} ${getStatusStyle(selectedRecord.status)}`}>
-                  {getStatusIcon(selectedRecord.status)}
-                  <span style={{ marginLeft: '4px' }}>{selectedRecord.status}</span>
-                </span>
+                {/* ---> CHANGED: Replaced static status text with an editable dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <select 
+                    value={selectedRecord.status} 
+                    onChange={(e) => handleStatusChange(selectedRecord.id, e.target.value)}
+                    style={{
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                      backgroundColor: '#f8fafc',
+                      color: '#1e293b',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Late">Late</option>
+                    <option value="Half Day">Half Day</option>
+                  </select>
+                </div>
               </div>
 
               {/* Date Info */}
