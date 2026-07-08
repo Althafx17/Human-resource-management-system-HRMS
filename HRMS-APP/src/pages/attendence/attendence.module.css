@@ -132,7 +132,7 @@
 .present { background-color: #d1fae5; color: #065f46; }
 .absent { background-color: #fee2e2; color: #fd0404; }
 .late { background-color: #fef3c7; color: #fa6000; }
-.halfDay { background-color: #c2c2c1; color: #f6f602; }
+.halfDay { background-color: #cee0f3; color: #0233f6; }
 
 .logBtn {
   background-color: #7c3aed;
@@ -510,10 +510,10 @@
 }
 
 .kpiValueHalfDay {
-  color: #8b5cf6;
+  color: #1c0ae8;
 }
 
 .kpiBadgeHalfDay {
   background: #f5f3ff;
-  color: #8b5cf6;
+  color: #0662ed;
 }

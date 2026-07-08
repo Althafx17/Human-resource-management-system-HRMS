@@ -56,8 +56,8 @@ function EmployeeDetailsContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState<EmployeeData | null>(null);
 
-  // Mapped primary key lookups
-  const [managers, setManagers] = useState<string[]>([]);
+  // ---> CHANGED: Mapped primary key lookups containing ID and name pairs
+  const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
   const [departments, setDepartments] = useState<Record<number, string>>({});
   const [designations, setDesignations] = useState<Record<number, string>>({});
 
@@ -83,7 +83,7 @@ function EmployeeDetailsContent() {
     });
   }, []);
 
-  // Fetch managers candidates from the employee lists
+  // ---> NEW: Fetch managers candidates from the employee lists, mapping both ID and name
   useEffect(() => {
     employeeApi.getAll()
       .then(res => {
@@ -93,7 +93,7 @@ function EmployeeDetailsContent() {
             const des = String(emp.designation || '').toLowerCase();
             return des.includes('manager') || des.includes('lead') || des.includes('director') || des.includes('head') || des.includes('vp') || des.includes('chief');
           })
-          .map(emp => emp.name);
+          .map(emp => ({ id: String(emp.id), name: emp.name }));
         setManagers(managersFromEmployees);
       })
       .catch(err => {
@@ -165,26 +165,56 @@ function EmployeeDetailsContent() {
   };
 
   /**
-   * Filters candidate list of managers to exclude the employee themselves.
+   * ---> CHANGED: Filters candidate list of managers to exclude the employee themselves and maps to ID/name objects.
    */
   const getAvailableManagers = () => {
-    const defaultManagers = ['Sarah Connor', 'Sarah John', 'John Smith']; 
-    const currentManager = employee?.reportingManager
-    
-    return Array.from(new Set([
-      ...(currentManager ? [currentManager] : []),
-      ...managers,
-      ...defaultManagers     
-    ])).filter(name => name !== employee?.name);
+    // Default managers with fallback mock IDs
+    const defaultManagers = [
+      { id: '2', name: 'Sarah Connor' },
+      { id: '3', name: 'Sarah John' },
+      { id: '4', name: 'John Smith' }
+    ];
+
+    // Filter dynamic managers from employee list
+    const dynamicManagers = managers.filter(m => m.id !== String(employee?.id));
+
+    // Combine and deduplicate by ID
+    const merged = [...dynamicManagers, ...defaultManagers];
+    const seen = new Set<string>();
+    const result: { id: string; name: string }[] = [];
+
+    merged.forEach(m => {
+      if (!seen.has(m.id) && m.id !== String(employee?.id)) {
+        seen.add(m.id);
+        result.push(m);
+      }
+    });
+
+    return result;
   };
 
   /**
-   * Directly updates the employee manager relation.
+   * ---> NEW: Resolves selected dropdown value supporting backward compatibility for text name records.
    */
-  const handleManagerChange = (managerName: string) => {
+  const getSelectValue = () => {
+    const val = employee?.reportingManager;
+    if (!val) return '';
+    if (!isNaN(Number(val)) && String(val).trim() !== '') return String(val);
+    
+    // It is a name string, find matching manager's ID
+    const mgrs = getAvailableManagers();
+    const found = mgrs.find(m => m.name.toLowerCase() === val.toLowerCase());
+    return found ? found.id : '';
+  };
+
+  /**
+   * ---> CHANGED: Directly updates the employee manager relation by ID.
+   */
+  const handleManagerChange = (managerId: string) => {
     if (!employee || !id) return;
     
-    employeeApi.update(id, { reportingManager: managerName })
+    // ---> CHANGED: Pass managerId value to update reporting manager relation
+    employeeApi.update(id, { reportingManager: managerId })
       .then((updated) => {
         setEmployee(updated);
         showToast('Reporting manager updated successfully!', 'success');
@@ -348,16 +378,17 @@ function EmployeeDetailsContent() {
                   
                   <div className={styles.reportingManagerRow}>
                     <span className={styles.reportingManagerLabel}>Reporting Manager:</span>
+                    {/* ---> CHANGED: Ensure the value is the Manager's ID, not their name */}
                     <select
-                      value={employee.reportingManager || ''}
+                      value={getSelectValue()}
                       onChange={(e) => handleManagerChange(e.target.value)}
                       className={styles.reportingManagerInput}
                       title="Select reporting manager"
                     >
                       <option value="">No Manager</option>
-                      {getAvailableManagers().map((managerName) => (
-                        <option key={managerName} value={managerName}>
-                          {managerName}
+                      {getAvailableManagers().map((mgr) => (
+                        <option key={mgr.id} value={mgr.id}>
+                          {mgr.name}
                         </option>
                       ))}
                     </select>
