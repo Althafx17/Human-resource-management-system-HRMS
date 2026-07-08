@@ -153,6 +153,7 @@ export default function OverviewTab({ isEditing, editData, onChange, onSave, onC
       </div>
 
       <div className={styles.rightColumn}>
+        {/*
         <div className={styles.card}>
           <div className={styles.sectionTitle}>
             <div className={styles.redLine}></div> EMERGENCY
@@ -185,6 +186,7 @@ export default function OverviewTab({ isEditing, editData, onChange, onSave, onC
             )}
           </div>
         </div>
+        */}
         <div className={styles.card}>
           <div className={styles.sectionTitle}>
             <div className={styles.blueLine}></div> SKILLS
