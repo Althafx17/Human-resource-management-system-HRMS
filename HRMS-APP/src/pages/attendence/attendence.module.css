@@ -250,3 +250,121 @@
   from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* Inline styles replacement cleanups */
+.statusLabelText {
+  margin-left: 4px;
+}
+
+.actionBtn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.actionBtn:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.deleteBtn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.deleteBtn:hover {
+  background-color: #fef2f2;
+}
+
+.locationCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.actionsCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modalEmpHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.modalAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.modalEmpName {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.modalEmpId {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.statusWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusDropdown {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.statusDropdown:focus {
+  border-color: #7c3aed;
+}
+
+.locationVal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mutedValue {
+  color: #94a3b8 !important;
+}

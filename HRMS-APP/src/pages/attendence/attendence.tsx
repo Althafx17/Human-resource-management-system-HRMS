@@ -77,7 +77,7 @@ function StatusPill({ status }: { status: string }) {
   return (
     <span className={`${styles.statusPill} ${getStatusStyle(normalized)}`}>
       {getStatusIcon(normalized)}
-      <span style={{ marginLeft: '4px' }}>{normalized}</span>
+      <span className={styles.statusLabelText}>{normalized}</span>
     </span>
   );
 }
@@ -449,7 +449,7 @@ export default function Attendance() {
                     <td className={record.checkIn === '--' ? styles.mutedText : ''}>{record.checkIn}</td>
                     <td className={record.checkOut === '--' ? styles.mutedText : ''}>{record.checkOut}</td>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '13px' }}>
+                      <div className={styles.locationCell}>
                         <MapPin size={14} color="#94a3b8" />
                         <span>{record.location}</span>
                       </div>
@@ -459,23 +459,11 @@ export default function Attendance() {
                       <StatusPill status={record.status} />
                     </td>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div className={styles.actionsCell}>
                         <button
                           type="button"
                           title="View details"
-                          style={{
-                            border: 'none',
-                            background: 'none',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            color: '#64748b',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '4px',
-                            transition: 'all 0.2s',
-                            outline: 'none'
-                          }}
+                          className={styles.actionBtn}
                           onClick={() => {
                             setSelectedRecord(record);
                             setIsDetailOpen(true);
@@ -486,19 +474,7 @@ export default function Attendance() {
                         <button
                           type="button"
                           title="Delete record"
-                          style={{
-                            border: 'none',
-                            background: 'none',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            color: '#ef4444',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '4px',
-                            transition: 'all 0.2s',
-                            outline: 'none'
-                          }}
+                          className={styles.deleteBtn}
                           onClick={() => handleDelete(record.id)}
                         >
                           <Trash2 size={14} />
@@ -538,15 +514,15 @@ export default function Attendance() {
             
             <div className={styles.detailBody}>
               {/* Employee Header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
+              <div className={styles.modalEmpHeader}>
                 <img 
                   src={selectedRecord.avatar || ''} 
                   alt={selectedRecord.name}
-                  style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
+                  className={styles.modalAvatar}
                 />
                 <div>
-                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#0f172a' }}>{selectedRecord.name}</h4>
-                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>Log ID: #{selectedRecord.id}</p>
+                  <h4 className={styles.modalEmpName}>{selectedRecord.name}</h4>
+                  <p className={styles.modalEmpId}>Log ID: #{selectedRecord.id}</p>
                 </div>
               </div>
 
@@ -554,21 +530,11 @@ export default function Attendance() {
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Status</span>
                 {/* ---> CHANGED: Replaced static status text with an editable dropdown */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className={styles.statusWrapper}>
                   <select 
                     value={selectedRecord.status} 
                     onChange={(e) => handleStatusChange(selectedRecord.id, e.target.value)}
-                    style={{
-                      padding: '4px 8px',
-                      borderRadius: '6px',
-                      border: '1px solid #cbd5e1',
-                      backgroundColor: '#f8fafc',
-                      color: '#1e293b',
-                      fontSize: '13px',
-                      fontWeight: 500,
-                      outline: 'none',
-                      cursor: 'pointer'
-                    }}
+                    className={styles.statusDropdown}
                   >
                     <option value="Present">Present</option>
                     <option value="Absent">Absent</option>
@@ -587,7 +553,7 @@ export default function Attendance() {
               {/* Check-In Info */}
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Check In</span>
-                <span className={styles.detailValue} style={{ color: selectedRecord.checkIn === '--' ? '#94a3b8' : '#0f172a' }}>
+                <span className={`${styles.detailValue} ${selectedRecord.checkIn === '--' ? styles.mutedValue : ''}`}>
                   {selectedRecord.checkIn}
                 </span>
               </div>
@@ -595,7 +561,7 @@ export default function Attendance() {
               {/* Check-Out Info */}
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Check Out</span>
-                <span className={styles.detailValue} style={{ color: selectedRecord.checkOut === '--' ? '#94a3b8' : '#0f172a' }}>
+                <span className={`${styles.detailValue} ${selectedRecord.checkOut === '--' ? styles.mutedValue : ''}`}>
                   {selectedRecord.checkOut}
                 </span>
               </div>
@@ -603,7 +569,7 @@ export default function Attendance() {
               {/* Location Info */}
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Location</span>
-                <span className={styles.detailValue} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span className={`${styles.detailValue} ${styles.locationVal}`}>
                   <MapPin size={14} color="#94a3b8" />
                   {selectedRecord.location}
                 </span>
