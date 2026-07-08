@@ -159,6 +159,7 @@ export default function Attendance() {
   const totalWorkforce = Object.keys(employeeMap).length;
   const presentCount = records.filter(r => (r.status || '').toLowerCase() === 'present').length;
   const lateCount = records.filter(r => (r.status || '').toLowerCase() === 'late').length;
+  const halfdayCount = records.filter(r => (r.status || '').toLowerCase() === 'half day').length;
   const absentCount = records.filter(r => (r.status || '').toLowerCase() === 'absent').length;
 
 
@@ -346,6 +347,16 @@ export default function Attendance() {
           </div>
           <div className={`${styles.kpiIconBadge} ${styles.kpiBadgeLate}`}>
             <Clock size={20} />
+          </div>
+        </div>
+        {/* HALF DAY */}
+        <div className={styles.kpiCard}>
+          <div>
+            <span className={styles.kpiLabel}>Half Day</span>
+            <h3 className={`${styles.kpiValue} ${styles.kpiValueHalfDay}`}>{halfdayCount}</h3>
+          </div>
+          <div className={`${styles.kpiIconBadge} ${styles.kpiBadgeHalfDay}`}>
+            <PieChart size={20} />
           </div>
         </div>
         {/* ABSENT */}
