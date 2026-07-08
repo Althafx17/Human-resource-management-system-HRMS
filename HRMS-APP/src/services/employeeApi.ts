@@ -3,7 +3,6 @@
 // ==========================================
 import { axiosInstance } from './axiosInstance';
 import type { EmployeeData } from '../pages/employees/types';
-import { getCookie } from '../utils/cookieUtils';
 import { getDeterministicMaleAvatar } from '../utils/avatarUtils';
 
 // ==========================================
