@@ -50,8 +50,7 @@ axiosInstance.interceptors.response.use(
         // ---> NEW: Ask Django for a new access token. 
         // CRITICAL: We use standard 'axios.post' here, NOT 'axiosInstance', 
         // to prevent this refresh request from being caught in the interceptor loop.
-        // NOTE: Path corrected to match Django's active users refresh namespace.
-        const response = await axios.post(`${apiBaseUrl}/users/refresh/`, {
+        const response = await axios.post(`${apiBaseUrl}/token/refresh/`, {
           refresh: refreshToken
         });
 
