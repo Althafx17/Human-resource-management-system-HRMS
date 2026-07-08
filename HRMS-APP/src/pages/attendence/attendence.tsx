@@ -282,44 +282,44 @@ export default function Attendance() {
       <h1 className={styles.title}>Attendance Management</h1>
 
       {/* KPI Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+      <div className={styles.kpiGrid}>
         {/* WORKFORCE */}
-        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className={styles.kpiCard}>
           <div>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Workforce</span>
-            <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#0f172a', margin: '4px 0 0 0' }}>{totalWorkforce}</h3>
+            <span className={styles.kpiLabel}>Workforce</span>
+            <h3 className={`${styles.kpiValue} ${styles.kpiValueDefault}`}>{totalWorkforce}</h3>
           </div>
-          <div style={{ background: '#f1f5f9', padding: '10px', borderRadius: '8px', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className={`${styles.kpiIconBadge} ${styles.kpiBadgeDefault}`}>
             <Users size={20} />
           </div>
         </div>
         {/* PRESENT */}
-        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className={styles.kpiCard}>
           <div>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Present</span>
-            <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#10b981', margin: '4px 0 0 0' }}>{presentCount}</h3>
+            <span className={styles.kpiLabel}>Present</span>
+            <h3 className={`${styles.kpiValue} ${styles.kpiValuePresent}`}>{presentCount}</h3>
           </div>
-          <div style={{ background: '#ecfdf5', padding: '10px', borderRadius: '8px', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className={`${styles.kpiIconBadge} ${styles.kpiBadgePresent}`}>
             <CheckCircle2 size={20} />
           </div>
         </div>
         {/* LATE */}
-        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className={styles.kpiCard}>
           <div>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Late</span>
-            <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b', margin: '4px 0 0 0' }}>{lateCount}</h3>
+            <span className={styles.kpiLabel}>Late</span>
+            <h3 className={`${styles.kpiValue} ${styles.kpiValueLate}`}>{lateCount}</h3>
           </div>
-          <div style={{ background: '#fffbeb', padding: '10px', borderRadius: '8px', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className={`${styles.kpiIconBadge} ${styles.kpiBadgeLate}`}>
             <Clock size={20} />
           </div>
         </div>
         {/* ABSENT */}
-        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div className={styles.kpiCard}>
           <div>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Absent</span>
-            <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#ef4444', margin: '4px 0 0 0' }}>{absentCount}</h3>
+            <span className={styles.kpiLabel}>Absent</span>
+            <h3 className={`${styles.kpiValue} ${styles.kpiValueAbsent}`}>{absentCount}</h3>
           </div>
-          <div style={{ background: '#fef2f2', padding: '10px', borderRadius: '8px', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className={`${styles.kpiIconBadge} ${styles.kpiBadgeAbsent}`}>
             <XCircle size={20} />
           </div>
         </div>
@@ -357,46 +357,25 @@ export default function Attendance() {
           </div>
 
           {/* Interactive Date Selection Picker & Export Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className={styles.toolbarRight}>
             <div className={styles.dateDisplay}>
               <Calendar size={18} />
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span className={styles.dateDisplayWrapper}>
                 <strong>Date:</strong>
                 <input
                   type="date"
                   value={currentDate}
                   onChange={(e) => setCurrentDate(e.target.value)}
-                  style={{
-                    border: 'none',
-                    background: 'transparent',
-                    color: '#1a3646',
-                    fontWeight: '600',
-                    outline: 'none',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit'
-                  }}
+                  className={styles.dateInput}
+                  title="Select attendance date"
+                  aria-label="Select attendance date"
                 />
               </span>
             </div>
             
             <button
               type="button"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                backgroundColor: 'white',
-                color: '#475569',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                outline: 'none'
-              }}
+              className={styles.exportBtn}
               onClick={() => {
                 showToast('Attendance report exported to CSV!', 'success');
               }}
@@ -425,13 +404,13 @@ export default function Attendance() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                  <td colSpan={8} className={styles.emptyTableCell}>
                     Loading attendance entries...
                   </td>
                 </tr>
               ) : filteredAttendance.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                  <td colSpan={8} className={styles.emptyTableCell}>
                     No attendance logs found for this date.
                   </td>
                 </tr>
@@ -535,6 +514,8 @@ export default function Attendance() {
                     value={selectedRecord.status} 
                     onChange={(e) => handleStatusChange(selectedRecord.id, e.target.value)}
                     className={styles.statusDropdown}
+                    title="Select attendance status"
+                    aria-label="Select attendance status"
                   >
                     <option value="Present">Present</option>
                     <option value="Absent">Absent</option>
