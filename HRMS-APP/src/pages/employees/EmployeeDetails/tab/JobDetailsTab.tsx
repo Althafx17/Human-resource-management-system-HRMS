@@ -7,15 +7,26 @@ interface JobDetailsTabProps {
   isEditing?: boolean;
   editData?: EmployeeData | null;
   onChange?: (fields: Partial<EmployeeData>) => void;
+  managers?: { id: string; name: string }[];
 }
 
-export default function JobDetailsTab({ employee, isEditing, editData, onChange }: JobDetailsTabProps) {
+export default function JobDetailsTab({ employee, isEditing, editData, onChange, managers }: JobDetailsTabProps) {
   const data = isEditing && editData ? editData : employee;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (onChange) {
       onChange({ [e.target.name]: e.target.value });
     }
+  };
+
+  // Convert legacy names or match select values
+  const getSelectValue = () => {
+    const val = data.reportingManager;
+    if (!val) return '';
+    if (!isNaN(Number(val)) && String(val).trim() !== '') return String(val);
+    
+    const found = (managers || []).find(m => m.name.toLowerCase() === val.toLowerCase());
+    return found ? found.id : '';
   };
 
   return (
@@ -45,15 +56,28 @@ export default function JobDetailsTab({ employee, isEditing, editData, onChange 
         <div className={styles.infoGroup}>
           <label>REPORTING MANAGER</label>
           {isEditing ? (
-            <input 
-              type="text" 
+            <select 
               name="reportingManager" 
-              value={data.reportingManager || ''} 
+              value={getSelectValue()} 
               onChange={handleInputChange} 
               className={styles.inlineInput} 
-            />
+            >
+              <option value="">No Manager</option>
+              {(managers || []).map((mgr) => (
+                <option key={mgr.id} value={mgr.id}>
+                  {mgr.name}
+                </option>
+              ))}
+            </select>
           ) : (
-            <span>{data.reportingManager || '—'}</span>
+            <span>
+              {(() => {
+                const mgrVal = data.reportingManager || '';
+                if (!mgrVal || mgrVal === 'No Manager') return '—';
+                const found = (managers || []).find(m => String(m.id) === String(mgrVal) || m.name.toLowerCase() === String(mgrVal).toLowerCase());
+                return found ? found.name : mgrVal;
+              })()}
+            </span>
           )}
         </div>
         <div className={styles.infoGroup}>

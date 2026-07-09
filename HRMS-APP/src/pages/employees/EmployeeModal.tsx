@@ -58,6 +58,58 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
   // File input ref for avatar image upload trigger
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  // ---> NEW: Local managers candidates state lookup
+  const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
+
+  // Fetch managers candidates from the employee lists
+  React.useEffect(() => {
+    employeeApi.getAll()
+      .then(res => {
+        const list = res.results || [];
+        const managersFromEmployees = list
+          .filter(emp => {
+            const des = String(emp.designation || '').toLowerCase();
+            return des.includes('manager') || des.includes('lead') || des.includes('director') || des.includes('head') || des.includes('vp') || des.includes('chief');
+          })
+          .map(emp => ({ id: String(emp.id), name: emp.name }));
+        setManagers(managersFromEmployees);
+      })
+      .catch(err => {
+        console.error('Failed to load managers:', err);
+      });
+  }, []);
+
+  // Filter available managers list
+  const getAvailableManagers = () => {
+    const defaultManagers = [
+      { id: '2', name: 'Sarah Connor' },
+      { id: '3', name: 'Sarah John' },
+      { id: '4', name: 'John Smith' }
+    ];
+    const activeManagers = managers.filter(m => m.id !== String(employeeData?.id));
+    const merged = [...activeManagers, ...defaultManagers];
+    const seen = new Set<string>();
+    const result: { id: string; name: string }[] = [];
+    merged.forEach(m => {
+      if (!seen.has(m.id)) {
+        seen.add(m.id);
+        result.push(m);
+      }
+    });
+    return result;
+  };
+
+  // Convert legacy names or match select values
+  const getSelectValue = () => {
+    const val = formData.reportingManager;
+    if (!val) return '';
+    if (!isNaN(Number(val)) && String(val).trim() !== '') return String(val);
+    
+    const mgrs = getAvailableManagers();
+    const found = mgrs.find(m => m.name.toLowerCase() === val.toLowerCase());
+    return found ? found.id : '';
+  };
+
   /**
    * File selection change handler generating local preview URL objects.
    */
@@ -367,7 +419,20 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
                 </div>
                 <div className={styles.inputGroup}>
                   <label htmlFor="edit-reportingManager">Reporting Manager</label>
-                  <input id="edit-reportingManager" type="text" name="reportingManager" value={formData.reportingManager} onChange={handleChange} className={styles.inputField} />
+                  <select
+                    id="edit-reportingManager"
+                    name="reportingManager"
+                    value={getSelectValue()}
+                    onChange={handleChange}
+                    className={styles.inputField}
+                  >
+                    <option value="">No Manager</option>
+                    {getAvailableManagers().map((mgr) => (
+                      <option key={mgr.id} value={mgr.id}>
+                        {mgr.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className={styles.inputGroup}>
                   <label htmlFor="edit-workLocation">Work Location</label>

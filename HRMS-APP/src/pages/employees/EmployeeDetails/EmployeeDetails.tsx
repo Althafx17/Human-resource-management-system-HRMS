@@ -121,7 +121,7 @@ function EmployeeDetailsContent() {
     };
     switch (activeTab) {
       case 'OVERVIEW': return <OverviewTab isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} onSave={handleSaveEdit} onCancel={handleCancelEdit} />;
-      case 'JOB_DETAILS': return <JobDetailsTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
+      case 'JOB_DETAILS': return <JobDetailsTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} managers={getAvailableManagers()} />;
       case 'PAYROLL': return <PayrollTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
       case 'CONTRACT': return <ContractTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
       case 'DOCUMENTS': return <DocumentsTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
