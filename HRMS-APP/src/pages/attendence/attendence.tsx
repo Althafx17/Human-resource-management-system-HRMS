@@ -146,7 +146,8 @@ export default function Attendance() {
   useEffect(() => {
     if (selectedRecord) {
       setEditData({
-        date: selectedRecord.date,
+        // ---> CHANGED: Ensure date is formatted correctly or falls back safely
+        date: selectedRecord.date ? selectedRecord.date.split('T')[0] : '',
         checkIn: parseTimeTo24Hour(selectedRecord.checkIn),
         checkOut: parseTimeTo24Hour(selectedRecord.checkOut),
         location: selectedRecord.location || 'Main Office',
@@ -284,6 +285,13 @@ export default function Attendance() {
   // ---> NEW: Save handler for modal edits
   const handleSaveChanges = async () => {
     if (!selectedRecord) return;
+
+    // ---> NEW: Frontend validation guard
+    if (!editData.date) {
+      alert("Please select a valid date before saving.");
+      return;
+    }
+
     try {
       // Format times to ISO strings before sending to Django
       const payload = {
