@@ -194,7 +194,7 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
         avatar: employeeData.avatar || ''
       });
       setAvatarFile(null);
-      setPreviewUrl(employeeData.avatar || '');
+      setPreviewUrl(typeof employeeData.avatar === 'string' ? employeeData.avatar : '');
       // Reset navigation tab to first tab on profile load
       setModalTab('personal');
     } else {
@@ -334,7 +334,7 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
                     style={{ display: 'none' }}
                   />
                   <div 
-                    style={{ cursor: 'pointer', position: 'relative', width: '70px', height: '70px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #1a3646', display: 'flex', alignItems: 'center', justify: 'center', backgroundColor: '#f1f5f9' }}
+                    style={{ cursor: 'pointer', position: 'relative', width: '70px', height: '70px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #1a3646', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f1f5f9' }}
                     onClick={() => fileInputRef.current?.click()}
                     title="Change Photo"
                   >

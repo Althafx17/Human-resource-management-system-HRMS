@@ -185,7 +185,7 @@ export const employeeApi = {
    * @param {Partial<EmployeeData>} data - Form fields payload.
    * @returns {Promise<EmployeeData>} Created employee record details.
    */
-  async create(data: Partial<EmployeeData> & Record<string, unknown>): Promise<EmployeeData> {
+  async create(data: Partial<EmployeeData>): Promise<EmployeeData> {
     const apiData = denormalizeEmployee(data);
     const hasFile = Object.values(apiData).some(value => value instanceof File);
     let payload: FormData | any = apiData;
@@ -229,7 +229,7 @@ export const employeeApi = {
    * @param {Partial<EmployeeData>} data - Fields payload with modifications.
    * @returns {Promise<EmployeeData>} Updated employee record details.
    */
-  async update(id: string, data: Partial<EmployeeData> & Record<string, unknown>): Promise<EmployeeData> {
+  async update(id: string, data: Partial<EmployeeData>): Promise<EmployeeData> {
     const apiData = denormalizeEmployee(data);
     const hasFile = Object.values(apiData).some(value => value instanceof File);
     let payload: FormData | any = apiData;

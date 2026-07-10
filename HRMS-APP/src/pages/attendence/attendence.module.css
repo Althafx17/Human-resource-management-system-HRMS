@@ -21,9 +21,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
   padding: 16px;
   border-bottom: 1px solid #e5e7eb;
-  background: #fecfafb;
+  background: #f9fafb;
 }
 
 .searchGroup {
@@ -35,6 +37,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  flex-grow: 1;
+  min-width: 200px;
 }
 
 .searchIcon {
@@ -48,7 +52,7 @@
   border: 1px solid #d1d5db;
   border-radius: 6px;
   outline: none;
-  width: 240px;
+  width: 100%;
   font-size: 14px;
 }
 
@@ -161,8 +165,8 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -516,4 +520,55 @@
 .kpiBadgeHalfDay {
   background: #f5f3ff;
   color: #0662ed;
+}
+
+.statusSelect {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+  background-color: white;
+  color: #374151;
+  cursor: pointer;
+  height: 38px;
+  box-sizing: border-box;
+}
+
+.statusSelect:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.exportDropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.exportDropdownMenu button {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.15s;
+}
+
+.exportDropdownMenu button:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
 }

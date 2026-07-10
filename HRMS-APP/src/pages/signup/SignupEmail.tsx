@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, AlertCircle, Loader } from 'lucide-react';
-import { axiosInstance } from '../../services/axiosInstance';
+import { signupApi } from '../../services/signupApi';
 import styles from './SignupEmail.module.css';
 
 export default function SignupEmail() {
@@ -23,7 +23,7 @@ export default function SignupEmail() {
 
     try {
       // ---> CHANGED: Dispatch OTP request to the Django endpoint
-      await axiosInstance.post('/auth/send-otp/', { email: email.trim() });
+      await signupApi.sendOtp(email.trim());
       
       // ---> CHANGED: Pass the email parameter in the router state
       navigate('/verify-otp', { state: { email: email.trim() } });
@@ -45,7 +45,7 @@ export default function SignupEmail() {
     <div className={styles.signupContainer}>
       <div className={styles.signupCard}>
         <div className={styles.signupHeader}>
-          <div className={styles.logoBadge}>OTP</div>
+          <div className={styles.logoBadge}>HR</div>
           <h2>Create Account</h2>
           <p>Enter your email to receive a verification code</p>
         </div>
@@ -88,7 +88,7 @@ export default function SignupEmail() {
 
         <p className={styles.loginLink}>
           Already have an account?
-          <Link to="/login">Sign In</Link>
+          <Link to="/login"> Login</Link>
         </p>
       </div>
     </div>

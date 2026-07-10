@@ -125,7 +125,7 @@ function EmployeeDetailsContent() {
       case 'PAYROLL': return <PayrollTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
       case 'CONTRACT': return <ContractTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
       case 'DOCUMENTS': return <DocumentsTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} />;
-      default: return <OverviewTab employee={displayEmployee} isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} onSave={handleSaveEdit} onCancel={handleCancelEdit} />;
+      default: return <OverviewTab isEditing={isEditing} editData={editFormData} onChange={handleTabFormChange} onSave={handleSaveEdit} onCancel={handleCancelEdit} />;
     }
   };
 
@@ -285,7 +285,8 @@ function EmployeeDetailsContent() {
                 src={
                   editFormData?.avatar instanceof File 
                     ? URL.createObjectURL(editFormData.avatar) 
-                    : (editFormData?.avatar || employee.avatar)
+                    : (typeof editFormData?.avatar === 'string' ? editFormData.avatar : undefined) || 
+                      (typeof employee.avatar === 'string' ? employee.avatar : undefined)
                 } 
                 alt="Avatar" 
                 className={styles.avatarImage} 

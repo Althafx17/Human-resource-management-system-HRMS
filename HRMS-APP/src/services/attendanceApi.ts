@@ -252,10 +252,12 @@ export const attendanceApi = {
   /**
    * Fetches attendance log records. Supports optional filtering by employee or date.
    */
-  async getAttendanceRecords(employeeId?: number, date?: string): Promise<PaginatedResponse<Attendance>> {
+  async getAttendanceRecords(employeeId?: number, date?: string, status?: string, search?: string): Promise<PaginatedResponse<Attendance>> {
     const params = new URLSearchParams();
     if (employeeId) params.append('employee', String(employeeId));
     if (date) params.append('date', date);
+    if (status && status !== 'All Status') params.append('status', status);
+    if (search) params.append('search', search);
 
     const query = params.toString() ? `?${params.toString()}` : '';
     const response = await axiosInstance.get<PaginatedResponse<Attendance>>(`/attendance/${query}`);

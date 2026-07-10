@@ -5,13 +5,16 @@ import { axiosInstance } from './axiosInstance';
 import { authUtils } from '../utils/authUtils';
 
 // ==========================================
-// 2. MAIN COMPONENT / SERVICE
+// 2. LOGIN API SERVICE
 // ==========================================
 
-export const authApi = {
+export const loginApi = {
   /**
    * Authenticates user credentials with the backend.
    * Django backend expects a trailing slash: /users/login/.
+   * 
+   * @param credentials - The user credentials object containing email/username and password.
+   * @returns The raw response containing the access and refresh tokens.
    */
   async login(credentials: { email: string; password: string }): Promise<{ access: string; refresh?: string }> {
     const response = await axiosInstance.post<{ access: string; refresh?: string }>('/users/login/', credentials);
@@ -38,7 +41,7 @@ export const authApi = {
   },
 
   /**
-   * Performs session logouts.
+   * Performs user session logouts, clearing stored tokens and redirecting to the login screen.
    */
   logout(): void {
     // Clear authUtils tokens
@@ -60,6 +63,8 @@ export const authApi = {
 
   /**
    * Assesses whether a user session token is present in cookies or local storage.
+   * 
+   * @returns true if authenticated, false otherwise.
    */
   isAuthenticated(): boolean {
     return !!(authUtils.getAccessToken() || authUtils.getCookie('access_token') || localStorage.getItem('access_token'));

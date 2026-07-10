@@ -11,28 +11,56 @@ import {
 import StatCard from '../../Component/common/StatCard';
 import UpcomingInterviews from '../../Component/wedges/UpcomingInterviews';
 import styles from './Dashboard.module.css';
-import { employeeApi } from '../../services/employeeApi';
+import { axiosInstance } from '../../services/axiosInstance';
 
 export default function Dashboard() {
-  const [employeeCount, setEmployeeCount] = useState<number>(128);
+  // ---> NEW: Fetch live metrics
+  const [metrics, setMetrics] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    employeeApi.getAll()
-      .then(res => {
-        if (res && res.count) {
-          setEmployeeCount(res.count);
-        }
-      })
-      .catch(err => {
-        console.error('Failed to fetch headcount:', err);
-      });
+    const fetchMetrics = async () => {
+      try {
+        const response = await axiosInstance.get('/analytics/dashboard/');
+        setMetrics(response.data);
+      } catch (error) {
+        console.error("Failed to load analytics", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMetrics();
   }, []);
 
   const stats = [
-    { title: 'Total Employees', value: String(employeeCount), trend: 8, trendText: 'this month', icon: Users2 },
-    { title: 'Active Requests', value: '24', trend: 6, trendText: 'pending approval', icon: CalendarDays },
-    { title: 'Open Positions', value: '09', trend: 9, trendText: 'hiring this week', icon: BriefcaseBusiness },
-    { title: 'Late Check-ins', value: '03', trend: -3, trendText: 'today so far', icon: Clock3 },
+    { 
+      title: 'Total Employees', 
+      value: metrics ? String(metrics.total_employees) : '0', 
+      trend: 8, 
+      trendText: 'this month', 
+      icon: Users2 
+    },
+    { 
+      title: 'Present Today', 
+      value: metrics ? String(metrics.present_today) : '0', 
+      trend: 6, 
+      trendText: 'checked in today', 
+      icon: CalendarDays 
+    },
+    { 
+      title: 'Absent Today', 
+      value: metrics ? String(metrics.absent_today) : '0', 
+      trend: -3, 
+      trendText: 'not checked in today', 
+      icon: Clock3 
+    },
+    { 
+      title: 'On Leave Today', 
+      value: metrics ? String(metrics.on_leave_today) : '0', 
+      trend: 9, 
+      trendText: 'approved requests', 
+      icon: BriefcaseBusiness 
+    },
   ];
 
   const topPerformers = [
@@ -41,6 +69,18 @@ export default function Dashboard() {
     { name: 'Justin', role: 'UI/UX Designer', rating: 92, status: 'Excellent', trend: -1.2, avatar: 'https://i.pravatar.cc/150?u=EMP002' },
     { name: 'John Smith', role: 'Finance Lead', rating: 89, status: 'Good', trend: 2.1, avatar: 'https://i.pravatar.cc/150?u=EMP004' },
   ];
+
+  // ---> NEW: Loading State View
+  if (isLoading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p>Loading workspace analytics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>

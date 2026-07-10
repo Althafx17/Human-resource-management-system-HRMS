@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Lock, User, AlertCircle, Loader, Eye, EyeOff } from 'lucide-react';
-import { authApi } from '../../services/authApi';
+import { loginApi } from '../../services/loginApi';
 import styles from './Login.module.css';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +14,7 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       setError('Please fill in all fields');
       return;
     }
@@ -24,7 +24,7 @@ export default function Login() {
 
     try {
       // ---> CHANGED: Call login passing credentials object
-      await authApi.login({ username, password });
+      await loginApi.login({ email, password });
       navigate('/employees');
     } catch (err) {
       console.error(err);
@@ -40,7 +40,7 @@ export default function Login() {
         <div className={styles.loginHeader}>
           <div className={styles.logoBadge}>HR</div>
           <h2>HRMS Portal</h2>
-          <p>Please sign in to access your dashboard</p>
+          <p>Please login in to access your dashboard</p>
         </div>
 
         {error && (
@@ -52,15 +52,15 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className={styles.loginForm}>
           <div className={styles.inputGroup}>
-            <label htmlFor="username">Username</label>
+            <label htmlFor="email">Email</label>
             <div className={styles.inputWrapper}>
               <User className={styles.inputIcon} size={18} />
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
                 disabled={isLoading}
                 required
               />
@@ -98,13 +98,17 @@ export default function Login() {
             {isLoading ? (
               <span className={styles.loadingFlex}>
                 <Loader className={styles.spinner} size={18} />
-                Signing In...
+                loging In...
               </span>
             ) : (
-              'Sign In'
+              'Login'
             )}
           </button>
         </form>
+
+        <div className={styles.signupLink}>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
+        </div>
 
         <div className={styles.loginFooter}>
           <p>© 2026 Bisidq Solutions. All rights reserved.</p>

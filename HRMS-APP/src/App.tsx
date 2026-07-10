@@ -12,7 +12,9 @@ import PayrollDashboard from './pages/Payroll/PayrollDashboard';
 import EmployeeDetails from './pages/employees/EmployeeDetails/EmployeeDetails';
 import AddEmployeeWizard from './pages/employees/add-employee/AddEmployeeWizard';
 import Login from './pages/login/Login';
-import SignupEmail from './pages/auth/SignupEmail';
+import SignupEmail from './pages/signup/SignupEmail';
+import VerifyOTP from './pages/signup/VerifyOTP';
+import CreatePassword from './pages/signup/CreatePassword';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
@@ -22,7 +24,8 @@ export default function App() {
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignupEmail />} />
-        <Route path="/verify-otp" element={<div>Verify OTP Page Placeholder</div>} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/create-password" element={<CreatePassword />} />
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>

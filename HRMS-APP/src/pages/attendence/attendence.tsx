@@ -2,7 +2,7 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download, Clock, X, PieChart } from 'lucide-react';
+import { Search, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download, Clock, X, PieChart } from 'lucide-react';
 import styles from './attendence.module.css';
 import LogAttendanceForm from '../../components/LogAttendanceForm';
 import { attendanceApi } from '../../services/attendanceApi';
@@ -11,6 +11,12 @@ import { getDeterministicMaleAvatar } from '../../utils/avatarUtils';
 import { useToast } from '../../components/ToastContext';
 import type { EmployeeData } from '../employees/types';
 import type { AttendanceRecord } from './types';
+
+// ---> NEW: Exporting utility imports
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // ==========================================
 // 2. TYPES & HELPERS
@@ -116,14 +122,21 @@ export default function Attendance() {
   const { showToast } = useToast();
   
   // Search and Drawer triggers
-  const [search, setSearch] = useState('');
+  // ---> CHANGED: Updated filter state variable names
+  const [searchQuery, setSearchQuery] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
   // Selected date query (defaults to current date YYYY-MM-DD)
-  const [currentDate, setCurrentDate] = useState<string>(
+  const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
+
+  // ---> NEW: Filter Status state variable
+  const [selectedStatus, setSelectedStatus] = useState<string>('All Status');
+
+  // ---> NEW: Export Dropdown visual state
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState<boolean>(false);
 
   // Core records lists and lookup caching state
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
@@ -203,8 +216,13 @@ export default function Attendance() {
    */
   const loadAttendance = () => {
     setIsLoading(true);
-    // Fetch logs filtered by date query parameter
-    attendanceApi.getAttendanceRecords(undefined, currentDate)
+    // ---> CHANGED: Pass filter states to the API call
+    attendanceApi.getAttendanceRecords(
+      undefined, 
+      selectedDate, 
+      selectedStatus === 'All Status' ? '' : selectedStatus, 
+      searchQuery
+    )
       .then(res => {
         const results = res.results || [];
         const mapped: AttendanceRecord[] = results.map(rec => {
@@ -229,10 +247,10 @@ export default function Attendance() {
       });
   };
 
-  // Trigger attendance reload whenever the selected date or lookup map changes
+  // ---> CHANGED: Added filter states to dependency array so it triggers on change
   useEffect(() => {
     loadAttendance();
-  }, [currentDate, employeeMap]);
+  }, [selectedDate, selectedStatus, searchQuery, employeeMap]);
 
   /**
    * Formats local form time selections into ISO UTC datetimes and submits to the API.
@@ -316,9 +334,70 @@ export default function Attendance() {
     }
   };
 
+  // ---> NEW: Export Logic
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+    if (records.length === 0) {
+      showToast('No records available to export', 'error');
+      return;
+    }
+
+    // Format data for export
+    const exportData = records.map(rec => ({
+      'Employee Name': rec.name,
+      'Date': rec.date,
+      'Status': rec.status,
+      'Check In': rec.checkIn,
+      'Check Out': rec.checkOut,
+      'Location': rec.location
+    }));
+
+    if (format === 'csv' || format === 'excel') {
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance');
+      
+      if (format === 'excel') {
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(dataBlob, `Attendance_Report_${selectedDate}.xlsx`);
+        showToast('Attendance report exported to Excel!', 'success');
+      } else {
+        const csvBuffer = XLSX.write(workbook, { bookType: 'csv', type: 'string' });
+        const dataBlob = new Blob([csvBuffer], { type: 'text/csv;charset=utf-8;' });
+        saveAs(dataBlob, `Attendance_Report_${selectedDate}.csv`);
+        showToast('Attendance report exported to CSV!', 'success');
+      }
+    } else if (format === 'pdf') {
+      const doc = new jsPDF();
+      doc.text(`Attendance Report - ${selectedDate}`, 14, 15);
+      
+      const columns = ['Employee Name', 'Date', 'Status', 'Check In', 'Check Out', 'Location'];
+      const rows = records.map(rec => [
+        rec.name,
+        rec.date,
+        rec.status,
+        rec.checkIn,
+        rec.checkOut,
+        rec.location
+      ]);
+
+      (doc as any).autoTable({
+        head: [columns],
+        body: rows,
+        startY: 20,
+        theme: 'striped',
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [26, 54, 70] }
+      });
+
+      doc.save(`Attendance_Report_${selectedDate}.pdf`);
+      showToast('Attendance report exported to PDF!', 'success');
+    }
+  };
+
   // Perform client-side employee name string filters
   const filteredAttendance = records.filter(emp =>
-    emp.name.toLowerCase().includes(search.toLowerCase())
+    emp.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -382,61 +461,80 @@ export default function Attendance() {
       <div className={styles.card}>
         {/* Search and Tool Belt Row */}
         <div className={styles.toolbar}>
-          <div className={styles.searchGroup}>
-            <div className={styles.searchContainer}>
-              <Search className={styles.searchIcon} size={18} />
-              <input 
-                type="text" 
-                placeholder="Search employee..." 
-                className={styles.searchInput}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+          {/* 1. Search Input */}
+          <div className={styles.searchContainer}>
+            <Search className={styles.searchIcon} size={18} />
+            <input 
+              type="text" 
+              placeholder="Search employee..." 
+              className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          {/* 2. Status Dropdown */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className={styles.statusSelect}
+            title="Filter by status"
+          >
+            <option value="All Status">All Status</option>
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+            <option value="Late">Late</option>
+            <option value="Half Day">Half Day</option>
+          </select>
+
+          {/* 3. Date Selection Picker */}
+          <div className={styles.dateDisplay}>
+            <Calendar size={18} />
+            <span className={styles.dateDisplayWrapper}>
+              <strong>Date:</strong>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className={styles.dateInput}
+                title="Select attendance date"
+                aria-label="Select attendance date"
               />
-            </div>
-            <button
-              type="button"
-              className={styles.filterBtn}
-              aria-label="Filter attendance"
-              title="Filter attendance"
-            >
-              <SlidersHorizontal size={18} aria-hidden="true" />
-            </button>
-            <button 
-              type="button"
-              className={styles.logBtn}
-              onClick={() => setIsDrawerOpen(true)}
-            >
-              <Plus size={16} /> Log Attendance
-            </button>
+            </span>
           </div>
 
-          {/* Interactive Date Selection Picker & Export Button */}
-          <div className={styles.toolbarRight}>
-            <div className={styles.dateDisplay}>
-              <Calendar size={18} />
-              <span className={styles.dateDisplayWrapper}>
-                <strong>Date:</strong>
-                <input
-                  type="date"
-                  value={currentDate}
-                  onChange={(e) => setCurrentDate(e.target.value)}
-                  className={styles.dateInput}
-                  title="Select attendance date"
-                  aria-label="Select attendance date"
-                />
-              </span>
-            </div>
-            
+          {/* 4. Log Attendance Button */}
+          <button 
+            type="button"
+            className={styles.logBtn}
+            onClick={() => setIsDrawerOpen(true)}
+          >
+            <Plus size={16} /> Log Attendance
+          </button>
+
+          {/* 5. Export Dropdown Menu */}
+          <div style={{ position: 'relative' }}>
             <button
               type="button"
               className={styles.exportBtn}
-              onClick={() => {
-                showToast('Attendance report exported to CSV!', 'success');
-              }}
+              onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
             >
               <Download size={16} />
               <span>Export</span>
             </button>
+            {isExportDropdownOpen && (
+              <div className={styles.exportDropdownMenu}>
+                <button type="button" onClick={() => { handleExport('csv'); setIsExportDropdownOpen(false); }}>
+                  Export as CSV
+                </button>
+                <button type="button" onClick={() => { handleExport('excel'); setIsExportDropdownOpen(false); }}>
+                  Export as Excel
+                </button>
+                <button type="button" onClick={() => { handleExport('pdf'); setIsExportDropdownOpen(false); }}>
+                  Export as PDF
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
