@@ -24,9 +24,12 @@ export default function SignupEmail() {
     try {
       // ---> CHANGED: Dispatch OTP request to the Django endpoint
       await signupApi.sendOtp(email.trim());
+
+      // ---> CHANGED: Save email in sessionStorage
+      sessionStorage.setItem('signupEmail', email.trim());
       
-      // ---> CHANGED: Pass the email parameter in the router state
-      navigate('/verify-otp', { state: { email: email.trim() } });
+      // ---> CHANGED: Route to Verify OTP page
+      navigate('/verify-otp');
     } catch (err: any) {
       console.error(err);
       if (err.response?.status === 400 && err.response?.data?.message) {

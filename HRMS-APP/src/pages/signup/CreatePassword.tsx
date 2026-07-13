@@ -1,6 +1,6 @@
 // ---> NEW: OTP Signup Phase 3 Component (Password Creation)
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Lock, AlertCircle, Loader, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { signupApi } from '../../services/signupApi';
@@ -8,10 +8,10 @@ import styles from './CreatePassword.module.css';
 
 export default function CreatePassword() {
   const navigate = useNavigate();
-  const location = useLocation();
   
-  const email = location.state?.email || '';
-  const verificationToken = location.state?.verification_token || sessionStorage.getItem('signup_verification_token') || '';
+  // ---> CHANGED: Retrieve both email and token from sessionStorage
+  const email = sessionStorage.getItem('signupEmail') || '';
+  const verificationToken = sessionStorage.getItem('verificationToken') || '';
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,7 +21,7 @@ export default function CreatePassword() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Redirect if parameters are missing
+    // ---> CHANGED: Redirect if either parameter is missing in sessionStorage
     if (!email || !verificationToken) {
       navigate('/signup');
     }
@@ -67,8 +67,9 @@ export default function CreatePassword() {
       localStorage.setItem('refresh_token', refresh);
       localStorage.setItem('username', email);
 
-      // Clean up verification token from session storage
-      sessionStorage.removeItem('signup_verification_token');
+      // ---> CHANGED: Clean up registration parameters from sessionStorage before navigating
+      sessionStorage.removeItem('signupEmail');
+      sessionStorage.removeItem('verificationToken');
 
       // ---> CHANGED: Route user immediately to homepage dashboard
       navigate('/');

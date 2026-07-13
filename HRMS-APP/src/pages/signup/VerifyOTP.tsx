@@ -1,21 +1,22 @@
 // ---> NEW: OTP Signup Phase 2 Component (OTP Verification)
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { KeyRound, AlertCircle, Loader } from 'lucide-react';
 import { signupApi } from '../../services/signupApi';
 import styles from './VerifyOTP.module.css';
 
 export default function VerifyOTP() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const email = location.state?.email || '';
+  
+  // ---> CHANGED: Retrieve email from sessionStorage
+  const email = sessionStorage.getItem('signupEmail') || '';
 
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Redirect if email is not present in history state
+    // ---> CHANGED: Redirect if email is not present in sessionStorage
     if (!email) {
       navigate('/signup');
     }
@@ -37,11 +38,11 @@ export default function VerifyOTP() {
 
       const { verification_token } = response;
 
-      // ---> CHANGED: Save verification_token in sessionStorage for persistence
-      sessionStorage.setItem('signup_verification_token', verification_token);
+      // ---> CHANGED: Save verificationToken in sessionStorage for persistence
+      sessionStorage.setItem('verificationToken', verification_token);
 
-      // ---> CHANGED: Route to the final Password Creation view
-      navigate('/create-password', { state: { email, verification_token } });
+      // ---> CHANGED: Route to the final Password Creation view without state object
+      navigate('/create-password');
     } catch (err: any) {
       console.error(err);
       if (err.response?.status === 400 && err.response?.data?.message) {
