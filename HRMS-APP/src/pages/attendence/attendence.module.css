@@ -127,16 +127,50 @@
 .statusPill {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
 }
 
-.present { background-color: #d1fae5; color: #065f46; }
-.absent { background-color: #fee2e2; color: #fd0404; }
-.late { background-color: #fef3c7; color: #fa6000; }
-.halfDay { background-color: #cee0f3; color: #0233f6; }
+.present {
+  background-color: #065f46;
+  color: white;
+}
+
+.present:hover {
+  background-color: #043e2e;
+}
+
+.absent {
+  background-color: #fd0404;
+  color: white;
+}
+
+.absent:hover {
+  background-color: #cc0303;
+}
+
+.late {
+  background-color: #fa6000;
+  color: white;
+}
+
+.late:hover {
+  background-color: #d15000;
+}
+
+.halfDay {
+  background-color: #0233f6;
+  color: white;
+}
+
+.halfDay:hover {
+  background-color: #0125c1;
+}
 
 .logBtn {
   background-color: #7c3aed;
