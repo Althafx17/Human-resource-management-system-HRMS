@@ -17,8 +17,22 @@ export default function CreatePassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
+  // ---> NEW: State to track real-time password validation error
+  const [passwordError, setPasswordError] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // ---> NEW: Real-time password length validation handler
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setPassword(val);
+    if (val.length > 0 && val.length < 8) {
+      setPasswordError('8 characters required');
+    } else {
+      setPasswordError('');
+    }
+  };
 
   useEffect(() => {
     // ---> CHANGED: Redirect if either parameter is missing in sessionStorage
@@ -29,18 +43,20 @@ export default function CreatePassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password || !confirmPassword) {
+    
+    // ---> CHANGED: Submit guard validation checks
+    if (!password || password.length < 8) {
+      setPasswordError('8 characters required');
+      return;
+    }
+
+    if (!confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
       return;
     }
 
@@ -114,7 +130,7 @@ export default function CreatePassword() {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 placeholder="Choose a password (min 8 chars)"
                 disabled={isLoading}
                 required
@@ -129,6 +145,9 @@ export default function CreatePassword() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {passwordError && (
+              <p className={styles.fieldError}>{passwordError}</p>
+            )}
           </div>
 
           <div className={styles.inputGroup}>

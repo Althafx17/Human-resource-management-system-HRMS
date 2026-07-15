@@ -159,9 +159,14 @@ export const employeeApi = {
       params.append('department', String(deptId));
     }
 
-    const response = await axiosInstance.get<PaginatedResponse<EmployeeData>>(`/employees/?${params.toString()}`);
-    if (response.data && response.data.results) {
-      response.data.results = response.data.results.map(normalizeEmployee);
+    const response = await axiosInstance.get<any>(`/employees/?${params.toString()}`);
+    if (response.data) {
+      if (response.data.results) {
+        response.data.results = response.data.results.map(normalizeEmployee);
+      } else if (Array.isArray(response.data)) {
+        // ---> CHANGED: Normalize flat arrays from non-paginated endpoints
+        return response.data.map(normalizeEmployee);
+      }
     }
     return response.data;
   },

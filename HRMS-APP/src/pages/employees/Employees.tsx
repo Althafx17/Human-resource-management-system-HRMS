@@ -57,12 +57,17 @@ export default function Employees() {
     employeeApi.getAll(page, searchTerm, departmentFilter)
       .then(data => {
         console.log("API Response:", data);
-        setEmployees(data.results || []);
-        setHasNext(!!data.next);
-        setHasPrev(!!data.previous);
+        
+        // ---> CHANGED: Safely extract employee list from paginated or non-paginated backend response
+        const employeeList = (data as any).results ? (data as any).results : (Array.isArray(data) ? data : []);
+        setEmployees(employeeList);
+        
+        setHasNext(!!(data as any).next);
+        setHasPrev(!!(data as any).previous);
         
         // Compute total pages based on count fallback (assumes page size 10)
-        const total = Math.ceil((data.count || 0) / 10);
+        const count = (data as any).count !== undefined ? (data as any).count : (Array.isArray(data) ? data.length : 0);
+        const total = Math.ceil(count / 10);
         setTotalPages(total > 0 ? total : 1);
         
         setError(null);
