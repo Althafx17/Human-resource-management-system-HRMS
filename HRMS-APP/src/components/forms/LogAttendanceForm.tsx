@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import SlideOverDrawer from '../common/SlideOverDrawer';
 import styles from './FormStyles.module.css';
 import { employeeApi } from '../../apis/core/employeeApi';
+import { workAreaApi } from '../../apis/core/workAreaApi';
 import type { EmployeeData } from '../../pages/employees/types';
 
 interface LogAttendanceFormProps {
@@ -10,11 +11,6 @@ interface LogAttendanceFormProps {
   onClose: () => void;
   onSave?: (data: any) => void;
 }
-
-const DUMMY_LOCATIONS = [
-  { id: 'Main Office', name: 'Main Office' },
-  { id: 'Branch A', name: 'Branch A' },
-];
 
 export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttendanceFormProps) {
   const [employeeId, setEmployeeId] = useState('');
@@ -25,8 +21,9 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
   const [checkOut, setCheckOut] = useState('');
   const [location, setLocation] = useState('');
   const [employees, setEmployees] = useState<EmployeeData[]>([]);
+  const [workAreas, setWorkAreas] = useState<any[]>([]);
 
-  // Load employee list on mount / drawer display
+  // Load employee list and work areas on mount / drawer display
   useEffect(() => {
     if (isOpen) {
       const loadEmployees = async () => {
@@ -50,6 +47,10 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
         }
       };
       loadEmployees();
+
+      workAreaApi.getWorkAreas()
+        .then(setWorkAreas)
+        .catch(err => console.error('Failed to load work areas:', err));
     }
   }, [isOpen]);
 
@@ -196,8 +197,8 @@ export default function LogAttendanceForm({ isOpen, onClose, onSave }: LogAttend
             required
           >
             <option value="">Select Location</option>
-            {DUMMY_LOCATIONS.map((loc) => (
-              <option key={loc.id} value={loc.id}>
+            {workAreas.map((loc) => (
+              <option key={loc.id} value={loc.name}>
                 {loc.name}
               </option>
             ))}
