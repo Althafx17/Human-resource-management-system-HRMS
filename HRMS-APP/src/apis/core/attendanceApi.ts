@@ -260,7 +260,16 @@ export const attendanceApi = {
     if (search) params.append('search', search);
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await axiosInstance.get<PaginatedResponse<Attendance>>(`/attendance/${query}`);
+    const response = await axiosInstance.get<any>(`/attendance/${query}`);
+    
+    if (Array.isArray(response.data)) {
+      return {
+        count: response.data.length,
+        next: null,
+        previous: null,
+        results: response.data
+      };
+    }
     return response.data;
   },
 
