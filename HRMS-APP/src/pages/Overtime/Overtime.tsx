@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, Plus, Clock, DollarSign, TrendingUp, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import styles from './Overtime.module.css';
 
-import ReviewOvertime from '../../components/ReviewOvertime';
+import ReviewOvertime from '../../components/reviews/ReviewOvertime';
 
 interface OvertimeRecord {
   id: string;

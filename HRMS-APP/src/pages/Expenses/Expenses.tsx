@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, Plus, FileText, DollarSign, Wallet, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import styles from './Expenses.module.css';
 
-import ExpenseForm from '../../components/ExpenseForm';
+import ExpenseForm from '../../components/forms/ExpenseForm';
 
 interface ExpenseClaim {
   id: string;

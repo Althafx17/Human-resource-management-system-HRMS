@@ -8,8 +8,8 @@ import {
   TrendingDown,
   Sparkles
 } from 'lucide-react';
-import StatCard from '../../Component/common/StatCard';
-import UpcomingInterviews from '../../Component/wedges/UpcomingInterviews';
+import StatCard from '../../components/common/StatCard';
+import UpcomingInterviews from '../../components/widgets/UpcomingInterviews';
 import styles from './Dashboard.module.css';
 import { axiosInstance } from '../../services/axiosInstance';
 

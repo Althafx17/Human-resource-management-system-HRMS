@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
-import SlideOverDrawer from './SlideOverDrawer';
+import SlideOverDrawer from '../common/SlideOverDrawer';
 import styles from './FormStyles.module.css';
-import { employeeApi } from '../services/employeeApi';
-import type { EmployeeData } from '../pages/employees/types';
+import { employeeApi } from '../../services/employeeApi';
+import type { EmployeeData } from '../../pages/employees/types';
 
 interface LogAttendanceFormProps {
   isOpen: boolean;

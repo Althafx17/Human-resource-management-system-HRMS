@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import AppLayout from './Component/layout/AppLayout';
+import AppLayout from './components/layout/AppLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Employees from './pages/employees/Employees';
-import Attendance from './pages/attendence/attendence';
+import Attendance from './pages/Attendance/Attendance';
 import WorkAreas from './pages/workarea/WorkArea';
 import ShiftAdminLayout from './pages/Shifts/ShiftAdminLayout';
 import Leave from './pages/Leave/Leave';
@@ -15,7 +15,7 @@ import Login from './pages/login/Login';
 import SignupEmail from './pages/signup/SignupEmail';
 import VerifyOTP from './pages/signup/VerifyOTP';
 import CreatePassword from './pages/signup/CreatePassword';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 export default function App() {
   return (
@@ -33,6 +33,7 @@ export default function App() {
           <Route path="/" element={<AppLayout />}>
             {/* Default view when a user lands on the base URL "/" */}
             <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
 
             <Route path="employees" element={<Employees />} />
             <Route path="employees/add" element={<AddEmployeeWizard />} />

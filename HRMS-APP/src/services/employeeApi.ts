@@ -77,6 +77,7 @@ function normalizeEmployee(apiData: any): EmployeeData {
     basicSalary: apiData.basicSalary || apiData.salary || '',
     status: apiData.status || 'Active',
     avatar: apiData.avatar || getDeterministicMaleAvatar(apiData.id),
+    isManager: !!apiData.is_manager,
   };
 }
 
@@ -90,6 +91,11 @@ function normalizeEmployee(apiData: any): EmployeeData {
 function denormalizeEmployee(formData: any): any {
   if (!formData) return formData;
   const apiData = { ...formData };
+
+  if (formData.isManager !== undefined) {
+    apiData.is_manager = formData.isManager;
+    delete apiData.isManager;
+  }
   
   // Map dob and joiningDate properties to date_of_birth and joining_date
   if (formData.dob) {
@@ -127,11 +133,17 @@ function denormalizeEmployee(formData: any): any {
   // Map department and designation titles back to backend PK IDs
   if (formData.department) {
     const deptStr = String(formData.department);
-    apiData.department = departmentNameToId[deptStr] || (isNaN(Number(deptStr)) ? 1 : Number(deptStr));
+    const resolvedDeptId = departmentNameToId[deptStr] || (isNaN(Number(deptStr)) ? 1 : Number(deptStr));
+    apiData.department = resolvedDeptId;
+    apiData.department_id = resolvedDeptId;
   }
   if (formData.designation) {
     const desgStr = String(formData.designation);
     apiData.designation = designationTitleToId[desgStr] || (isNaN(Number(desgStr)) ? 1 : Number(desgStr));
+  }
+  if (formData.managerRole !== undefined) {
+    apiData.manager_role = formData.managerRole;
+    delete apiData.managerRole;
   }
   
   return apiData;
@@ -142,6 +154,20 @@ function denormalizeEmployee(formData: any): any {
 // ==========================================
 
 export const employeeApi = {
+  /**
+   * Fetches list of managers from the backend.
+   * 
+   * @returns {Promise<EmployeeData[]>} Array of manager profiles.
+   */
+  async getManagers(): Promise<EmployeeData[]> {
+    const response = await axiosInstance.get<any>('/employees/?is_manager=true');
+    const data = response.data.results ? response.data.results : response.data;
+    if (Array.isArray(data)) {
+      return data.map(normalizeEmployee);
+    }
+    return [];
+  },
+
   /**
    * Fetches paginated employee list with optional name search and department filters.
    * 

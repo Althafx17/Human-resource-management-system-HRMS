@@ -16,7 +16,7 @@ import Step6Documents from './Step6Documents';
 
 import type { EmployeeData } from '../types';
 import { employeeApi } from '../../../services/employeeApi';
-import { useToast } from '../../../components/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 
 interface AddEmployeeWizardProps {
   isEditMode?: boolean;
@@ -58,6 +58,8 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
     joiningDate: '',
     employmentType: '',
     status: 'Active' as EmployeeData['status'],
+    isManager: false,
+    managerRole: '',
     
     // Step 3: Contract
     contractType: '',
@@ -149,6 +151,8 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
         contractFile: formData.contractFile,
         resumeFile: formData.resumeFile,
         certificatesFile: formData.certificatesFile,
+        is_manager: formData.isManager,
+        manager_role: formData.managerRole,
       };
 
       setIsSubmitting(true);

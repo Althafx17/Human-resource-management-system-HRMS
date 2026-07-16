@@ -2,7 +2,7 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import { Navigate, Outlet } from 'react-router-dom';
-import { authUtils } from '../utils/authUtils';
+import { authUtils } from '../../utils/authUtils';
 
 // ==========================================
 // 2. MAIN COMPONENT ROUTE GUARD

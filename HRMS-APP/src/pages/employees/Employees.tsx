@@ -5,7 +5,7 @@ import styles from './Employees.module.css';
 import EmployeeModal from "./EmployeeModal";
 import type { EmployeeData } from './types';
 import { employeeApi } from '../../services/employeeApi';
-import { useToast } from '../../components/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 export default function Employees() {
   const navigate = useNavigate();

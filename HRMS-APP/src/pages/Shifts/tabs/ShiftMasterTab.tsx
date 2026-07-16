@@ -6,7 +6,7 @@ import { Clock, Plus, Pencil, Trash2 } from 'lucide-react';
 import styles from './Tabs.module.css';
 import ShiftTemplateModal from '../modals/ShiftTemplateModal';
 import { shiftAdminApi } from '../../../services/shiftAdminApi';
-import { useToast } from '../../../components/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import type { ShiftTemplate } from '../types';
 
 // ==========================================

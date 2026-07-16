@@ -20,6 +20,9 @@ export default function CreatePassword() {
   // ---> NEW: State to track real-time password validation error
   const [passwordError, setPasswordError] = useState('');
 
+  // ---> NEW: State to track successful registration to prevent route guard redirect
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,11 +38,11 @@ export default function CreatePassword() {
   };
 
   useEffect(() => {
-    // ---> CHANGED: Redirect if either parameter is missing in sessionStorage
-    if (!email || !verificationToken) {
+    // ---> CHANGED: Redirect if either parameter is missing in sessionStorage (only if not successfully registered)
+    if (!isSuccess && (!email || !verificationToken)) {
       navigate('/signup');
     }
-  }, [email, verificationToken, navigate]);
+  }, [email, verificationToken, navigate, isSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,12 +86,15 @@ export default function CreatePassword() {
       localStorage.setItem('refresh_token', refresh);
       localStorage.setItem('username', email);
 
+      // ---> NEW: Mark as success to disable route guard redirects
+      setIsSuccess(true);
+
       // ---> CHANGED: Clean up registration parameters from sessionStorage before navigating
       sessionStorage.removeItem('signupEmail');
       sessionStorage.removeItem('verificationToken');
 
       // ---> CHANGED: Route user immediately to homepage dashboard
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
       if (err.response?.status === 403) {

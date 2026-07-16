@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import SlideOverDrawer from './SlideOverDrawer';
+import SlideOverDrawer from '../common/SlideOverDrawer';
 import styles from './FormStyles.module.css';
 
 interface ExpenseFormProps {

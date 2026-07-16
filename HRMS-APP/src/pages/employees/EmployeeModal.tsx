@@ -6,7 +6,7 @@ import { X, User } from 'lucide-react';
 import styles from './EmployeeModal.module.css'; 
 import type { EmployeeData } from './types';
 import { employeeApi } from '../../services/employeeApi';
-import { useToast } from '../../components/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 // ==========================================
 // 2. TYPES & INTERFACES

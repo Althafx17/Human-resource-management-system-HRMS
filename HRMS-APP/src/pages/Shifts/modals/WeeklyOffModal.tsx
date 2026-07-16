@@ -2,8 +2,8 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import React, { useState } from 'react';
-import SlideOverDrawer from '../../../components/SlideOverDrawer';
-import styles from '../../../components/FormStyles.module.css';
+import SlideOverDrawer from '../../../components/common/SlideOverDrawer';
+import styles from '../../../components/forms/FormStyles.module.css';
 import tabStyles from '../tabs/Tabs.module.css';
 import type { WeeklyOffRule } from '../types';
 

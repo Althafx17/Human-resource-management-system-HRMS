@@ -2,8 +2,8 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import React, { useState, useEffect } from 'react';
-import SlideOverDrawer from '../../../components/SlideOverDrawer';
-import styles from '../../../components/FormStyles.module.css';
+import SlideOverDrawer from '../../../components/common/SlideOverDrawer';
+import styles from '../../../components/forms/FormStyles.module.css';
 import type { ShiftTemplate } from '../types';
 
 // ==========================================

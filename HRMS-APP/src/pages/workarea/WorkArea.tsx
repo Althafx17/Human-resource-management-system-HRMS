@@ -4,9 +4,9 @@
 import { useState, useEffect } from 'react';
 import { Search, MapPin, Plus, Globe, Pencil, Trash2 } from 'lucide-react';
 import styles from './WorkAreas.module.css';
-import AddWorkAreaForm from '../../components/AddWorkAreaForm';
+import AddWorkAreaForm from '../../components/forms/AddWorkAreaForm';
 import { workAreaApi } from '../../services/workAreaApi';
-import { useToast } from '../../components/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import type { WorkArea } from './types';
 
 // ==========================================

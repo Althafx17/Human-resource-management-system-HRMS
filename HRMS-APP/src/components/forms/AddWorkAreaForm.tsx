@@ -2,9 +2,9 @@
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
 import React, { useState, useEffect } from 'react';
-import SlideOverDrawer from './SlideOverDrawer';
+import SlideOverDrawer from '../common/SlideOverDrawer';
 import styles from './FormStyles.module.css';
-import type { WorkArea } from '../pages/workarea/types';
+import type { WorkArea } from '../../pages/workarea/types';
 
 // ==========================================
 // 2. TYPES & PROPS

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, Plus, Calendar, CheckCircle, Clock } from 'lucide-react';
 import styles from './Leave.module.css';
 
-import ReviewLeaveRequest from '../../components/ReviewLeaveRequest';
+import ReviewLeaveRequest from '../../components/reviews/ReviewLeaveRequest';
 
 interface LeaveRequest {
   id: string;

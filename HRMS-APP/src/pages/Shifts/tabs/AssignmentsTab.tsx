@@ -7,7 +7,7 @@ import styles from './Tabs.module.css';
 import AssignShiftModal from '../modals/AssignShiftModal';
 import { shiftAdminApi } from '../../../services/shiftAdminApi';
 import { employeeApi } from '../../../services/employeeApi';
-import { useToast } from '../../../components/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { getDeterministicMaleAvatar } from '../../../utils/avatarUtils';
 import type { EmployeeData } from '../../employees/types';
 import type { ShiftTemplate, ShiftAssignment } from '../types';

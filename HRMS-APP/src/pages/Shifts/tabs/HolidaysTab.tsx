@@ -6,7 +6,7 @@ import { Plus, Calendar, Trash2 } from 'lucide-react';
 import styles from './Tabs.module.css';
 import HolidayModal from '../modals/HolidayModal';
 import { shiftAdminApi } from '../../../services/shiftAdminApi';
-import { useToast } from '../../../components/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import type { Holiday } from '../types';
 
 // ==========================================

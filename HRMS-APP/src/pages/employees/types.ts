@@ -20,6 +20,8 @@ export interface EmployeeData {
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   skills?: string[];
+  isManager?: boolean;
+  managerRole?: string;
   
   // Step 3
   contractType?: string;

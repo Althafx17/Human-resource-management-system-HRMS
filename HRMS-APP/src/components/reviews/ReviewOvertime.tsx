@@ -1,5 +1,5 @@
 import { CheckCircle, Clock, User } from 'lucide-react';
-import SlideOverDrawer from './SlideOverDrawer';
+import SlideOverDrawer from '../common/SlideOverDrawer';
 import styles from './ReviewStyles.module.css';
 
 interface OvertimeRequestData {

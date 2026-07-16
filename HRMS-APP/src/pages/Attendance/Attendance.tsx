@@ -3,12 +3,12 @@
 // ==========================================
 import { useState, useEffect } from 'react';
 import { Search, CheckCircle2, XCircle, AlertCircle, Calendar, Plus, MapPin, Users, Trash2, Eye, Download, Clock, X, PieChart } from 'lucide-react';
-import styles from './attendence.module.css';
-import LogAttendanceForm from '../../components/LogAttendanceForm';
+import styles from './Attendance.module.css';
+import LogAttendanceForm from '../../components/forms/LogAttendanceForm';
 import { attendanceApi } from '../../services/attendanceApi';
 import { employeeApi } from '../../services/employeeApi';
 import { getDeterministicMaleAvatar } from '../../utils/avatarUtils';
-import { useToast } from '../../components/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import type { EmployeeData } from '../employees/types';
 import type { AttendanceRecord } from './types';
 
