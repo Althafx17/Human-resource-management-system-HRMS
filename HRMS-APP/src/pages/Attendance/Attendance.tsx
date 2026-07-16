@@ -7,6 +7,7 @@ import styles from './Attendance.module.css';
 import LogAttendanceForm from '../../components/forms/LogAttendanceForm';
 import { attendanceApi } from '../../apis/core/attendanceApi';
 import { employeeApi } from '../../apis/core/employeeApi';
+import { workAreaApi } from '../../apis/core/workAreaApi';
 import { getDeterministicMaleAvatar } from '../../utils/avatarUtils';
 import { useToast } from '../../contexts/ToastContext';
 import type { EmployeeData } from '../employees/types';
@@ -178,7 +179,9 @@ export default function Attendance() {
 
 
 
-  // Fetch all employees once on component mount to build ID lookup map
+  const [workAreas, setWorkAreas] = useState<any[]>([]);
+
+  // Fetch all employees and work areas once on component mount to build ID lookup map
   useEffect(() => {
     const loadAllEmployees = async () => {
       try {
@@ -209,6 +212,10 @@ export default function Attendance() {
       }
     };
     loadAllEmployees();
+
+    workAreaApi.getWorkAreas()
+      .then(setWorkAreas)
+      .catch(err => console.error('Failed to load work areas:', err));
   }, []);
 
   /**
@@ -732,8 +739,12 @@ export default function Attendance() {
                   aria-label="Select Location"
                   required
                 >
-                  <option value="Main Office">Main Office</option>
-                  <option value="Branch A">Branch A</option>
+                  <option value="">Select Location</option>
+                  {workAreas.map((loc) => (
+                    <option key={loc.id} value={loc.name}>
+                      {loc.name}
+                    </option>
+                  ))}
                   <option value="Remote">Remote</option>
                 </select>
               </div>
