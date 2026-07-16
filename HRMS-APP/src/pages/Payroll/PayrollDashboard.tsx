@@ -94,6 +94,7 @@ export default function PayrollDashboard() {
   const totalPayrollVal = processedRecords.reduce((sum, r) => sum + r.netPay, 0);
   const totalDeductionsVal = processedRecords.reduce((sum, r) => sum + r.deductions, 0);
   const processedCount = processedRecords.length;
+  const totalWorkforce = Object.keys(employeeMap).length;
 
   const filteredRecords = records.filter(record => 
     record.employeeName.toLowerCase().includes(search.toLowerCase()) ||
