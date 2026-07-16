@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Mail, Bell, ChevronDown, LogOut } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { employeeApi } from '../../apis/core/employeeApi';
@@ -8,11 +8,17 @@ import styles from './Header.module.css';
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // ---> NEW: Manager Profile Switcher states
   const [managers, setManagers] = useState<EmployeeData[]>([]);
   const [activeManager, setActiveManager] = useState<EmployeeData | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // ---> NEW: Auto-close dropdown when route location changes (tab switching)
+  useEffect(() => {
+    setIsDropdownOpen(false);
+  }, [location]);
 
   // ---> NEW: Logout routine
   const handleLogout = () => {
