@@ -1,69 +1,86 @@
-// ---> CHANGED: Connect to expense API endpoint with empty list fallbacks
+// ---> CHANGED: Connect to central expense API endpoint and export request/response interfaces
 import { axiosInstance } from '../config/axiosInstance';
+
+export interface ExpenseClaim {
+  id: string | number;
+  date: string;
+  category: 'Travel' | 'Meals' | 'Supplies' | 'Other';
+  amount: number;
+  description: string;
+  status: 'Approved' | 'Pending' | 'Rejected';
+}
+
+export interface ExpensePayload {
+  employee: number;
+  date: string;
+  category: 'Travel' | 'Meals' | 'Supplies' | 'Other';
+  amount: number;
+  description: string;
+  status: string;
+}
 
 export const expenseApi = {
   /**
-   * Fetches all expense claims from the backend.
-   * Note: The current backend does not expose an expenses endpoint. Falls back to empty list gracefully.
+   * Fetches all expense claims.
+   * Target endpoint: GET /api/expenses/
    */
-  async getAll(): Promise<any[]> {
+  async getExpenses(): Promise<ExpenseClaim[]> {
     try {
       const response = await axiosInstance.get('/expenses/');
-      return response.data.results ? response.data.results : (Array.isArray(response.data) ? response.data : []);
+      const results = response.data.results ? response.data.results : (Array.isArray(response.data) ? response.data : []);
+      return results;
     } catch (e) {
-      console.warn("Expenses endpoint not found on backend. Returning empty array.", e);
+      console.warn("Expenses endpoint failed or not active, returning empty list.", e);
       return [];
     }
   },
 
   /**
-   * Fetches a specific expense claim by ID.
-   */
-  async getById(id: string | number): Promise<any> {
-    try {
-      const response = await axiosInstance.get(`/expenses/${id}/`);
-      return response.data;
-    } catch (e) {
-      console.warn(`Failed to fetch expense ID ${id}:`, e);
-      return null;
-    }
-  },
-
-  /**
    * Submits/Creates a new expense claim.
+   * Target endpoint: POST /api/expenses/
    */
+  async submitExpense(payload: ExpensePayload): Promise<ExpenseClaim> {
+    const response = await axiosInstance.post('/expenses/', payload);
+    return response.data;
+  },
+
+  // --- Retroactive Compatibility Fallbacks ---
+  async getAll(): Promise<any[]> {
+    return this.getExpenses();
+  },
+
   async create(data: any): Promise<any> {
-    try {
-      const response = await axiosInstance.post('/expenses/', data);
-      return response.data;
-    } catch (e) {
-      console.error("Failed to create expense claim:", e);
-      throw e;
-    }
+    return this.submitExpense(data);
   },
 
-  /**
-   * Updates an existing expense claim.
-   */
+  async getById(id: string | number): Promise<any> {
+    const response = await axiosInstance.get(`/expenses/${id}/`);
+    return response.data;
+  },
+
   async update(id: string | number, data: any): Promise<any> {
+    const response = await axiosInstance.put(`/expenses/${id}/`, data);
+    return response.data;
+  },
+
+  async delete(id: string | number): Promise<void> {
+    await axiosInstance.delete(`/expenses/${id}/`);
+  },
+
+  // ---> NEW: Added methods for Manager Expense Approval workflow integration
+  async getPendingExpenses(): Promise<ExpenseClaim[]> {
     try {
-      const response = await axiosInstance.put(`/expenses/${id}/`, data);
-      return response.data;
+      const response = await axiosInstance.get('/expenses/');
+      const results = response.data.results ? response.data.results : (Array.isArray(response.data) ? response.data : []);
+      return results.filter((c: any) => c.status === 'Pending');
     } catch (e) {
-      console.error(`Failed to update expense ID ${id}:`, e);
-      throw e;
+      console.warn("getPendingExpenses failed, returning empty list.", e);
+      return [];
     }
   },
 
-  /**
-   * Deletes an expense claim.
-   */
-  async delete(id: string | number): Promise<void> {
-    try {
-      await axiosInstance.delete(`/expenses/${id}/`);
-    } catch (e) {
-      console.error(`Failed to delete expense ID ${id}:`, e);
-      throw e;
-    }
+  async updateExpenseStatus(id: number | string, status: 'Approved' | 'Rejected'): Promise<ExpenseClaim> {
+    const response = await axiosInstance.patch(`/expenses/${id}/`, { status });
+    return response.data;
   }
 };
