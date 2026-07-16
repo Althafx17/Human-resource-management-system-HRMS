@@ -13,6 +13,8 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { payrollApi } from '../../apis/finance/payrollApi';
+import { employeeApi } from '../../apis/core/employeeApi';
+import type { EmployeeData } from '../employees/types';
 import styles from './PayrollDashboard.module.css';
 
 interface PayrollRecord {
@@ -32,25 +34,57 @@ export default function PayrollDashboard() {
   const [month, setMonth] = useState('June');
   const [year, setYear] = useState('2026');
   const [records, setRecords] = useState<PayrollRecord[]>([]);
+  const [employeeMap, setEmployeeMap] = useState<Record<string, EmployeeData>>({});
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    payrollApi.getAll()
-      .then(data => {
-        const formatted: PayrollRecord[] = data.map((item: any) => ({
-          id: String(item.id || item.payroll_id || 'PAY001'),
-          employeeName: item.employeeName || item.employee_name || 'John Smith',
-          avatar: item.avatar || 'https://i.pravatar.cc/150?u=1',
-          designation: item.designation || item.employee_designation || 'Sr. Back End Developer',
-          month: item.month || item.pay_period || 'June 2026',
-          basicSalary: Number(item.basicSalary || item.basic_salary || 0),
-          deductions: Number(item.deductions || item.total_deductions || 0),
-          netPay: Number(item.netPay || item.net_salary || 0),
-          status: item.status || 'Pending'
-        }));
+    setIsLoading(true);
+    const loadEmployeesAndPayroll = async () => {
+      try {
+        let allEmployees: EmployeeData[] = [];
+        let page = 1;
+        let hasMore = true;
+        while (hasMore && page <= 10) {
+          const data = await employeeApi.getAll(page);
+          if (data.results && data.results.length > 0) {
+            allEmployees = [...allEmployees, ...data.results];
+            hasMore = !!data.next;
+            page++;
+          } else {
+            hasMore = false;
+          }
+        }
+        const map: Record<string, EmployeeData> = {};
+        allEmployees.forEach(emp => {
+          map[String(emp.id)] = emp;
+        });
+        setEmployeeMap(map);
+
+        const payrollData = await payrollApi.getAll();
+        const formatted: PayrollRecord[] = payrollData.map((item: any) => {
+          const empId = String(item.employee || item.employee_id || '');
+          const emp = map[empId];
+          return {
+            id: String(item.id || ''),
+            employeeName: emp ? emp.name : (item.employeeName || item.employee_name || `Employee #${empId || 'Unknown'}`),
+            avatar: emp ? (emp.avatar as string) : (item.avatar || ''),
+            designation: emp ? emp.designation : (item.designation || item.employee_designation || ''),
+            month: item.month || item.pay_period || '',
+            basicSalary: Number(item.basicSalary || item.basic_salary || 0),
+            deductions: Number(item.deductions || item.total_deductions || 0),
+            netPay: Number(item.netPay || item.net_salary || 0),
+            status: item.status || 'Pending'
+          };
+        });
         setRecords(formatted);
-      })
-      .catch(err => console.error('Failed to load payroll records:', err));
+      } catch (err) {
+        console.error('Failed to load payroll details:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadEmployeesAndPayroll();
   }, []);
 
   // Aggregates calculation
@@ -158,7 +192,7 @@ export default function PayrollDashboard() {
             </div>
           </div>
           <h2 className={styles.cardValue}>
-            ${totalPayrollVal > 0 ? totalPayrollVal.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '8,450.00'}
+            ${totalPayrollVal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </h2>
           <span className={styles.cardTrend}>For current cycle</span>
         </div>
@@ -184,7 +218,7 @@ export default function PayrollDashboard() {
             </div>
           </div>
           <h2 className={styles.cardValue}>
-            ${totalDeductionsVal > 0 ? totalDeductionsVal.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '250.00'}
+            ${totalDeductionsVal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </h2>
           <span className={styles.cardTrend}>Taxes & adjustments</span>
         </div>
@@ -197,7 +231,7 @@ export default function PayrollDashboard() {
               <Users size={20} />
             </div>
           </div>
-          <h2 className={styles.cardValue}>24</h2>
+          <h2 className={styles.cardValue}>{totalWorkforce}</h2>
           <span className={styles.cardTrend}>Active employees</span>
         </div>
 

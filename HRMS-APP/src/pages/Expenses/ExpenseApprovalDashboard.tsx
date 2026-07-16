@@ -1,7 +1,8 @@
 // # ---> NEW: ExpenseApprovalDashboard Component
 import React, { useState, useEffect } from 'react';
 import { Check, X, ShieldAlert, User, Calendar, Receipt } from 'lucide-react';
-import { expenseApi, ExpenseClaim } from '../../apis/finance/expenseApi';
+import { expenseApi } from '../../apis/finance/expenseApi';
+import type { ExpenseClaim } from '../../apis/finance/expenseApi';
 import { employeeApi } from '../../apis/core/employeeApi';
 import { useToast } from '../../contexts/ToastContext';
 import type { EmployeeData } from '../employees/types';

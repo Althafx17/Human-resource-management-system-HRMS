@@ -1,7 +1,8 @@
 // # ---> NEW: ExpenseDashboard Component
 import React, { useState, useEffect } from 'react';
 import { Plus, Receipt, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
-import { expenseApi, ExpenseClaim } from '../../apis/finance/expenseApi';
+import { expenseApi } from '../../apis/finance/expenseApi';
+import type { ExpenseClaim } from '../../apis/finance/expenseApi';
 import ExpenseForm from '../../components/forms/ExpenseForm';
 
 export default function ExpenseDashboard() {
