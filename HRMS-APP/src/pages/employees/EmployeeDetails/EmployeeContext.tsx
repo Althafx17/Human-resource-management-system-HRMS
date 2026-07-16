@@ -3,7 +3,7 @@
 // ==========================================
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { EmployeeData } from '../types';
-import { employeeApi } from '../../../services/employeeApi';
+import { employeeApi } from '../../../apis/core/employeeApi';
 
 // ==========================================
 // 2. TYPES & INTERFACES

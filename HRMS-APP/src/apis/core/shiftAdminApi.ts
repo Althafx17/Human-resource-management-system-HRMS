@@ -1,8 +1,8 @@
 // ==========================================
 // 1. IMPORTS & CONFIGURATIONS
 // ==========================================
-import { axiosInstance } from './axiosInstance';
-import type { ShiftTemplate, ShiftAssignment, WeeklyOffRule, Holiday, ResolverResponse } from '../pages/Shifts/types';
+import { axiosInstance } from '../config/axiosInstance';
+import type { ShiftTemplate, ShiftAssignment, WeeklyOffRule, Holiday, ResolverResponse } from '../../pages/Shifts/types';
 
 // ==========================================
 // 2. MOCK STORES & LATENCY SIMULATORS

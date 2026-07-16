@@ -1,9 +1,9 @@
 // ==========================================
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
-import { axiosInstance } from './axiosInstance';
-import type { EmployeeData } from '../pages/employees/types';
-import { getDeterministicMaleAvatar } from '../utils/avatarUtils';
+import { axiosInstance } from '../config/axiosInstance';
+import type { EmployeeData } from '../../pages/employees/types';
+import { getDeterministicMaleAvatar } from '../../utils/avatarUtils';
 
 // ==========================================
 // 2. TYPES & INTERFACES
@@ -53,6 +53,14 @@ const designationTitleToId: Record<string, number> = {
 // Global cache populated during fetch to map employee names back to primary keys
 const nameToIdCache: Record<string, number> = {};
 
+const designationIdToTitle: Record<number, string> = {
+  1: 'Full Stack Developer',
+  2: 'HR Executive',
+  3: 'Accountant',
+  4: 'Sales Executive',
+  5: 'Manager'
+};
+
 /**
  * Normalizes backend raw employee records into UI-compatible camelCase models.
  * Also seeds nameToIdCache mapping and generates a deterministic male profile picture.
@@ -77,7 +85,8 @@ function normalizeEmployee(apiData: any): EmployeeData {
     basicSalary: apiData.basicSalary || apiData.salary || '',
     status: apiData.status || 'Active',
     avatar: apiData.avatar || getDeterministicMaleAvatar(apiData.id),
-    isManager: !!apiData.is_manager,
+    isManager: !!apiData.is_manager || apiData.designation === 5 || apiData.designation === 'Manager',
+    designation: designationIdToTitle[Number(apiData.designation)] || apiData.designation,
   };
 }
 
@@ -160,7 +169,7 @@ export const employeeApi = {
    * @returns {Promise<EmployeeData[]>} Array of manager profiles.
    */
   async getManagers(): Promise<EmployeeData[]> {
-    const response = await axiosInstance.get<any>('/employees/?is_manager=true');
+    const response = await axiosInstance.get<any>('/employees/?designation=Manager');
     const data = response.data.results ? response.data.results : response.data;
     if (Array.isArray(data)) {
       return data.map(normalizeEmployee);
@@ -190,8 +199,13 @@ export const employeeApi = {
       if (response.data.results) {
         response.data.results = response.data.results.map(normalizeEmployee);
       } else if (Array.isArray(response.data)) {
-        // ---> CHANGED: Normalize flat arrays from non-paginated endpoints
-        return response.data.map(normalizeEmployee);
+        // ---> CHANGED: Normalize flat arrays into a PaginatedResponse structure for type compatibility
+        return {
+          count: response.data.length,
+          next: null,
+          previous: null,
+          results: response.data.map(normalizeEmployee)
+        };
       }
     }
     return response.data;
@@ -307,15 +321,16 @@ export const employeeApi = {
     await axiosInstance.delete(`/employees/${id}/`);
   },
 
-  /**
-   * Fetches list of available departments options.
-   * 
-   * @returns {Promise<any[]>} List of department objects.
-   */
   async getDepartments(): Promise<any[]> {
     try {
-      const response = await axiosInstance.get<PaginatedResponse<any>>('/departments/');
-      return response.data.results || [];
+      const response = await axiosInstance.get<any>('/departments/');
+      const results = response.data.results ? response.data.results : (Array.isArray(response.data) ? response.data : []);
+      results.forEach((d: any) => {
+        if (d.name && d.id) {
+          departmentNameToId[d.name] = Number(d.id);
+        }
+      });
+      return results;
     } catch (e) {
       console.error('Failed to fetch departments:', e);
       return [];
@@ -329,8 +344,15 @@ export const employeeApi = {
    */
   async getDesignations(): Promise<any[]> {
     try {
-      const response = await axiosInstance.get<PaginatedResponse<any>>('/designations/');
-      return response.data.results || [];
+      const response = await axiosInstance.get<any>('/designations/');
+      const results = response.data.results ? response.data.results : (Array.isArray(response.data) ? response.data : []);
+      results.forEach((d: any) => {
+        if (d.title && d.id) {
+          designationTitleToId[d.title] = Number(d.id);
+          designationIdToTitle[Number(d.id)] = d.title;
+        }
+      });
+      return results;
     } catch (e) {
       console.error('Failed to fetch designations:', e);
       return [];

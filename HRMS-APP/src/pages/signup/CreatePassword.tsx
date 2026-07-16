@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, AlertCircle, Loader, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
-import { signupApi } from '../../services/signupApi';
+import { signupApi } from '../../apis/auth/signupApi';
 import styles from './CreatePassword.module.css';
 
 export default function CreatePassword() {

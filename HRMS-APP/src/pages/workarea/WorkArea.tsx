@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Search, MapPin, Plus, Globe, Pencil, Trash2 } from 'lucide-react';
 import styles from './WorkAreas.module.css';
 import AddWorkAreaForm from '../../components/forms/AddWorkAreaForm';
-import { workAreaApi } from '../../services/workAreaApi';
+import { workAreaApi } from '../../apis/core/workAreaApi';
 import { useToast } from '../../contexts/ToastContext';
 import type { WorkArea } from './types';
 
@@ -38,7 +38,7 @@ export default function WorkAreas() {
    */
   const loadAreas = () => {
     setIsLoading(true);
-    workAreaApi.getAll()
+    workAreaApi.getWorkAreas()
       .then(data => {
         setAreas(data);
         setIsLoading(false);
@@ -63,7 +63,7 @@ export default function WorkAreas() {
   const handleSave = (data: Omit<WorkArea, 'id'>) => {
     if (selectedArea) {
       // Edit Mode
-      workAreaApi.update(selectedArea.id, data)
+      workAreaApi.updateWorkArea(selectedArea.id, data)
         .then(() => {
           showToast('Work area details updated successfully!', 'success');
           loadAreas();
@@ -74,7 +74,7 @@ export default function WorkAreas() {
         });
     } else {
       // Add Mode
-      workAreaApi.create(data)
+      workAreaApi.createWorkArea(data)
         .then(() => {
           showToast('Work area registered successfully!', 'success');
           loadAreas();
@@ -93,7 +93,7 @@ export default function WorkAreas() {
    */
   const handleDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this work area?")) {
-      workAreaApi.delete(id)
+      workAreaApi.deleteWorkArea(id)
         .then(() => {
           showToast('Work area removed successfully!', 'success');
           loadAreas();

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, Calendar, CheckCircle, Clock } from 'lucide-react';
+import { leaveApi } from '../../apis/operations/leaveApi';
 import styles from './Leave.module.css';
 
 import ReviewLeaveRequest from '../../components/reviews/ReviewLeaveRequest';
@@ -15,16 +16,28 @@ interface LeaveRequest {
   status: 'Approved' | 'Pending' | 'Rejected';
 }
 
-const DUMMY_LEAVES: LeaveRequest[] = [
-  { id: 'LR001', employeeName: 'Angel Philip', avatar: 'https://i.pravatar.cc/150?u=3', type: 'Annual Leave', startDate: '2026-06-22', endDate: '2026-06-26', days: 5, status: 'Approved' },
-  { id: 'LR002', employeeName: 'John Smith', avatar: 'https://i.pravatar.cc/150?u=1', type: 'Sick Leave', startDate: '2026-06-20', endDate: '2026-06-21', days: 2, status: 'Pending' },
-  { id: 'LR003', employeeName: 'Augestien', avatar: 'https://i.pravatar.cc/150?u=5', type: 'Casual Leave', startDate: '2026-06-29', endDate: '2026-06-29', days: 1, status: 'Rejected' },
-];
-
 export default function Leave() {
   const [search, setSearch] = useState('');
-  const [leaves, setLeaves] = useState<LeaveRequest[]>(DUMMY_LEAVES);
+  const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
+
+  useEffect(() => {
+    leaveApi.getAll()
+      .then(data => {
+        const formatted: LeaveRequest[] = data.map((item: any) => ({
+          id: String(item.id || item.leave_id || 'LR001'),
+          employeeName: item.employeeName || item.employee_name || 'Angel Philip',
+          avatar: item.avatar || 'https://i.pravatar.cc/150?u=3',
+          type: item.type || item.leave_type || 'Annual Leave',
+          startDate: item.startDate || item.start_date || '2026-06-22',
+          endDate: item.endDate || item.end_date || '2026-06-26',
+          days: Number(item.days || item.leave_days || 5),
+          status: item.status || 'Pending'
+        }));
+        setLeaves(formatted);
+      })
+      .catch(err => console.error('Failed to load leaves:', err));
+  }, []);
 
   const getStatusClass = (status: string) => {
     switch (status) {

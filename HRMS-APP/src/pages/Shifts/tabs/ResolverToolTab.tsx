@@ -4,8 +4,8 @@
 import { useState, useEffect } from 'react';
 import { Search, CheckCircle2, AlertCircle, XCircle, HelpCircle } from 'lucide-react';
 import styles from './Tabs.module.css';
-import { employeeApi } from '../../../services/employeeApi';
-import { shiftAdminApi } from '../../../services/shiftAdminApi';
+import { employeeApi } from '../../../apis/core/employeeApi';
+import { shiftAdminApi } from '../../../apis/core/shiftAdminApi';
 import type { EmployeeData } from '../../employees/types';
 import type { ResolverResponse } from '../types';
 

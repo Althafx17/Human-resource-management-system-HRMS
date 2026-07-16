@@ -1,5 +1,5 @@
 // ---> NEW: Department API services
-import { axiosInstance } from './axiosInstance';
+import { axiosInstance } from '../config/axiosInstance';
 
 export const departmentApi = {
   /**

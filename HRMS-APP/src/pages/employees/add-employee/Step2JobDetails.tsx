@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { departmentApi } from '../../../services/departmentApi';
+import { departmentApi } from '../../../apis/core/departmentApi';
 import styles from './AddEmployee.module.css';
 
 interface Step2Props {

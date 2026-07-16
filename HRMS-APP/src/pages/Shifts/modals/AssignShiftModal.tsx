@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 import SlideOverDrawer from '../../../components/common/SlideOverDrawer';
 import styles from '../../../components/forms/FormStyles.module.css';
 import tabStyles from '../tabs/Tabs.module.css';
-import { employeeApi } from '../../../services/employeeApi';
-import { shiftAdminApi } from '../../../services/shiftAdminApi';
+import { employeeApi } from '../../../apis/core/employeeApi';
+import { shiftAdminApi } from '../../../apis/core/shiftAdminApi';
 import type { EmployeeData } from '../../employees/types';
 import type { ShiftTemplate, ShiftAssignment } from '../types';
 

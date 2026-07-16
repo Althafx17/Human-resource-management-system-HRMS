@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, User, AlertCircle, Loader, Eye, EyeOff } from 'lucide-react';
-import { loginApi } from '../../services/loginApi';
+import { loginApi } from '../../apis/auth/loginApi';
 import styles from './Login.module.css';
 
 export default function Login() {

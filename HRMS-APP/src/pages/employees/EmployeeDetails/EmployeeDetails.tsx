@@ -15,7 +15,7 @@ import PayrollTab from './tab/PayrollTab';
 import ContractTab from './tab/ContractTab';
 import DocumentsTab from './tab/DocumentsTab';
 import type { EmployeeData } from '../types';
-import { employeeApi } from '../../../services/employeeApi';
+import { employeeApi } from '../../../apis/core/employeeApi';
 import { useToast } from '../../../contexts/ToastContext';
 import { EmployeeProvider, useEmployeeContext } from './EmployeeContext';
 

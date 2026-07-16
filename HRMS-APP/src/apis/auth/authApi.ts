@@ -1,8 +1,8 @@
 // ==========================================
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
-import { axiosInstance } from './axiosInstance';
-import { authUtils } from '../utils/authUtils';
+import { axiosInstance } from '../config/axiosInstance';
+import { authUtils } from '../../utils/authUtils';
 
 // ==========================================
 // 2. MAIN COMPONENT / SERVICE

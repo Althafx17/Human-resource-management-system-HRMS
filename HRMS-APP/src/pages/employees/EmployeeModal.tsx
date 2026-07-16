@@ -5,7 +5,8 @@ import React, { useState } from 'react';
 import { X, User } from 'lucide-react';
 import styles from './EmployeeModal.module.css'; 
 import type { EmployeeData } from './types';
-import { employeeApi } from '../../services/employeeApi';
+import { employeeApi } from '../../apis/core/employeeApi';
+import { departmentApi } from '../../apis/core/departmentApi';
 import { useToast } from '../../contexts/ToastContext';
 
 // ==========================================
@@ -60,8 +61,12 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
 
   // ---> NEW: Local managers candidates state lookup
   const [managers, setManagers] = useState<{ id: string; name: string }[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [designations, setDesignations] = useState<any[]>([]);
+  const [isAddingDepartment, setIsAddingDepartment] = useState(false);
+  const [newDepartmentName, setNewDepartmentName] = useState('');
 
-  // Fetch managers candidates from the employee lists
+  // Fetch managers candidates, departments, and designations on mount
   React.useEffect(() => {
     employeeApi.getAll()
       .then(res => {
@@ -77,6 +82,14 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
       .catch(err => {
         console.error('Failed to load managers:', err);
       });
+
+    employeeApi.getDepartments()
+      .then(setDepartments)
+      .catch(err => console.error('Failed to load departments:', err));
+
+    employeeApi.getDesignations()
+      .then(setDesignations)
+      .catch(err => console.error('Failed to load designations:', err));
   }, []);
 
   // Filter available managers list
@@ -236,7 +249,34 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
    */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === 'department' && value === 'ADD_NEW') {
+      setIsAddingDepartment(true);
+      return;
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveDepartment = () => {
+    if (!newDepartmentName.trim()) return;
+
+    departmentApi.create({ name: newDepartmentName.trim() })
+      .then(newDept => {
+        setDepartments(prev => [...prev, newDept]);
+        setFormData(prev => ({ ...prev, department: newDept.name }));
+        setIsAddingDepartment(false);
+        setNewDepartmentName('');
+        showToast('Department created successfully!', 'success');
+      })
+      .catch(err => {
+        console.error('Failed to create department:', err);
+        showToast('Failed to create department.', 'error');
+      });
+  };
+
+  const handleCancelDepartment = () => {
+    setIsAddingDepartment(false);
+    setNewDepartmentName('');
+    setFormData(prev => ({ ...prev, department: '' }));
   };
 
   /**
@@ -393,18 +433,94 @@ export default function EmployeeModal({ isOpen, onClose, employeeData, onSaveSuc
               <div className={styles.formGrid}>
                 <div className={styles.inputGroup}>
                   <label htmlFor="edit-designation">Designation *</label>
-                  <input id="edit-designation" type="text" name="designation" value={formData.designation} onChange={handleChange} className={styles.inputField} required />
+                  <select
+                    id="edit-designation"
+                    name="designation"
+                    value={formData.designation}
+                    onChange={handleChange}
+                    className={styles.inputField}
+                    required
+                  >
+                    <option value="">Select Designation</option>
+                    {designations.map((desg) => (
+                      <option key={desg.id} value={desg.title}>
+                        {desg.title}
+                      </option>
+                    ))}
+                    {formData.designation && !designations.some(d => d.title === formData.designation) && (
+                      <option value={formData.designation}>{formData.designation}</option>
+                    )}
+                  </select>
                 </div>
                 <div className={styles.inputGroup}>
                   <label htmlFor="edit-department">Department *</label>
-                  <select id="edit-department" name="department" value={formData.department} onChange={handleChange} className={styles.inputField} required>
-                    <option value="Engineering">Engineering</option>
-                    <option value="Design">Design</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Human Resources">Human Resources</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Sales">Sales</option>
-                  </select>
+                  {isAddingDepartment ? (
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        value={newDepartmentName}
+                        onChange={(e) => setNewDepartmentName(e.target.value)}
+                        placeholder="New Dept Name"
+                        className={styles.inputField}
+                        style={{ flex: 1 }}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSaveDepartment}
+                        style={{
+                          padding: '8px 12px',
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelDepartment}
+                        style={{
+                          padding: '8px 12px',
+                          backgroundColor: '#ef4444',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      id="edit-department"
+                      name="department"
+                      value={formData.department}
+                      onChange={handleChange}
+                      className={styles.inputField}
+                      required
+                    >
+                      <option value="">Select Department</option>
+                      {departments.map((dept) => (
+                        <option key={dept.id} value={dept.name}>
+                          {dept.name}
+                        </option>
+                      ))}
+                      {formData.department && !departments.some(d => d.name === formData.department) && (
+                        <option value={formData.department}>{formData.department}</option>
+                      )}
+                      <option value="ADD_NEW" style={{ fontWeight: 'bold', color: '#2563eb' }}>
+                        + Add New Department
+                      </option>
+                    </select>
+                  )}
                 </div>
                 <div className={styles.inputGroup}>
                   <label htmlFor="edit-status">Status *</label>

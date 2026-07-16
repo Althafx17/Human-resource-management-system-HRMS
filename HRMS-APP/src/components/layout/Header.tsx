@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Mail, Bell, ChevronDown, LogOut } from 'lucide-react';
 import Cookies from 'js-cookie';
-import { employeeApi } from '../../services/employeeApi';
+import { employeeApi } from '../../apis/core/employeeApi';
 import type { EmployeeData } from '../../pages/employees/types';
 import styles from './Header.module.css';
 
@@ -37,9 +37,14 @@ export default function Header() {
   useEffect(() => {
     employeeApi.getManagers()
       .then(data => {
-        setManagers(data);
-        if (data.length > 0) {
-          setActiveManager(data[0]);
+        // ---> CHANGED: Fallback frontend filter to guarantee only managers render in the UI
+        const filteredManagers = data.filter(emp => 
+          emp.designation === 'Manager' || 
+          String(emp.designation).toLowerCase() === 'manager'
+        );
+        setManagers(filteredManagers);
+        if (filteredManagers.length > 0) {
+          setActiveManager(filteredManagers[0]);
         }
       })
       .catch(err => {

@@ -1,7 +1,7 @@
 // ==========================================
 // 1. IMPORTS & DEPENDENCIES
 // ==========================================
-import { axiosInstance } from './axiosInstance';
+import { axiosInstance } from '../config/axiosInstance';
 
 // ==========================================
 // 1. TypeScript Interfaces & Type definitions

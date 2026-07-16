@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { KeyRound, AlertCircle, Loader } from 'lucide-react';
-import { signupApi } from '../../services/signupApi';
+import { signupApi } from '../../apis/auth/signupApi';
 import styles from './VerifyOTP.module.css';
 
 export default function VerifyOTP() {

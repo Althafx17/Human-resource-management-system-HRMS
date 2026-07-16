@@ -15,7 +15,7 @@ import Step5WorkArea from './Step5WorkArea';
 import Step6Documents from './Step6Documents';
 
 import type { EmployeeData } from '../types';
-import { employeeApi } from '../../../services/employeeApi';
+import { employeeApi } from '../../../apis/core/employeeApi';
 import { useToast } from '../../../contexts/ToastContext';
 
 interface AddEmployeeWizardProps {

@@ -9,7 +9,8 @@ import {
   Timer,
   Receipt,
   CreditCard,
-  ChevronRight
+  ChevronRight,
+  Menu
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -26,13 +27,26 @@ const menuItems = [
   { path: '/payroll', label: 'Payroll', icon: CreditCard },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
+}
+
+export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
   const location = useLocation();
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
       <div className={styles.logoContainer}>
-        <h1 className={styles.brandName}>Bisidiq Solution</h1>
+        {!isCollapsed && <h1 className={styles.brandName}>HRMS APP</h1>}
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={styles.toggleBtn}
+          aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        >
+          {isCollapsed ? <ChevronRight size={20} /> : <Menu size={20} />}
+        </button>
       </div>
 
       <nav className={styles.navMenu}>
@@ -45,15 +59,16 @@ export default function Sidebar() {
             <Link
               key={item.path}
               to={item.path}
-              className={`${styles.navItem} ${isActive ? styles.active : ''}`}
+              className={`${styles.navItem} ${isActive ? styles.active : ''} ${isCollapsed ? styles.navItemCollapsed : ''}`}
+              title={isCollapsed ? item.label : undefined}
             >
               <div className={styles.itemContent}>
                 <Icon size={20} className={styles.icon} />
-                <span className={styles.label}>{item.label}</span>
+                {!isCollapsed && <span className={styles.label}>{item.label}</span>}
               </div>
               
-              {/* Only show the chevron arrow if the item is active */}
-              {isActive && <ChevronRight size={18} className={styles.chevron} />}
+              {/* Only show the chevron arrow if the item is active and sidebar is expanded */}
+              {isActive && !isCollapsed && <ChevronRight size={18} className={styles.chevron} />}
             </Link>
           );
         })}

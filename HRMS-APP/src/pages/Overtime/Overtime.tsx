@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, Clock, DollarSign, TrendingUp, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { overtimeApi } from '../../apis/operations/overtimeApi';
 import styles from './Overtime.module.css';
 
 import ReviewOvertime from '../../components/reviews/ReviewOvertime';
@@ -15,17 +16,28 @@ interface OvertimeRecord {
   status: 'Approved' | 'Pending' | 'Rejected';
 }
 
-const DUMMY_OVERTIME: OvertimeRecord[] = [
-  { id: 'OT001', employeeName: 'John Smith', avatar: 'https://i.pravatar.cc/150?u=1', date: '2026-06-18', hoursLogged: 3.5, multiplier: 1.5, estPayout: 105.00, status: 'Approved' },
-  { id: 'OT002', employeeName: 'Anmariya', avatar: 'https://i.pravatar.cc/150?u=4', date: '2026-06-19', hoursLogged: 2.0, multiplier: 1.5, estPayout: 60.00, status: 'Pending' },
-  { id: 'OT003', employeeName: 'Sara John', avatar: 'https://i.pravatar.cc/150?u=2', date: '2026-06-19', hoursLogged: 4.0, multiplier: 2.0, estPayout: 160.00, status: 'Approved' },
-  { id: 'OT004', employeeName: 'Augestien', avatar: 'https://i.pravatar.cc/150?u=5', date: '2026-06-15', hoursLogged: 1.5, multiplier: 1.5, estPayout: 45.00, status: 'Rejected' },
-];
-
 export default function Overtime() {
   const [search, setSearch] = useState('');
-  const [records, setRecords] = useState<OvertimeRecord[]>(DUMMY_OVERTIME);
+  const [records, setRecords] = useState<OvertimeRecord[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<OvertimeRecord | null>(null);
+
+  useEffect(() => {
+    overtimeApi.getAll()
+      .then(data => {
+        const formatted: OvertimeRecord[] = data.map((item: any) => ({
+          id: String(item.id || item.overtime_id || 'OT001'),
+          employeeName: item.employeeName || item.employee_name || 'John Smith',
+          avatar: item.avatar || 'https://i.pravatar.cc/150?u=1',
+          date: item.date || item.logged_date || '2026-06-18',
+          hoursLogged: Number(item.hoursLogged || item.hours_logged || 2.0),
+          multiplier: Number(item.multiplier || item.rate_multiplier || 1.5),
+          estPayout: Number(item.estPayout || item.estimated_payout || 60.00),
+          status: item.status || 'Pending'
+        }));
+        setRecords(formatted);
+      })
+      .catch(err => console.error('Failed to load overtime records:', err));
+  }, []);
 
   const getStatusClass = (status: string) => {
     switch (status) {

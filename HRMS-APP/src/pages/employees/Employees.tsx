@@ -4,7 +4,7 @@ import { Search, SquarePen, Trash2, Eye } from 'lucide-react';
 import styles from './Employees.module.css';
 import EmployeeModal from "./EmployeeModal";
 import type { EmployeeData } from './types';
-import { employeeApi } from '../../services/employeeApi';
+import { employeeApi } from '../../apis/core/employeeApi';
 import { useToast } from '../../contexts/ToastContext';
 
 export default function Employees() {

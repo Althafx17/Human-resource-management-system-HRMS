@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import SlideOverDrawer from '../common/SlideOverDrawer';
 import styles from './FormStyles.module.css';
-import { employeeApi } from '../../services/employeeApi';
+import { employeeApi } from '../../apis/core/employeeApi';
 import type { EmployeeData } from '../../pages/employees/types';
 
 interface LogAttendanceFormProps {

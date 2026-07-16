@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Search, 
   Wallet, 
@@ -12,6 +12,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
+import { payrollApi } from '../../apis/finance/payrollApi';
 import styles from './PayrollDashboard.module.css';
 
 interface PayrollRecord {
@@ -26,20 +27,31 @@ interface PayrollRecord {
   status: 'Processed' | 'Pending' | 'On Hold';
 }
 
-const INITIAL_RECORDS: PayrollRecord[] = [
-  { id: 'PAY001', employeeName: 'John Smith', avatar: 'https://i.pravatar.cc/150?u=1', designation: 'Sr. Back End Developer', month: 'June 2026', basicSalary: 4500.00, deductions: 120.00, netPay: 4380.00, status: 'Processed' },
-  { id: 'PAY002', employeeName: 'Sara John', avatar: 'https://i.pravatar.cc/150?u=2', designation: 'Sr. UI UX Designer', month: 'June 2026', basicSalary: 4200.00, deductions: 130.00, netPay: 4070.00, status: 'Processed' },
-  { id: 'PAY003', employeeName: 'Angel Philip', avatar: 'https://i.pravatar.cc/150?u=3', designation: 'Finance Manager', month: 'June 2026', basicSalary: 5000.00, deductions: 150.00, netPay: 4850.00, status: 'Pending' },
-  { id: 'PAY004', employeeName: 'Anmariya', avatar: 'https://i.pravatar.cc/150?u=4', designation: 'Mern Stack Developer', month: 'June 2026', basicSalary: 3800.00, deductions: 80.00, netPay: 3720.00, status: 'Pending' },
-  { id: 'PAY005', employeeName: 'Augestien', avatar: 'https://i.pravatar.cc/150?u=5', designation: 'QA Lead', month: 'June 2026', basicSalary: 4100.00, deductions: 100.00, netPay: 4000.00, status: 'On Hold' }
-];
-
 export default function PayrollDashboard() {
   const [search, setSearch] = useState('');
   const [month, setMonth] = useState('June');
   const [year, setYear] = useState('2026');
-  const [records, setRecords] = useState<PayrollRecord[]>(INITIAL_RECORDS);
+  const [records, setRecords] = useState<PayrollRecord[]>([]);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  useEffect(() => {
+    payrollApi.getAll()
+      .then(data => {
+        const formatted: PayrollRecord[] = data.map((item: any) => ({
+          id: String(item.id || item.payroll_id || 'PAY001'),
+          employeeName: item.employeeName || item.employee_name || 'John Smith',
+          avatar: item.avatar || 'https://i.pravatar.cc/150?u=1',
+          designation: item.designation || item.employee_designation || 'Sr. Back End Developer',
+          month: item.month || item.pay_period || 'June 2026',
+          basicSalary: Number(item.basicSalary || item.basic_salary || 0),
+          deductions: Number(item.deductions || item.total_deductions || 0),
+          netPay: Number(item.netPay || item.net_salary || 0),
+          status: item.status || 'Pending'
+        }));
+        setRecords(formatted);
+      })
+      .catch(err => console.error('Failed to load payroll records:', err));
+  }, []);
 
   // Aggregates calculation
   // Total Payroll (processed only or sum of all?)

@@ -11,7 +11,7 @@ import {
 import StatCard from '../../components/common/StatCard';
 import UpcomingInterviews from '../../components/widgets/UpcomingInterviews';
 import styles from './Dashboard.module.css';
-import { axiosInstance } from '../../services/axiosInstance';
+import { axiosInstance } from '../../apis/config/axiosInstance';
 
 export default function Dashboard() {
   // ---> NEW: Fetch live metrics

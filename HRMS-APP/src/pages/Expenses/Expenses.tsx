@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, FileText, DollarSign, Wallet, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { expenseApi } from '../../apis/finance/expenseApi';
 import styles from './Expenses.module.css';
 
 import ExpenseForm from '../../components/forms/ExpenseForm';
@@ -14,17 +15,27 @@ interface ExpenseClaim {
   status: 'Approved' | 'Pending' | 'Rejected';
 }
 
-const DUMMY_EXPENSES: ExpenseClaim[] = [
-  { id: 'EXP-101', employeeName: 'John Smith', avatar: 'https://i.pravatar.cc/150?u=1', category: 'Software', date: '2026-06-12', amount: 49.00, status: 'Approved' },
-  { id: 'EXP-102', employeeName: 'Sara John', avatar: 'https://i.pravatar.cc/150?u=2', category: 'Travel', date: '2026-06-15', amount: 320.50, status: 'Pending' },
-  { id: 'EXP-103', employeeName: 'Anmariya', avatar: 'https://i.pravatar.cc/150?u=4', category: 'Meals', date: '2026-06-16', amount: 45.80, status: 'Approved' },
-  { id: 'EXP-104', employeeName: 'Angel Philip', avatar: 'https://i.pravatar.cc/150?u=3', category: 'Equipment', date: '2026-06-10', amount: 1200.00, status: 'Rejected' },
-];
-
 export default function Expenses() {
   const [search, setSearch] = useState('');
-  const [claims, setClaims] = useState<ExpenseClaim[]>(DUMMY_EXPENSES);
+  const [claims, setClaims] = useState<ExpenseClaim[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    expenseApi.getAll()
+      .then(data => {
+        const formatted: ExpenseClaim[] = data.map((item: any) => ({
+          id: String(item.id || item.expense_id || 'EXP-101'),
+          employeeName: item.employeeName || item.employee_name || 'John Smith',
+          avatar: item.avatar || 'https://i.pravatar.cc/150?u=1',
+          category: item.category || item.expense_category || 'Software',
+          date: item.date || item.incurred_date || '2026-06-12',
+          amount: Number(item.amount || item.expense_amount || 0),
+          status: item.status || 'Pending'
+        }));
+        setClaims(formatted);
+      })
+      .catch(err => console.error('Failed to load expense claims:', err));
+  }, []);
 
   const getStatusClass = (status: string) => {
     switch (status) {

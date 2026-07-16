@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, AlertCircle, Loader } from 'lucide-react';
-import { signupApi } from '../../services/signupApi';
+import { signupApi } from '../../apis/auth/signupApi';
 import styles from './SignupEmail.module.css';
 
 export default function SignupEmail() {
