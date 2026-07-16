@@ -169,18 +169,15 @@ export const shiftAdminApi = {
   // SHIFT ASSIGNMENTS CRUD (Real API via Django)
   // ==========================================
 
-  /**
-   * Fetches all registered shift assignments.
-   */
   getAssignments: async (): Promise<ShiftAssignment[]> => {
-    const response = await axiosInstance.get<{ results: any[] }>('/shift-assignments/');
-    const results = response.data.results || [];
+    const response = await axiosInstance.get<any>('/shift-assignments/');
+    const results = response.data.results ? response.data.results : (Array.isArray(response.data) ? response.data : []);
     return results.map(r => ({
       id: r.id,
       employee_id: r.employee,
       shift_id: r.shift,
-      assignment_type: r.assignment_type || 'Temporary',
-      effective_from: r.effective_from || new Date().toISOString().split('T')[0],
+      assignment_type: r.status || 'Pending',
+      effective_from: r.date || new Date().toISOString().split('T')[0],
     }));
   },
 
@@ -191,8 +188,8 @@ export const shiftAdminApi = {
     const payload = {
       employee: data.employee_id,
       shift: data.shift_id,
-      assignment_type: data.assignment_type,
-      effective_from: data.effective_from,
+      status: data.assignment_type || 'Pending',
+      date: data.effective_from || new Date().toISOString().split('T')[0],
     };
     const response = await axiosInstance.post<any>('/shift-assignments/', payload);
     const r = response.data;
@@ -200,8 +197,8 @@ export const shiftAdminApi = {
       id: r.id,
       employee_id: r.employee,
       shift_id: r.shift,
-      assignment_type: r.assignment_type,
-      effective_from: r.effective_from,
+      assignment_type: r.status || 'Pending',
+      effective_from: r.date || new Date().toISOString().split('T')[0],
     };
   },
 

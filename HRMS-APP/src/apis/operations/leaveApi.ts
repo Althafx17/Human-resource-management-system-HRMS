@@ -49,5 +49,19 @@ export const leaveApi = {
    */
   async delete(id: string | number): Promise<void> {
     await axiosInstance.delete(`/leave-applications/${id}/`);
+  },
+
+  // ---> NEW: Added methods for Leave Management integration task
+  async getLeaveRequests(): Promise<any[]> {
+    return this.getAll();
+  },
+
+  async applyLeave(payload: any): Promise<any> {
+    return this.create(payload);
+  },
+
+  async updateLeaveStatus(id: string | number, status: 'Approved' | 'Rejected'): Promise<any> {
+    const response = await axiosInstance.patch(`/leave-applications/${id}/`, { status });
+    return response.data;
   }
 };

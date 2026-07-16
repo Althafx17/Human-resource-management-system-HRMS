@@ -49,5 +49,14 @@ export const overtimeApi = {
    */
   async delete(id: string | number): Promise<void> {
     await axiosInstance.delete(`/overtime-rules/${id}/`);
+  },
+
+  // ---> NEW: Added methods for Overtime Management integration task
+  async getOvertimeLogs(): Promise<any[]> {
+    return this.getAll();
+  },
+
+  async logOvertime(payload: any): Promise<any> {
+    return this.create(payload);
   }
 };
