@@ -29,8 +29,8 @@ export default function ApplyLeaveForm({ isOpen, onClose, onSaveSuccess }: Apply
 
     setIsSubmitting(true);
 
+    // ---> CHANGED: strictly omit employee key so the backend JWT claims identify the user
     const payload = {
-      employee: Number(localStorage.getItem('user_id') || 1),
       leave_type: leaveType,
       start_date: startDate,
       end_date: endDate,

@@ -47,6 +47,7 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
     dob: '',
     phone: '',
     email: '',
+    password: '', // ---> NEW: Auth credentials fields for CustomUser creation
     emergencyContactName: '',
     address: '',
     avatar: '' as File | string,
@@ -123,6 +124,10 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
         showToast('Contract Type is required', 'error');
         return;
       }
+      if (!isEditMode && (!formData.password || formData.password.trim().length < 8)) {
+        showToast('Password is required and must be at least 8 characters long', 'error');
+        return;
+      }
 
       // Finalize Registration / Save Profile
       let empId = formData.id;
@@ -190,7 +195,7 @@ export default function AddEmployeeWizard({ isEditMode = false, initialData }: A
   const renderStepComponent = () => {
     switch (currentStep) {
       case 1:
-        return <Step1PersonalInfo data={formData} updateData={updateFormData} />;
+        return <Step1PersonalInfo data={formData} updateData={updateFormData} isEditMode={isEditMode} />;
       case 2:
         return <Step2JobDetails data={formData} updateData={updateFormData} />;
       case 3:

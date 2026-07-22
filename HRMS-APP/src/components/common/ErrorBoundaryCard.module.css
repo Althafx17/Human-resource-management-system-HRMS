@@ -1,0 +1,76 @@
+/* ErrorBoundaryCard */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 24px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #fecaca;
+  text-align: center;
+}
+
+.iconWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fef2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  margin-bottom: 8px;
+}
+
+/* 403 = amber/warning */
+.iconWrap.forbidden {
+  background: #fffbeb;
+  color: #f59e0b;
+  border-color: #fde68a;
+}
+
+.status {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #ef4444;
+  text-transform: uppercase;
+}
+
+.status.forbidden { color: #f59e0b; }
+
+.heading {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 4px 0 0;
+}
+
+.message {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 360px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.retryBtn {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: #1a3646;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.retryBtn:hover { background: #0f2535; }

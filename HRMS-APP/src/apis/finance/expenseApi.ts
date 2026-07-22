@@ -17,6 +17,7 @@ export interface ExpensePayload {
   amount: number;
   description: string;
   status: string;
+  receipt?: File | string | null;
 }
 
 export const expenseApi = {
@@ -40,7 +41,30 @@ export const expenseApi = {
    * Target endpoint: POST /api/expenses/
    */
   async submitExpense(payload: ExpensePayload): Promise<ExpenseClaim> {
-    const response = await axiosInstance.post('/expenses/', payload);
+    const hasFile = payload.receipt instanceof File;
+    let requestPayload: FormData | any = payload;
+    let config = {};
+
+    if (hasFile) {
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+      requestPayload = formData;
+      config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+    }
+
+    const response = await axiosInstance.post('/expenses/', requestPayload, config);
     return response.data;
   },
 

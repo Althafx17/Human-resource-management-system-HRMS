@@ -8,14 +8,16 @@ interface Step1Props {
     dob: string;
     phone: string;
     email: string;
+    password?: string; // ---> NEW: Optional password field
     emergencyContactName: string;
     address: string;
     avatar?: File | string | null;
   };
   updateData: (fields: Partial<Step1Props['data']>) => void;
+  isEditMode?: boolean; // ---> NEW: Optional edit mode flag
 }
 
-export default function Step1PersonalInfo({ data, updateData }: Step1Props) {
+export default function Step1PersonalInfo({ data, updateData, isEditMode = false }: Step1Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,6 +117,23 @@ export default function Step1PersonalInfo({ data, updateData }: Step1Props) {
             required
           />
         </div>
+
+        {/* ---> NEW: Login password for employee's CustomUser account (creation mode only) */}
+        {!isEditMode && (
+          <div className={styles.inputGroup}>
+            <label htmlFor="password">Login Password *</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              value={data.password || ''}
+              onChange={handleChange}
+              placeholder="Minimum 8 characters"
+              className={styles.inputField}
+              required
+            />
+          </div>
+        )}
 
         <div className={styles.inputGroup}>
           <label htmlFor="emergencyContactName">Emergency Contact</label>
