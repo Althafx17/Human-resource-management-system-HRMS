@@ -1,4 +1,3 @@
-// ---> CHANGED: Connect to correct overtime-rules API endpoint
 import { axiosInstance } from '../config/axiosInstance';
 
 export const overtimeApi = {
@@ -51,7 +50,6 @@ export const overtimeApi = {
     await axiosInstance.delete(`/overtime-rules/${id}/`);
   },
 
-  // ---> NEW: Added methods for Overtime Management integration task
   async getOvertimeLogs(): Promise<any[]> {
     return this.getAll();
   },

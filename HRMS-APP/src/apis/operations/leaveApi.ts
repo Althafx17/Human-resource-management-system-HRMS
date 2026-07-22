@@ -1,4 +1,3 @@
-// ---> CHANGED: Connect to correct leave-applications API endpoint
 import { axiosInstance } from '../config/axiosInstance';
 
 export const leaveApi = {
@@ -51,7 +50,6 @@ export const leaveApi = {
     await axiosInstance.delete(`/leave-applications/${id}/`);
   },
 
-  // ---> NEW: Added methods for Leave Management integration task
   async getLeaveRequests(): Promise<any[]> {
     return this.getAll();
   },

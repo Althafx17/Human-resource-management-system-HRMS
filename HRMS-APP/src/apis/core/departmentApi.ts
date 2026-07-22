@@ -1,4 +1,3 @@
-// ---> NEW: Department API services
 import { axiosInstance } from '../config/axiosInstance';
 
 export const departmentApi = {

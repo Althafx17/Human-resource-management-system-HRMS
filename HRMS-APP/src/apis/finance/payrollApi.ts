@@ -1,4 +1,3 @@
-// ---> CHANGED: Connect to correct payrolls API endpoint
 import { axiosInstance } from '../config/axiosInstance';
 
 export const payrollApi = {

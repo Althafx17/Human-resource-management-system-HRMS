@@ -109,12 +109,10 @@ function denormalizeEmployee(formData: any): any {
   // Map dob and joiningDate properties to date_of_birth and joining_date
   if (formData.dob) {
     apiData.date_of_birth = formData.dob;
-    // ---> CHANGED: Delete the camelCase version so it isn't sent
     delete apiData.dob;
   }
   if (formData.joiningDate) {
     apiData.joining_date = formData.joiningDate;
-    // ---> CHANGED: Delete the camelCase version so it isn't sent
     delete apiData.joiningDate;
   }
   
@@ -124,18 +122,15 @@ function denormalizeEmployee(formData: any): any {
     if (managerVal === '' || managerVal === 'No Manager' || managerVal === null) {
       apiData.reporting_manager = null;
     } else if (!isNaN(Number(managerVal)) && String(managerVal).trim() !== '') {
-      // ---> CHANGED: Ensure the ID is passed as number
       apiData.reporting_manager = Number(managerVal);
     } else {
       // Lookup manager ID from cache if a text name string was passed
       apiData.reporting_manager = nameToIdCache[managerVal] || null;
     }
-    // ---> CHANGED: Delete the camelCase version so it isn't sent
     delete apiData.reportingManager;
   }
   if (formData.basicSalary) {
     apiData.salary = formData.basicSalary;
-    // ---> CHANGED: Delete the camelCase version so it isn't sent
     delete apiData.basicSalary;
   }
   
@@ -199,7 +194,6 @@ export const employeeApi = {
       if (response.data.results) {
         response.data.results = response.data.results.map(normalizeEmployee);
       } else if (Array.isArray(response.data)) {
-        // ---> CHANGED: Normalize flat arrays into a PaginatedResponse structure for type compatibility
         return {
           count: response.data.length,
           next: null,

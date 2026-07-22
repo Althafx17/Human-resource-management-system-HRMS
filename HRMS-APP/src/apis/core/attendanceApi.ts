@@ -296,7 +296,6 @@ export const attendanceApi = {
     await axiosInstance.delete(`/attendance/${id}/`);
   },
 
-  // ---> NEW: Add update method
   updateStatus: async (id: number, status: string): Promise<any> => {
     // Ensure trailing slash for Django
     const response = await axiosInstance.patch(`/attendance/${id}/`, { status });

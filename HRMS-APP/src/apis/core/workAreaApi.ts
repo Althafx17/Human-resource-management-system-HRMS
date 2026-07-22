@@ -1,4 +1,3 @@
-// ---> NEW: Geofenced Work Area API integration
 import { axiosInstance } from '../config/axiosInstance';
 import type { WorkArea } from '../../pages/workarea/types';
 

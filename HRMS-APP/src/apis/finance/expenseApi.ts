@@ -1,4 +1,3 @@
-// ---> CHANGED: Connect to central expense API endpoint and export request/response interfaces
 import { axiosInstance } from '../config/axiosInstance';
 
 export interface ExpenseClaim {
@@ -91,7 +90,6 @@ export const expenseApi = {
     await axiosInstance.delete(`/expenses/${id}/`);
   },
 
-  // ---> NEW: Added methods for Manager Expense Approval workflow integration
   async getPendingExpenses(): Promise<ExpenseClaim[]> {
     try {
       const response = await axiosInstance.get('/expenses/');
