@@ -21,12 +21,52 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
+    // 1. Guard against 'Bearer undefined' or 'Bearer null'
     const token =
       authUtils.getAccessToken() ||
       localStorage.getItem('access_token');
-    if (token) {
+    if (token && token !== 'undefined' && token !== 'null') {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization;
     }
+
+    // 2. Ensure Content-Type is consistently set to application/json (excluding FormData uploads)
+    if (!config.headers['Content-Type'] && !(config.data instanceof FormData)) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+
+    // 3. Strip empty, null, or undefined parameters from config.params
+    if (config.params) {
+      const cleaned = { ...config.params };
+      Object.keys(cleaned).forEach((key) => {
+        const val = cleaned[key];
+        if (val === undefined || val === null || val === '') {
+          delete cleaned[key];
+        }
+      });
+      config.params = cleaned;
+    }
+
+    // 4. Strip empty, null, or undefined parameters from raw URL search query string if present
+    if (config.url) {
+      try {
+        const hasProtocol = config.url.startsWith('http://') || config.url.startsWith('https://');
+        const urlObj = new URL(config.url, hasProtocol ? undefined : 'http://dummy-base.local');
+        const searchParams = urlObj.searchParams;
+        const keysToDelete: string[] = [];
+        searchParams.forEach((val, key) => {
+          if (val === 'undefined' || val === 'null' || val === '') {
+            keysToDelete.push(key);
+          }
+        });
+        keysToDelete.forEach((key) => searchParams.delete(key));
+        config.url = hasProtocol ? urlObj.toString() : urlObj.pathname + urlObj.search + urlObj.hash;
+      } catch (e) {
+        // Ignore parsing errors for simple path strings
+      }
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -56,6 +96,14 @@ function friendlyMessage(status: number): string {
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // 3. Log the actual server response body to the console for better debugging
+    if (error.response) {
+      console.error("API Error Response Status:", error.response.status);
+      console.error("API Error Response Body:", error.response.data);
+    } else {
+      console.error("API Network/Connection Error:", error.message);
+    }
+
     const originalRequest = error.config;
     const status: number | undefined = error.response?.status;
 
