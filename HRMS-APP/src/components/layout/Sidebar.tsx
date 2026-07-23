@@ -13,18 +13,19 @@ import {
   Menu
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
+import { useAuthRole } from '../../contexts/AuthRoleContext';
 
-// The exact list from your reference image
+// The exact list from your reference image with role-based access configurations
 const menuItems = [
-  { path: '/', label: 'Analytics', icon: LayoutGrid },
-  { path: '/employees', label: 'Employees', icon: Users },
-  { path: '/attendance', label: 'Attendance', icon: Clock },
-  { path: '/work-areas', label: 'Work Areas', icon: MapPin },
-  { path: '/shifts', label: 'Shift & Calendar', icon: Calendar },
-  { path: '/leave', label: 'Leave', icon: Coffee },
-  { path: '/overtime', label: 'Overtime', icon: Timer },
-  { path: '/expenses', label: 'Expenses', icon: Receipt },
-  { path: '/payroll', label: 'Payroll', icon: CreditCard },
+  { path: '/', label: 'Analytics', icon: LayoutGrid, allowedRoles: ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'] },
+  { path: '/employees', label: 'Employees', icon: Users, allowedRoles: ['ADMIN', 'HR', 'MANAGER'] },
+  { path: '/attendance', label: 'Attendance', icon: Clock, allowedRoles: ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'] },
+  { path: '/work-areas', label: 'Work Areas', icon: MapPin, allowedRoles: ['ADMIN', 'HR', 'MANAGER'] },
+  { path: '/shifts', label: 'Shift & Calendar', icon: Calendar, allowedRoles: ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'] },
+  { path: '/leave', label: 'Leave', icon: Coffee, allowedRoles: ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'] },
+  { path: '/overtime', label: 'Overtime', icon: Timer, allowedRoles: ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'] },
+  { path: '/expenses', label: 'Expenses', icon: Receipt, allowedRoles: ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'] },
+  { path: '/payroll', label: 'Payroll', icon: CreditCard, allowedRoles: ['ADMIN', 'HR'] },
 ];
 
 interface SidebarProps {
@@ -34,6 +35,13 @@ interface SidebarProps {
 
 export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
   const location = useLocation();
+  const { role } = useAuthRole();
+  const currentUpperRole = (role || 'employee').toUpperCase();
+
+  // ---> CHANGED: Filter links dynamically by active user role privileges
+  const filteredMenuItems = menuItems.filter(item => 
+    item.allowedRoles.includes(currentUpperRole)
+  );
 
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
@@ -50,7 +58,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
       </div>
 
       <nav className={styles.navMenu}>
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const Icon = item.icon;
           // Checks if the current URL matches the item's path
           const isActive = location.pathname === item.path;

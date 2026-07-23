@@ -6,10 +6,13 @@ import EmployeeModal from "./EmployeeModal";
 import type { EmployeeData } from './types';
 import { employeeApi } from '../../apis/core/employeeApi';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuthRole } from '../../contexts/AuthRoleContext';
 
 export default function Employees() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { role } = useAuthRole();
+  const isEmployee = role === 'employee';
 
   // Convert the dynamic list into interactive React State fetched from API
   const [employees, setEmployees] = useState<EmployeeData[]>([]);
@@ -181,9 +184,11 @@ export default function Employees() {
           </div>
           
           <div className={styles.actionGroup}>
-            <button type="button" className={styles.btnDark} onClick={() => navigate('/employees/add')} title="Add new employee" aria-label="Add new employee">
-              Add New
-            </button>
+            {!isEmployee && (
+              <button type="button" className={styles.btnDark} onClick={() => navigate('/employees/add')} title="Add new employee" aria-label="Add new employee">
+                Add New
+              </button>
+            )}
             <button type="button" className={styles.btnGreen} title="Export CSV" aria-label="Export CSV">Export CSV</button>
           </div>
         </div>
@@ -249,26 +254,30 @@ export default function Employees() {
                     <td>
                       <div className={styles.rowActions}>
                         {/* EDIT BUTTON */}
-                        <button 
-                          type="button"
-                          className={`${styles.actionIconBtn} ${styles.editBtn}`}
-                          onClick={() => openEditModal(emp)}
-                          title={`Edit ${emp.name}`}
-                          aria-label={`Edit ${emp.name}`}
-                        >
-                          <SquarePen size={14} />
-                        </button>
+                        {!isEmployee && (
+                          <button 
+                            type="button"
+                            className={`${styles.actionIconBtn} ${styles.editBtn}`}
+                            onClick={() => openEditModal(emp)}
+                            title={`Edit ${emp.name}`}
+                            aria-label={`Edit ${emp.name}`}
+                          >
+                            <SquarePen size={14} />
+                          </button>
+                        )}
                         
                         {/* DELETE BUTTON */}
-                        <button 
-                          type="button"
-                          className={`${styles.actionIconBtn} ${styles.deleteBtn}`}
-                          onClick={() => handleDelete(emp.id)}
-                          title={`Delete ${emp.name}`}
-                          aria-label={`Delete ${emp.name}`}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        {!isEmployee && (
+                          <button 
+                            type="button"
+                            className={`${styles.actionIconBtn} ${styles.deleteBtn}`}
+                            onClick={() => handleDelete(emp.id)}
+                            title={`Delete ${emp.name}`}
+                            aria-label={`Delete ${emp.name}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                         
                         {/* VIEW BUTTON (Wrapped in Link to navigate to profile) */}
                         <Link to={`/employees/${emp.id}`} className={`${styles.actionIconBtn} ${styles.viewBtn}`} title={`View ${emp.name}`} aria-label={`View ${emp.name}`}>
