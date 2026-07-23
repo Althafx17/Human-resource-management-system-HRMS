@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://employee-management-api-sigma.vercel.app/api/$1"
+      "destination": "https://hrms.bisidq.com/api/$1"
     },
     {
       "source": "/(.*)",

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { authUtils } from '../../utils/authUtils';
 import { toastEmitter } from '../../utils/toastEmitter';
 
-const apiBaseUrl = 'https://employee-management-api-sigma.vercel.app/api';
+const apiBaseUrl = 'https://hrms.bisidq.com/api';
 
 // ==========================================
 // AXIOS INSTANCE
