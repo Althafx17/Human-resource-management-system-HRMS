@@ -21,7 +21,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await axiosInstance.get('/analytics/dashboard/');
+        // ---> CHANGED: Connect to correct backend monthly-summary analytics endpoint
+        const response = await axiosInstance.get('/monthly-summary/');
         setMetrics(response.data);
       } catch (error) {
         console.error("Failed to load analytics", error);

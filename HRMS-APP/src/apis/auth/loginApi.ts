@@ -8,7 +8,7 @@ import { authUtils } from '../../utils/authUtils';
 // 2. TYPES
 // ==========================================
 
-export type UserRole = 'admin' | 'hr' | 'manager' | 'employee';
+export type UserRole = 'admin' | 'hr' | 'employee';
 
 export interface LoginResponse {
   access: string;
