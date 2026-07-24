@@ -27,10 +27,15 @@ export default function ResolverToolTab() {
 
   // Seed employee lookups
   useEffect(() => {
-    setIsLoadingList(true);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) setIsLoadingList(true);
+    });
+
     const employeeRequests = Array.from({ length: 10 }, (_, i) => employeeApi.getAll(i + 1).catch(() => null));
     Promise.all(employeeRequests)
       .then(res => {
+        if (!active) return;
         const flattenedEmps: EmployeeData[] = [];
         res.forEach(item => {
           if (item && item.results) {
@@ -43,8 +48,12 @@ export default function ResolverToolTab() {
       })
       .catch(err => {
         console.error('Failed to load employees for resolver:', err);
-        setIsLoadingList(false);
+        if (active) setIsLoadingList(false);
       });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   /**

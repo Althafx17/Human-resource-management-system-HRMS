@@ -52,7 +52,15 @@ export default function WorkAreas() {
 
   // Initial listing call on mount
   useEffect(() => {
-    loadAreas();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        loadAreas();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   /**

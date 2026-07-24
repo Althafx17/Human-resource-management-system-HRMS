@@ -39,13 +39,18 @@ export default function PayrollDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
+    let active = true;
     const loadEmployeesAndPayroll = async () => {
+      // Set loading state asynchronously
+      Promise.resolve().then(() => {
+        if (active) setIsLoading(true);
+      });
+
       try {
         let allEmployees: EmployeeData[] = [];
         let page = 1;
         let hasMore = true;
-        while (hasMore && page <= 10) {
+        while (active && hasMore && page <= 10) {
           const data = await employeeApi.getAll(page);
           if (data.results && data.results.length > 0) {
             allEmployees = [...allEmployees, ...data.results];
@@ -55,6 +60,7 @@ export default function PayrollDashboard() {
             hasMore = false;
           }
         }
+        if (!active) return;
         const map: Record<string, EmployeeData> = {};
         allEmployees.forEach(emp => {
           map[String(emp.id)] = emp;
@@ -81,10 +87,13 @@ export default function PayrollDashboard() {
       } catch (err) {
         console.error('Failed to load payroll details:', err);
       } finally {
-        setIsLoading(false);
+        if (active) setIsLoading(false);
       }
     };
     loadEmployeesAndPayroll();
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Aggregates calculation

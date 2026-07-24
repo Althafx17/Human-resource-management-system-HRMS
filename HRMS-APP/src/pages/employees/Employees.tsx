@@ -117,7 +117,7 @@ export default function Employees() {
   };
 
   // Handle Saving changes from the Edit Modal
-  const handleSaveEdit = (updatedEmp: EmployeeData) => {
+  const handleSaveEdit = () => {
     loadEmployees(currentPage);
     showToast('Employee profile updated successfully!', 'success');
   };

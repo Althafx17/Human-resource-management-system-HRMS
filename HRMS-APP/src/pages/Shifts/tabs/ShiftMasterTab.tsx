@@ -39,7 +39,15 @@ export default function ShiftMasterTab() {
   };
 
   useEffect(() => {
-    loadShifts();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        loadShifts();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   /**

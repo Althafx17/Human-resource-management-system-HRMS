@@ -41,7 +41,15 @@ export default function WeeklyOffsTab() {
   };
 
   useEffect(() => {
-    loadRules();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        loadRules();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   /**

@@ -40,7 +40,15 @@ export default function HolidaysTab() {
   };
 
   useEffect(() => {
-    loadHolidays();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        loadHolidays();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   /**
@@ -83,7 +91,7 @@ export default function HolidaysTab() {
     try {
       const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateStr).toLocaleDateString('en-US', options);
-    } catch (e) {
+    } catch {
       return dateStr;
     }
   };

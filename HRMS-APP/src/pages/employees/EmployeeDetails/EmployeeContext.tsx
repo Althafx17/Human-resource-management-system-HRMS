@@ -64,9 +64,17 @@ export const EmployeeProvider: React.FC<{ employeeId: string; children: ReactNod
 
   // Re-fetch employee data whenever the ID changes
   useEffect(() => {
+    let active = true;
     if (employeeId) {
-      fetchEmployee();
+      Promise.resolve().then(() => {
+        if (active) {
+          fetchEmployee();
+        }
+      });
     }
+    return () => {
+      active = false;
+    };
   }, [employeeId]);
 
   return (
