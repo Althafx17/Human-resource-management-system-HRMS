@@ -12,7 +12,8 @@ export default function Employees() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { role } = useAuthRole();
-  const isEmployee = role === 'employee';
+  // ---> CHANGED: Unlocked: show all actions (Add Employee, Edit, Delete) to all logged-in users
+  const isEmployee = false;
 
   // Convert the dynamic list into interactive React State fetched from API
   const [employees, setEmployees] = useState<EmployeeData[]>([]);

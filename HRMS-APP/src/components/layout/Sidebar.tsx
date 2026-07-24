@@ -35,13 +35,8 @@ interface SidebarProps {
 
 export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
   const location = useLocation();
-  const { role } = useAuthRole();
-  const currentUpperRole = (role || 'employee').toUpperCase();
-
-  // ---> CHANGED: Filter links dynamically by active user role privileges
-  const filteredMenuItems = menuItems.filter(item => 
-    item.allowedRoles.includes(currentUpperRole)
-  );
+  // ---> CHANGED: Unlocked to show all sidebar links to all logged-in users
+  const filteredMenuItems = menuItems;
 
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
