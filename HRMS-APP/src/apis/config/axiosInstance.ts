@@ -2,7 +2,12 @@ import axios from 'axios';
 import { authUtils } from '../../utils/authUtils';
 import { toastEmitter } from '../../utils/toastEmitter';
 
-const apiBaseUrl = 'https://hrms.bisidq.com/api';
+const runtimeApiBase = import.meta.env.VITE_API_TARGET_URL || 'https://hrms.bisidq.com';
+const apiBaseUrl = import.meta.env.DEV
+  ? '/api'
+  : runtimeApiBase.replace(/\/$/, '').endsWith('/api')
+  ? runtimeApiBase.replace(/\/$/, '')
+  : `${runtimeApiBase.replace(/\/$/, '')}/api`;
 
 // ==========================================
 // AXIOS INSTANCE
@@ -146,8 +151,8 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // --- Non-401 errors: emit friendly toast (not 401 — that one is silent/redirects) ---
-    if (status && status !== 401) {
+    // --- Non-401 & non-403 errors: emit friendly toast (not 401/403 — handled silently or by components) ---
+    if (status && status !== 401 && status !== 403) {
       toastEmitter.emit({
         message: friendlyMessage(status),
         type: status >= 500 ? 'error' : 'warning',

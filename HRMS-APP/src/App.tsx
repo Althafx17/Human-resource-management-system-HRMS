@@ -18,6 +18,8 @@ import CreatePassword from './pages/signup/CreatePassword';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import EmployeeLayout from './components/layout/EmployeeLayout';
 import EmployeeDashboard from './pages/employee/EmployeeDashboard';
+import MyLeaves from './pages/employee/MyLeaves';
+import MyExpenses from './pages/employee/MyExpenses';
 
 export default function App() {
   return (
@@ -61,8 +63,12 @@ export default function App() {
             <Route index element={<EmployeeDashboard />} />
             <Route path="dashboard" element={<EmployeeDashboard />} />
             <Route path="attendance" element={<Attendance />} />
-            <Route path="leave" element={<Leave />} />
-            <Route path="expenses" element={<Expenses />} />
+            <Route path="work-areas" element={<WorkAreas />} />
+            <Route path="shifts" element={<ShiftAdminLayout />} />
+            <Route path="leave" element={<MyLeaves />} />
+            <Route path="overtime" element={<Overtime />} />
+            <Route path="expenses" element={<MyExpenses />} />
+            <Route path="payroll" element={<PayrollDashboard />} />
           </Route>
         </Route>
       </Routes>

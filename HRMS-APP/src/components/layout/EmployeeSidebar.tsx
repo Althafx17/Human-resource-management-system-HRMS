@@ -6,15 +6,23 @@ import {
   Coffee,
   Receipt,
   ChevronRight,
-  Menu
+  Menu,
+  Calendar,
+  CreditCard,
+  MapPin,
+  Timer
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
 const menuItems = [
   { path: '/portal/dashboard', label: 'My Dashboard', icon: LayoutGrid },
   { path: '/portal/attendance', label: 'My Attendance', icon: Clock },
+  { path: '/portal/work-areas', label: 'My Work Areas', icon: MapPin },
+  { path: '/portal/shifts', label: 'My Shifts', icon: Calendar },
   { path: '/portal/leave', label: 'My Leaves', icon: Coffee },
+  { path: '/portal/overtime', label: 'My Overtime', icon: Timer },
   { path: '/portal/expenses', label: 'My Expenses', icon: Receipt },
+  { path: '/portal/payroll', label: 'My Payroll', icon: CreditCard },
 ];
 
 interface SidebarProps {

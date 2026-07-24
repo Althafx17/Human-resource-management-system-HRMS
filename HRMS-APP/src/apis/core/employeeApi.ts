@@ -164,12 +164,16 @@ export const employeeApi = {
    * @returns {Promise<EmployeeData[]>} Array of manager profiles.
    */
   async getManagers(): Promise<EmployeeData[]> {
-    const response = await axiosInstance.get<any>('/employees/?designation=Manager');
-    const data = response.data.results ? response.data.results : response.data;
-    if (Array.isArray(data)) {
-      return data.map(normalizeEmployee);
+    try {
+      const response = await axiosInstance.get<any>('/employees/?designation=Manager');
+      const data = response.data.results ? response.data.results : response.data;
+      if (Array.isArray(data)) {
+        return data.map(normalizeEmployee);
+      }
+      return [];
+    } catch {
+      return [];
     }
-    return [];
   },
 
   /**
@@ -181,28 +185,32 @@ export const employeeApi = {
    * @returns {Promise<PaginatedResponse<EmployeeData>>} Paginated employee records.
    */
   async getAll(page = 1, search = '', department = ''): Promise<PaginatedResponse<EmployeeData>> {
-    const params = new URLSearchParams();
-    params.append('page', String(page));
-    if (search) params.append('search', search);
-    if (department) {
-      const deptId = departmentNameToId[department] || department;
-      params.append('department', String(deptId));
-    }
-
-    const response = await axiosInstance.get<any>(`/employees/?${params.toString()}`);
-    if (response.data) {
-      if (response.data.results) {
-        response.data.results = response.data.results.map(normalizeEmployee);
-      } else if (Array.isArray(response.data)) {
-        return {
-          count: response.data.length,
-          next: null,
-          previous: null,
-          results: response.data.map(normalizeEmployee)
-        };
+    try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      if (search) params.append('search', search);
+      if (department) {
+        const deptId = departmentNameToId[department] || department;
+        params.append('department', String(deptId));
       }
+
+      const response = await axiosInstance.get<any>(`/employees/?${params.toString()}`);
+      if (response.data) {
+        if (response.data.results) {
+          response.data.results = response.data.results.map(normalizeEmployee);
+        } else if (Array.isArray(response.data)) {
+          return {
+            count: response.data.length,
+            next: null,
+            previous: null,
+            results: response.data.map(normalizeEmployee)
+          };
+        }
+      }
+      return response.data;
+    } catch {
+      return { count: 0, next: null, previous: null, results: [] };
     }
-    return response.data;
   },
 
   /**

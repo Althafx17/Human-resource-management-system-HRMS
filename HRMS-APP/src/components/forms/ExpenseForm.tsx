@@ -1,10 +1,8 @@
-// # ---> NEW: ExpenseForm Component with Employee Selection and Receipt Upload
-import React, { useState, useEffect } from 'react';
+// # ---> NEW: ExpenseForm Component with Receipt Upload (Employee selector removed)
+import React, { useState } from 'react';
 import { Check } from 'lucide-react';
 import SlideOverDrawer from '../common/SlideOverDrawer';
 import { expenseApi } from '../../apis/finance/expenseApi';
-import { employeeApi } from '../../apis/core/employeeApi';
-import type { EmployeeData } from '../../pages/employees/types';
 import { useToast } from '../../contexts/ToastContext';
 
 interface ExpenseFormProps {
@@ -17,8 +15,6 @@ export default function ExpenseForm({ isOpen, onClose, onClaimSuccess }: Expense
   const { showToast } = useToast();
   
   // Form fields states
-  const [employees, setEmployees] = useState<EmployeeData[]>([]);
-  const [selectedEmployee, setSelectedEmployee] = useState('');
   const [date, setDate] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<'Travel' | 'Meals' | 'Supplies' | 'Other'>('Travel');
@@ -27,48 +23,9 @@ export default function ExpenseForm({ isOpen, onClose, onClaimSuccess }: Expense
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch employees list to build selector options
-  useEffect(() => {
-    if (isOpen) {
-      const loadEmployees = async () => {
-        try {
-          let allEmployees: EmployeeData[] = [];
-          let page = 1;
-          let hasMore = true;
-          while (hasMore && page <= 10) {
-            const data = await employeeApi.getAll(page);
-            if (data.results && data.results.length > 0) {
-              allEmployees = [...allEmployees, ...data.results];
-              hasMore = !!data.next;
-              page++;
-            } else {
-              hasMore = false;
-            }
-          }
-          setEmployees(allEmployees);
-          
-          // Default to current active user profile, or first employee in the list
-          const activeUserId = localStorage.getItem('user_id');
-          if (activeUserId) {
-            setSelectedEmployee(activeUserId);
-          } else if (allEmployees.length > 0) {
-            setSelectedEmployee(String(allEmployees[0].id));
-          }
-        } catch (err) {
-          console.error('Failed to query employees directory:', err);
-        }
-      };
-      loadEmployees();
-    }
-  }, [isOpen]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedEmployee) {
-      showToast('Please select an employee.', 'error');
-      return;
-    }
     if (!date || !amount || !description.trim()) {
       showToast('Please fill in all fields.', 'error');
       return;
@@ -83,7 +40,7 @@ export default function ExpenseForm({ isOpen, onClose, onClaimSuccess }: Expense
     setIsSubmitting(true);
 
     const payload = {
-      employee: Number(selectedEmployee),
+      employee: Number(localStorage.getItem('user_id') || 1),
       date,
       amount: amountNum,
       category,
@@ -143,26 +100,6 @@ export default function ExpenseForm({ isOpen, onClose, onClaimSuccess }: Expense
       footerActions={footerActions}
     >
       <form onSubmit={handleSubmit} className="space-y-5 p-1">
-        {/* Employee Selection */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-gray-700">Employee *</label>
-          <select
-            className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
-            value={selectedEmployee}
-            onChange={(e) => setSelectedEmployee(e.target.value)}
-            required
-            title="Employee"
-            aria-label="Employee"
-          >
-            <option value="" disabled>-- Choose Employee --</option>
-            {employees.map(emp => (
-              <option key={emp.id} value={emp.id}>
-                {emp.name} ({emp.designation || 'Staff'})
-              </option>
-            ))}
-          </select>
-        </div>
-
         {/* Date Field */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-semibold text-gray-700">Date *</label>
