@@ -10,10 +10,10 @@ interface Interview {
 }
 
 const DUMMY_INTERVIEWS: Interview[] = [
-  { id: '1', name: 'John', role: 'Finance Executive', time: '10:00 am-11:00am', avatar: 'https://i.pravatar.cc/150?u=1' },
-  { id: '2', name: 'Justin', role: 'UI/UX Designer', time: '10:00 am-11:00am', avatar: 'https://i.pravatar.cc/150?u=2' },
-  { id: '3', name: 'Sana', role: 'Sr.Developer', time: '10:00 am-11:00am', avatar: 'https://i.pravatar.cc/150?u=3' },
-  { id: '4', name: 'Dia', role: 'Product Manager', time: '10:00 am-11:00am', avatar: 'https://i.pravatar.cc/150?u=4' },
+  { id: '1', name: 'John', role: 'Finance Executive', time: '10:00 am-11:00am', avatar: '' },
+  { id: '2', name: 'Justin', role: 'UI/UX Designer', time: '10:00 am-11:00am', avatar: '' },
+  { id: '3', name: 'Sana', role: 'Sr.Developer', time: '10:00 am-11:00am', avatar: '' },
+  { id: '4', name: 'Dia', role: 'Product Manager', time: '10:00 am-11:00am', avatar: '' },
 ];
 
 export default function UpcomingInterviews() {

@@ -25,7 +25,7 @@ interface ReviewLeaveRequestProps {
 const DEFAULT_REQUEST: LeaveRequestData = {
   id: 'LR002',
   employeeName: 'John Smith',
-  avatar: 'https://i.pravatar.cc/150?u=1',
+  avatar: '',
   type: 'Sick Leave',
   startDate: '2026-06-20',
   endDate: '2026-06-21',

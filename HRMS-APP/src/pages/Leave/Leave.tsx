@@ -27,7 +27,7 @@ export default function Leave() {
         const formatted: LeaveRequest[] = data.map((item: any) => ({
           id: String(item.id || item.leave_id || 'LR001'),
           employeeName: item.employeeName || item.employee_name || 'Angel Philip',
-          avatar: item.avatar || 'https://i.pravatar.cc/150?u=3',
+          avatar: item.avatar || '',
           type: item.type || item.leave_type || 'Annual Leave',
           startDate: item.startDate || item.start_date || '2026-06-22',
           endDate: item.endDate || item.end_date || '2026-06-26',

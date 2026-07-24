@@ -25,10 +25,17 @@ export default function Login() {
     setError(null);
 
     try {
-      await loginApi.login({ email, password });
+      const response = await loginApi.login({ email, password });
       // Sync AuthRoleContext with the newly stored role + user_id
       refresh();
-      navigate('/dashboard');
+
+      // ---> CHANGED: Redirect to custom employee self-service portal or default admin dashboard
+      const userRole = (response.role || localStorage.getItem('role') || 'employee').toLowerCase();
+      if (userRole === 'employee') {
+        navigate('/portal/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       console.error(err);
       setError('Invalid email or password. Please try again.');

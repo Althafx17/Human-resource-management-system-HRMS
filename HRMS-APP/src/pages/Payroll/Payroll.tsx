@@ -15,10 +15,10 @@ interface PayrollRecord {
 }
 
 const DUMMY_PAYROLL: PayrollRecord[] = [
-  { id: 'PAY001', employeeName: 'John Smith', avatar: 'https://i.pravatar.cc/150?u=1', designation: 'Sr. Back End Developer', baseSalary: 4500.00, allowances: 350.00, deductions: 120.00, netPay: 4730.00, status: 'Paid' },
-  { id: 'PAY002', employeeName: 'Sara John', avatar: 'https://i.pravatar.cc/150?u=2', designation: 'Sr. UI UX Designer', baseSalary: 4200.00, allowances: 200.00, deductions: 100.00, netPay: 4300.00, status: 'Paid' },
-  { id: 'PAY003', employeeName: 'Angel Philip', avatar: 'https://i.pravatar.cc/150?u=3', designation: 'Finance Manager', baseSalary: 5000.00, allowances: 400.00, deductions: 150.00, netPay: 5250.00, status: 'Processing' },
-  { id: 'PAY004', employeeName: 'Anmariya', avatar: 'https://i.pravatar.cc/150?u=4', designation: 'Mern Stack Developer', baseSalary: 3800.00, allowances: 150.00, deductions: 80.00, netPay: 3870.00, status: 'On Hold' },
+  { id: 'PAY001', employeeName: 'John Smith', avatar: '', designation: 'Sr. Back End Developer', baseSalary: 4500.00, allowances: 350.00, deductions: 120.00, netPay: 4730.00, status: 'Paid' },
+  { id: 'PAY002', employeeName: 'Sara John', avatar: '', designation: 'Sr. UI UX Designer', baseSalary: 4200.00, allowances: 200.00, deductions: 100.00, netPay: 4300.00, status: 'Paid' },
+  { id: 'PAY003', employeeName: 'Angel Philip', avatar: '', designation: 'Finance Manager', baseSalary: 5000.00, allowances: 400.00, deductions: 150.00, netPay: 5250.00, status: 'Processing' },
+  { id: 'PAY004', employeeName: 'Anmariya', avatar: '', designation: 'Mern Stack Developer', baseSalary: 3800.00, allowances: 150.00, deductions: 80.00, netPay: 3870.00, status: 'On Hold' },
 ];
 
 export default function Payroll() {

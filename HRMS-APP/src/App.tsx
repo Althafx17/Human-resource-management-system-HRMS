@@ -16,6 +16,8 @@ import SignupEmail from './pages/signup/SignupEmail';
 import VerifyOTP from './pages/signup/VerifyOTP';
 import CreatePassword from './pages/signup/CreatePassword';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import EmployeeLayout from './components/layout/EmployeeLayout';
+import EmployeeDashboard from './pages/employee/EmployeeDashboard';
 
 export default function App() {
   return (
@@ -52,6 +54,15 @@ export default function App() {
             <Route path="expenses" element={<Expenses />} />
             
             <Route path="payroll" element={<PayrollDashboard />} />
+          </Route>
+
+          {/* ---> NEW: Separate Portal Space for Employees (added below existing routes) */}
+          <Route path="/portal" element={<EmployeeLayout />}>
+            <Route index element={<EmployeeDashboard />} />
+            <Route path="dashboard" element={<EmployeeDashboard />} />
+            <Route path="attendance" element={<Attendance />} />
+            <Route path="leave" element={<Leave />} />
+            <Route path="expenses" element={<Expenses />} />
           </Route>
         </Route>
       </Routes>

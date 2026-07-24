@@ -25,7 +25,7 @@ interface ReviewOvertimeProps {
 const DEFAULT_REQUEST: OvertimeRequestData = {
   id: 'OT001',
   employeeName: 'John Smith',
-  avatar: 'https://i.pravatar.cc/150?u=1',
+  avatar: '',
   date: '2026-06-18',
   hoursLogged: 3.5,
   multiplier: 1.5,

@@ -27,7 +27,7 @@ export default function Overtime() {
         const formatted: OvertimeRecord[] = data.map((item: any) => ({
           id: String(item.id || item.overtime_id || 'OT001'),
           employeeName: item.employeeName || item.employee_name || 'John Smith',
-          avatar: item.avatar || 'https://i.pravatar.cc/150?u=1',
+          avatar: item.avatar || '',
           date: item.date || item.logged_date || '2026-06-18',
           hoursLogged: Number(item.hoursLogged || item.hours_logged || 2.0),
           multiplier: Number(item.multiplier || item.rate_multiplier || 1.5),
